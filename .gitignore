@@ -1,0 +1,16 @@
+client/env
+client/venv
+*.pyc
+client/active.wav
+client/passive.wav
+client/say.wav
+.DS_Store
+*.swn
+*.swo
+*.swp
+server/modules/build/*
+client/build/*
+client/profile.yml
+build/*
+server/dump.rdb
+other/*

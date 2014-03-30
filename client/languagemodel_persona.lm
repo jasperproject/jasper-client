@@ -1,0 +1,97 @@
+Language model created by QuickLM on Wed Sep  4 14:21:33 EDT 2013
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 18 sentences and 20 words
+
+\data\
+ngram 1=20
+ngram 2=36
+ngram 3=18
+
+\1-grams:
+-0.7782 </s> -0.3010
+-0.7782 <s> -0.2218
+-2.0334 BE -0.2218
+-2.0334 BEING -0.2218
+-2.0334 BUT -0.2218
+-2.0334 DID -0.2218
+-2.0334 FIRST -0.2218
+-2.0334 IN -0.2218
+-2.0334 IS -0.2218
+-2.0334 IT -0.2218
+-2.0334 JASPER -0.2218
+-2.0334 NOW -0.2218
+-2.0334 OF -0.2218
+-2.0334 ON -0.2218
+-2.0334 RIGHT -0.2218
+-2.0334 SAY -0.2218
+-2.0334 WHAT -0.2218
+-2.0334 WHICH -0.2218
+-2.0334 WITH -0.2218
+-2.0334 WORK -0.2218
+
+\2-grams:
+-1.5563 <s> BE 0.0000
+-1.5563 <s> BEING 0.0000
+-1.5563 <s> BUT 0.0000
+-1.5563 <s> DID 0.0000
+-1.5563 <s> FIRST 0.0000
+-1.5563 <s> IN 0.0000
+-1.5563 <s> IS 0.0000
+-1.5563 <s> IT 0.0000
+-1.5563 <s> JASPER 0.0000
+-1.5563 <s> NOW 0.0000
+-1.5563 <s> OF 0.0000
+-1.5563 <s> ON 0.0000
+-1.5563 <s> RIGHT 0.0000
+-1.5563 <s> SAY 0.0000
+-1.5563 <s> WHAT 0.0000
+-1.5563 <s> WHICH 0.0000
+-1.5563 <s> WITH 0.0000
+-1.5563 <s> WORK 0.0000
+-0.3010 BE </s> -0.3010
+-0.3010 BEING </s> -0.3010
+-0.3010 BUT </s> -0.3010
+-0.3010 DID </s> -0.3010
+-0.3010 FIRST </s> -0.3010
+-0.3010 IN </s> -0.3010
+-0.3010 IS </s> -0.3010
+-0.3010 IT </s> -0.3010
+-0.3010 JASPER </s> -0.3010
+-0.3010 NOW </s> -0.3010
+-0.3010 OF </s> -0.3010
+-0.3010 ON </s> -0.3010
+-0.3010 RIGHT </s> -0.3010
+-0.3010 SAY </s> -0.3010
+-0.3010 WHAT </s> -0.3010
+-0.3010 WHICH </s> -0.3010
+-0.3010 WITH </s> -0.3010
+-0.3010 WORK </s> -0.3010
+
+\3-grams:
+-0.3010 <s> BE </s>
+-0.3010 <s> BEING </s>
+-0.3010 <s> BUT </s>
+-0.3010 <s> DID </s>
+-0.3010 <s> FIRST </s>
+-0.3010 <s> IN </s>
+-0.3010 <s> IS </s>
+-0.3010 <s> IT </s>
+-0.3010 <s> JASPER </s>
+-0.3010 <s> NOW </s>
+-0.3010 <s> OF </s>
+-0.3010 <s> ON </s>
+-0.3010 <s> RIGHT </s>
+-0.3010 <s> SAY </s>
+-0.3010 <s> WHAT </s>
+-0.3010 <s> WHICH </s>
+-0.3010 <s> WITH </s>
+-0.3010 <s> WORK </s>
+
+\end\
