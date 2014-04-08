@@ -21,3 +21,4 @@ semantic==1.0.1
 six==1.6.1
 ws4py==0.3.2
 wsgiref==0.1.2
+requests==2.1.0
