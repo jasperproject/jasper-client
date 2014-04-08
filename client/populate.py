@@ -25,14 +25,10 @@ def run():
     simple_request('gmail_address', 'Gmail address')
     profile['gmail_password'] = getpass()
 
-
     # phone number
     clean_number = lambda s: re.sub(r'[^0-9]', '', s)
     phone_number = clean_number(raw_input(
-        "Phone number. 10 digits (no country code). Any dashes or spaces will be removed for you: "))
-    while phone_number and len(phone_number) != 10:
-        print("Invalid phone number. Must be 10 digits.")
-        phone_number = clean_number(raw_input("Phone number: "))
+        "Phone number. No country code. Any dashes or spaces will be removed for you: "))
     if phone_number:
         profile['phone_number'] = phone_number
 
