@@ -3,7 +3,7 @@ jasper-client
 
 Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
 
-Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation.
+Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation. For the image and or binary you needed, please visit [Sourceforge] (http://sourceforge.net/projects/jasperproject/).
 
 ## Contact
 
