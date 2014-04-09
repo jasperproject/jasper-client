@@ -2,6 +2,7 @@ import re
 from getpass import getpass
 import yaml
 from pytz import timezone
+import feedparser
 
 
 def run():
@@ -48,14 +49,23 @@ def run():
             profile['carrier'] = carrier
 
     # location
+    def verifyLocation(place):
+        feed = feedparser.parse('http://rss.wunderground.com/auto/rss_full/' + place)
+        numEntries = len(feed['entries'])
+        if numEntries==0:
+            return False
+        else:
+            print("Location saved as " + feed['feed']['description'][33:])
+            return True
+
     print(
-        "Location should be a 5-digit US zipcode (e.g., 08544). For weather requests.")
-    zipcode = clean_number(raw_input("Zipcode: "))
-    while zipcode and len(zipcode) != 5:
-        print("Invalid zipcode. Must be 5 digits.")
-        zipcode = clean_number(raw_input("Zipcode: "))
-    if zipcode:
-        profile['location'] = zipcode
+        "Location should be a 5-digit US zipcode (e.g., 08544). If you are outside the US, insert the name of your nearest big town/city. For weather requests.")
+    location = raw_input("Location: ")
+    while location and (verifyLocation(location)==False):
+        print("Weather not found. Please try another location.")
+        location = raw_input("Location: ")
+    if location:
+        profile['location'] = location
 
     # timezone
     print(
