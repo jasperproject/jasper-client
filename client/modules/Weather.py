@@ -76,12 +76,18 @@ def handle(text, mic, profile):
     for entry in forecast:
         try:
             date_desc = entry['title'].split()[0].strip().lower()
+            if date_desc == 'forecast': #For global forecasts
+            	date_desc = entry['title'].split()[2].strip().lower()
+            	weather_desc = entry['summary']
 
-            weather_desc = entry['summary'].split('-')[1]
+            elif date_desc == 'current': #For first item of global forecasts
+            	continue
+            else:
+            	weather_desc = entry['summary'].split('-')[1] #US forecasts
 
             if weekday == date_desc:
                 output = date_keyword + \
-                    ", the weather will be" + weather_desc + "."
+                    ", the weather will be " + weather_desc + "."
                 break
         except:
             continue
