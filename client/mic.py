@@ -84,13 +84,13 @@ class Mic:
             if response_read:
                 jsdata = json.loads(response_read)
                 try:
+                    print jsdata["hypotheses"][0]["utterance"]
                     result = jsdata["hypotheses"][0]["utterance"]
                 except IndexError:
                     print "error"
             else:
                 print "error"
             
-            result = 
         else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
