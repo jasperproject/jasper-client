@@ -9,5 +9,5 @@ back")
     mic.say(other)
 
 def isValid(text):
-    return bool(re.search(r'\bDownload\b', text, re.IGNORECASE))
+    return bool(re.search(r'\btest\b', text, re.IGNORECASE))
 
