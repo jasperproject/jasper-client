@@ -8,6 +8,10 @@ from wave import open as open_audio
 import audioop
 import pyaudio
 import alteration
+import urllib.request
+import urllib.error
+import urllib.parse
+import json
 
 
 # quirky bug where first import doesn't work
@@ -41,7 +45,7 @@ class Mic:
             hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
         self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False, GOOGLE=False):
         """
             Performs TTS, transcribing an audio file and returning the result.
 
@@ -53,6 +57,8 @@ class Mic:
 
         wavFile = file(audio_file_path, 'rb')
         wavFile.seek(44)
+        
+        RATE = 16000
 
         if MUSIC:
             self.speechRec_music.decode_raw(wavFile)
@@ -60,6 +66,31 @@ class Mic:
         elif PERSONA_ONLY:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
+        elif GOOGLE:
+            os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
+            flac = open(WAVE_OUTPUT_FILENAME, 'rb')
+            data = flac.read()
+            flac.close()
+            
+            req = urllib.request.Request(
+                'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=%s' % language,
+                data=data,
+                headers={
+                    'Content-type': 'audio/x-flac; rate=%s' %
+                    RATE})
+            response_url = urllib.request.urlopen(req)
+            response_read = response_url.read()
+            response_read = response_read.decode('utf-8')
+            if response_read:
+                jsdata = json.loads(response_read)
+                try:
+                    result = jsdata["hypotheses"][0]["utterance"]
+                except IndexError:
+                    print "error"
+            else:
+                print "error"
+            
+            result = 
         else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
@@ -216,7 +247,7 @@ class Mic:
 
         return (False, transcribed)
 
-    def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
+    def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False, GOOGLE=False):
         """
             Records until a second of silence or times out after 12 seconds
         """
@@ -285,6 +316,9 @@ class Mic:
 
         if MUSIC:
             return self.transcribe(AUDIO_FILE, MUSIC=True)
+            
+        if GOOGLE:
+            return self.transcribe(AUDIO_FILE, GOOGLE=True)
 
         return self.transcribe(AUDIO_FILE)
         
