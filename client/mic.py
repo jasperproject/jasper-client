@@ -66,7 +66,7 @@ class Mic:
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
             os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
-            flac = open(WAVE_OUTPUT_FILENAME, 'rb')
+            flac = open(wavFile, 'rb')
             data = flac.read()
             flac.close()
             
