@@ -67,7 +67,7 @@ class Mic:
         elif GOOGLE:
             os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
             print "###1###"
-            flac = open(audio_file_path, 'rb')
+            flac = open(active.flac, 'rb')
             data = flac.read()
             flac.close()
             print "###2###"
@@ -75,8 +75,7 @@ class Mic:
                 'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
                 data=data,
                 headers={
-                    'Content-type': 'audio/x-flac; rate=%s' %
-                    RATE})
+                    'Content-type': 'audio/x-flac; rate=%s' % RATE})
             response_url = urllib2.urlopen(req)
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
