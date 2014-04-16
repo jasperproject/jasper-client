@@ -71,7 +71,7 @@ class Mic:
             flac.close()
             
             req = urllib2.Request(
-                'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=%s' % language,
+                'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
                 data=data,
                 headers={
                     'Content-type': 'audio/x-flac; rate=%s' %
