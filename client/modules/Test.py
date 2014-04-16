@@ -7,15 +7,15 @@ def handle(text, mic, profile):
     google_text = mic.activeListen(GOOGLE=True)
     if google_text == "no_info":
         mic.say("Google did not catch that, yould you please repeat")
-        answer = mic.activeListen(GOOGLE=True)
-        if answer == "no":
+        google_text = mic.activeListen(GOOGLE=True)
+        if google_text == "no":
             mic.say("Ok, please try again later")
-        elif answer == "no_info":
+        elif google_text == "no_info":
             mic.say("Google did not catch that again, please try again")
         else:
-            mic.say(answer)        
-    
-    mic.say(answer)
+            mic.say(google_text)        
+    else:
+        mic.say(google_text)
 
 def isValid(text):
     return bool(re.search(r'\btest\b', text, re.IGNORECASE))
