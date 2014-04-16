@@ -65,7 +65,7 @@ class Mic:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
-            os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
+            os.system("ffmpeg -i active.wav -ar 16000 -acodec flac active.flac" % (RATE, audio_file_path))
             print "###1###"
             flac = open("active.flac", 'rb')
             data = flac.read()
@@ -80,7 +80,7 @@ class Mic:
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
             print "###3###"
-            if not response_read:
+            if response_read:
                 print 
                 jsdata = json.loads(response_read)
                 print "###4###"
