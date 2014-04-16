@@ -12,7 +12,7 @@ def handle(text, mic, profile):
             mic.say("Ok, please try again later")
         elif answer == "no_info":
             mic.say("Google did not catch that again, please try again")
-        elif answer not "no" or not "no_info":
+        else:
             mic.say(answer)        
     
     mic.say(answer)
