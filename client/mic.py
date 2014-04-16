@@ -89,9 +89,9 @@ class Mic:
                     print jsdata["hypotheses"][0]["utterance"]
                     result = jsdata["hypotheses"][0]["utterance"]
                 except IndexError:
-                    print "error"
+                    print "error #2"
             else:
-                print "error"
+                print "error #1"
             
         else:
             self.speechRec.decode_raw(wavFile)
