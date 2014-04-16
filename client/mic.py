@@ -100,8 +100,6 @@ class Mic:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
         
-        print "###6###"
-
         print "==================="
         print "JASPER: " + result[0]
         print "==================="
