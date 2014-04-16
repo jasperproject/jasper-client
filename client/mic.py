@@ -66,10 +66,11 @@ class Mic:
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
             os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
+            print "###1###"
             flac = open(audio_file_path, 'rb')
             data = flac.read()
             flac.close()
-            
+            print "###2###"
             req = urllib2.Request(
                 'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
                 data=data,
@@ -79,9 +80,12 @@ class Mic:
             response_url = urllib2.urlopen(req)
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
+            print "###3###"
             if response_read:
                 jsdata = json.loads(response_read)
+                print "###4###"
                 try:
+                    print "###5###"
                     print jsdata["hypotheses"][0]["utterance"]
                     result = jsdata["hypotheses"][0]["utterance"]
                 except IndexError:
@@ -92,6 +96,8 @@ class Mic:
         else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
+        
+        print "###6###"
 
         print "==================="
         print "JASPER: " + result[0]
