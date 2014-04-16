@@ -80,7 +80,6 @@ class Mic:
                 response_read = response_url.read()
                 response_read = response_read.decode('utf-8')
             except urllib2.URLError:
-                print "HERE YOU GO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
                 return "no_info"
             if response_read:
                 print response_read
