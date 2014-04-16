@@ -81,8 +81,8 @@ class Mic:
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
             print "###3###"
-            print response_read
             if not response_read:
+                print 
                 jsdata = json.loads(response_read)
                 print "###4###"
                 try:
