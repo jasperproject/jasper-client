@@ -91,10 +91,10 @@ class Mic:
                     return result
                 
                 except IndexError:
-                    print "no_info"
+                    return "no_info"
             
             else:
-                print "error #1"
+                return "no_info"
             
         else:
             self.speechRec.decode_raw(wavFile)
