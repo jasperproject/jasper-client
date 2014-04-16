@@ -8,9 +8,7 @@ from wave import open as open_audio
 import audioop
 import pyaudio
 import alteration
-import urllib.request
-import urllib.error
-import urllib.parse
+import urllib2
 import json
 
 
@@ -72,13 +70,13 @@ class Mic:
             data = flac.read()
             flac.close()
             
-            req = urllib.request.Request(
+            req = urllib2.Request(
                 'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=%s' % language,
                 data=data,
                 headers={
                     'Content-type': 'audio/x-flac; rate=%s' %
                     RATE})
-            response_url = urllib.request.urlopen(req)
+            response_url = urllib2.urlopen(req)
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
             if response_read:
