@@ -65,7 +65,7 @@ class Mic:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
-            os.system("ffmpeg -i active.wav -ar 16000 -acodec flac active.flac" % (RATE, audio_file_path))
+            os.system("ffmpeg -i active.wav -ar 16000 -acodec flac active.flac")
             print "###1###"
             flac = open("active.flac", 'rb')
             data = flac.read()
