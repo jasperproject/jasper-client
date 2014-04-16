@@ -90,15 +90,16 @@ class Mic:
                     print jsdata["hypotheses"][0]["utterance"]
                     result = jsdata["hypotheses"][0]["utterance"]
                     
-                    print "==================="
-                    print "JASPER: " + result
-                    print "==================="
                     
+                    print "==================="
+                    print "JASPER: " + result[0]
+                    print "==================="
+        
                     return result
-
-        return result[0]
+                
                 except IndexError:
                     print "error #2"
+            
             else:
                 print "error #1"
             
