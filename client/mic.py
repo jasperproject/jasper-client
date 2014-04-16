@@ -67,7 +67,7 @@ class Mic:
         elif GOOGLE:
             os.system("flac -f --best --sample-rate %s %s 1>/dev/shm/voice.log 2>/dev/shm/voice.log" % (RATE, audio_file_path))
             print "###1###"
-            flac = open(active.flac, 'rb')
+            flac = open("active.flac", 'rb')
             data = flac.read()
             flac.close()
             print "###2###"
