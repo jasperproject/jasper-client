@@ -69,14 +69,19 @@ class Mic:
             flac = open("active.flac", 'rb')
             data = flac.read()
             flac.close()
-            req = urllib2.Request(
-                'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
-                data=data,
-                headers={
-                    'Content-type': 'audio/x-flac; rate=%s' % RATE})
-            response_url = urllib2.urlopen(req)
-            response_read = response_url.read()
-            response_read = response_read.decode('utf-8')
+            try:
+                req = urllib2.Request(
+                    'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
+                    data=data,
+                    headers={
+                        'Content-type': 'audio/x-flac; rate=%s' % RATE})
+            
+                response_url = urllib2.urlopen(req)
+                response_read = response_url.read()
+                response_read = response_read.decode('utf-8')
+            except urllib2.URLError:
+                print "HERE YOU GO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+                return "no_info"
             if response_read:
                 print response_read
                 jsdata = json.loads(response_read)
