@@ -11,3 +11,4 @@ import Time
 import Joke
 import Life
 import Unclear
+import Test

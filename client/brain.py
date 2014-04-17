@@ -28,7 +28,8 @@ class Brain(object):
         self.mic = mic
         self.profile = profile
         self.modules = [
-            WeMo, Gmail, Notifications, Birthday, Weather, HN, News, Time, Joke, Life]
+            WeMo, Gmail, Notifications, Birthday, Weather, HN, News, Time, 
+Joke, Life, Test]
         self.modules.append(Unclear)
 
     def query(self, text):
