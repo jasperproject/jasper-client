@@ -6,7 +6,7 @@ def handle(text, mic, profile):
     mic.say("Say something to test the A.P.I. I will then say it back.")
     google_text = mic.activeListen(GOOGLE=True)
     if google_text == "no_info":
-        mic.say("Google did not catch that, yould you please repeat.")
+        mic.say("Google did not catch that, could you please repeat.")
         google_text = mic.activeListen(GOOGLE=True)
         if google_text == "no":
             mic.say("Ok, please try again later")
