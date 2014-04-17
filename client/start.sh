@@ -1,3 +1,3 @@
-cd /home/roland/jasper/client/
+cd $HOME/jasper/client/
 rm -rf ../old_client
 python main.py &
