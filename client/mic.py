@@ -43,7 +43,7 @@ class Mic:
             hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
         self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False, GOOGLE=False):
+    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False, GOOGLE=True):
         """
             Performs TTS, transcribing an audio file and returning the result.
 
