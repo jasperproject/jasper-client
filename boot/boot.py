@@ -28,9 +28,9 @@ def configure():
         print "STARTING CLIENT PROGRAM"
 
         try:
-            os.system("/home/pi/jasper/client/start.sh &")
+            os.system("/home/roland/jasper/client/start.sh &")
         except:
-            os.system("/home/pi/jasper/backup/start.sh &")
+            os.system("/home/roland/jasper/backup/start.sh &")
         finally:
             return
 
@@ -55,9 +55,9 @@ def configure():
                 print "STARTING CLIENT PROGRAM"
 
                 try:
-                    os.system("/home/pi/jasper/client/start.sh &")
+                    os.system("/home/roland/jasper/client/start.sh &")
                 except:
-                    os.system("/home/pi/jasper/backup/start.sh &")
+                    os.system("/home/roland/jasper/backup/start.sh &")
                 finally:
                     return
 

@@ -118,6 +118,10 @@ class Mic:
         # this will be the benchmark to cause a disturbance over!
         THRESHOLD = average * THRESHOLD_MULTIPLIER
 
+	stream.stop_stream()
+	stream.close()
+	audio.terminate()
+
         return THRESHOLD
 
     def passiveListen(self, PERSONA):
@@ -185,6 +189,9 @@ class Mic:
         # no use continuing if no flag raised
         if not didDetect:
             print "No disturbance detected"
+	    stream.stop_stream()
+            stream.close()
+            audio.terminate()
             return
 
         # cutoff any recording before this disturbance was detected
@@ -224,7 +231,7 @@ class Mic:
         AUDIO_FILE = "active.wav"
         RATE = 16000
         CHUNK = 1024
-        LISTEN_TIME = 12
+        LISTEN_TIME = 20
 
         # user can request pre-recorded sound
         if not LISTEN:
@@ -237,7 +244,7 @@ class Mic:
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:1,0 beep_hi.wav")
+        os.system("aplay -D hw:0,0 beep_hi.wav")
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -250,7 +257,7 @@ class Mic:
         frames = []
         # increasing the range # results in longer pause after command
         # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
+        lastN = [THRESHOLD * 1.2 for i in range(40)]
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
@@ -264,10 +271,10 @@ class Mic:
             average = sum(lastN) / float(len(lastN))
 
             # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
+            if average < THRESHOLD * 0.5:
                 break
 
-        os.system("aplay -D hw:1,0 beep_lo.wav")
+        os.system("aplay -D hw:0,0 beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
@@ -293,4 +300,4 @@ class Mic:
         phrase = alteration.clean(phrase)
 
         os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        os.system("aplay -D hw:1,0 say.wav")
+        os.system("aplay -D hw:0,0 say.wav")
