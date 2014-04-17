@@ -271,7 +271,7 @@ class Mic:
             average = sum(lastN) / float(len(lastN))
 
             # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.5:
+            if average < THRESHOLD * 0.3:
                 break
 
         os.system("aplay -D hw:0,0 beep_lo.wav")
