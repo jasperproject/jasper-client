@@ -378,7 +378,9 @@ class Mic:
             file = open("say.mp3", 'wb')
             file.write(page.read())
             file.close()
-            os.system("ffplay -nodisp -autoexit say.mp3")
+#            os.system("ffplay -nodisp -autoexit say.mp3")
+	    os.system("avconv -y -i say.mp3 say.wav")
+            os.system("aplay say.wav")
             return
 
     def googleTranslate(self, langCode='en-US'):
