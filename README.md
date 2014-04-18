@@ -12,6 +12,19 @@ sudo pip install --upgrade setuptools
 ```
 sudo pip install -r jasper/client/requirements.txt
 ```
+##### Raspberry Pi Users
+Raspberry Pi users must add this to their ```/etc/asound.conf``` file:
+```
+pcm.!default {
+type hw
+card 1
+}
+
+ctl.!default {
+type hw
+card 1
+}
+```
 
 ### Optional Installations
 ```sudo pip install ouimeaux``` <== This is for control of WeMo switches
