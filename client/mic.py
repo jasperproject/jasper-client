@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 """
     The Mic class handles all interactions with the microphone and speaker.
 """
@@ -10,7 +11,7 @@ import pyaudio
 import alteration
 import urllib2
 import json
-
+import goslate
 
 # quirky bug where first import doesn't work
 try:
@@ -65,42 +66,17 @@ class Mic:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
-            os.system("avconv -y -i active.wav -ar 16000 -acodec flac active.flac")
-            flac = open("active.flac", 'rb')
-            data = flac.read()
-            flac.close()
-            try:
-                req = urllib2.Request(
-                    'https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=en-US',
-                    data=data,
-                    headers={
-                        'Content-type': 'audio/x-flac; rate=%s' % RATE})
-            
-                response_url = urllib2.urlopen(req)
-                response_read = response_url.read()
-                response_read = response_read.decode('utf-8')
-            except urllib2.URLError:
-                return "no_info"
-            if response_read:
-                print response_read
-                jsdata = json.loads(response_read)
-                print jsdata
-                try:
-                    result = jsdata["hypotheses"][0]["utterance"]
-                    
-                    print "==================="
-                    print "JASPER: " + result
-                    print "==================="
-        
-                    return result
-                
-                except IndexError:
-                    return "no_info"
-            
-            else:
-                return "no_info"
-            
-        else:
+            result = self.googleTranslate()
+	    result = result + " " + self.googleTranslate(langCode='pl-pl')
+	    result = result.replace("no_info", "")
+	    if bool(not result or result.isspace()):
+		result = "no_info"
+	    text_file = open("result.txt","w")
+            text_file.write(result)
+            text_file.close()
+
+            return result
+	else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
         
@@ -108,7 +84,7 @@ class Mic:
         print "JASPER: " + result[0]
         print "==================="
 
-        return result[0]
+	return result[0]
 
     def getScore(self, data):
         rms = audioop.rms(data, 2)
@@ -344,3 +320,57 @@ class Mic:
 
         os.system("espeak " + json.dumps(phrase) + OPTIONS)
         os.system("aplay -D hw:0,0 say.wav")
+
+    def googleTranslate(self, langCode='en-US'):
+	    """
+		This Function Translates Speech to text from
+		 english or polish into english for JASPER
+
+		It can be adapted for any language supported by google
+		 by changing the language code from "pl" to any from
+		 the list found at:
+		 https://developers.google.com/translate/v2/using_rest#language-params
+	    """
+	    gs = goslate.Goslate()
+
+	    RATE = 16000
+            os.system("avconv -y -i active.wav -ar 16000 -acodec flac active.flac")
+            flac = open("active.flac", 'rb')
+            data = flac.read()
+            flac.close()
+            url = "https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=%s" % langCode
+	    try:
+                req = urllib2.Request(
+		    url,
+                    data=data,
+                    headers={
+                        'Content-type': 'audio/x-flac; rate=%s' % RATE})
+            
+                response_url = urllib2.urlopen(req)
+                response_read = response_url.read()
+                response_read = response_read.decode('utf-8')
+            except urllib2.URLError:
+                return "no_info"
+            if response_read:
+                #print response_read
+                jsdata = json.loads(response_read)
+                #print jsdata
+                try:
+                    result = jsdata["hypotheses"][0]["utterance"]
+                    confidence = jsdata["hypotheses"][0]["confidence"]
+		    if langCode != "en-US":
+			result = gs.translate(result, 'en_US')
+		    if confidence < 0.7:
+			result = "no_info"
+    
+                    print "==================="
+                    print "JASPER: " + result
+                    print "==================="
+                    
+		    return result
+                
+                except IndexError:
+                    return "no_info"
+            
+            else:
+                return "no_info"

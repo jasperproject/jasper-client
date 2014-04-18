@@ -5,18 +5,18 @@ import urllib2
 import subprocess
 import yaml
 from wifi import *
-
+from time import sleep
 import vocabcompiler
 
 def say(phrase, OPTIONS = " -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
 
     os.system("espeak " + json.dumps(phrase) + OPTIONS)
-    os.system("aplay -D hw:1,0 say.wav")
+    os.system("aplay -D hw:0,0 say.wav")
 
 
 
 # check if there is network connection
-def configure():
+def configure(tryNum):
     try:
 
         urllib2.urlopen("http://www.google.com").getcode()
@@ -35,6 +35,9 @@ def configure():
             return
 
     except:
+
+	if tryNum == 1:
+		return
 
         networks = yaml.safe_load(open("networks.yml", "r"))
 
@@ -86,4 +89,6 @@ if __name__ == "__main__":
     print "COPYRIGHT 2013 SHUBHRO SAHA, CHARLIE MARSH"
     print "=========================================="
     say("Hello.... I am Jasper... Please wait one moment.")
-    configure()
+    configure(1)
+    sleep(60)
+    configure(2)
