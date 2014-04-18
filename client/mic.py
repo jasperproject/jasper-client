@@ -10,6 +10,7 @@ import audioop
 import pyaudio
 import alteration
 import urllib2
+import urllib
 import json
 import goslate
 
@@ -19,11 +20,13 @@ try:
 except:
     import pocketsphinx as ps
 
+langCode = None
 
 class Mic:
 
     speechRec = None
     speechRec_persona = None
+    langCode = None
 
     def __init__(self, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
         """
@@ -58,6 +61,8 @@ class Mic:
         wavFile.seek(44)
         
         RATE = 16000
+	global langCode
+	langCode = None
 
         if MUSIC:
             self.speechRec_music.decode_raw(wavFile)
@@ -66,16 +71,25 @@ class Mic:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
-            result = self.googleTranslate()
-	    result = result + " " + self.googleTranslate(langCode='pl-pl')
-	    result = result.replace("no_info", "")
-	    if bool(not result or result.isspace()):
+            result1 = self.googleTranslate()
+	    result2 = self.googleTranslate(langCode='pl-pl')
+#	    result = result.replace("no_info", "")
+#	    if bool(not result or result.isspace()):
+#		result = "no_info"
+	    if result1[1] > result2[1]:
+		result = str(result1[0])
+		langCode = str(result1[2])
+	    elif result1[1] < result2[1]:
+		result = str(result2[0])
+		langCode = str(result2[2])
+	    else:
 		result = "no_info"
-	    text_file = open("result.txt","w")
-            text_file.write(result)
+		langCode = "en-US"
+            text_file = open("result.txt","w")
+            text_file.write(str(result1[0]) + " | " + str(result1[1]) + " | " + str(result1[2]) + "\n")
+	    text_file.write(str(result2[0]) + " | " + str(result2[1]) + " | " + str(result2[2]))
             text_file.close()
-
-            return result
+            return str(result)
 	else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
@@ -315,11 +329,45 @@ class Mic:
         return self.transcribe(AUDIO_FILE)
         
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+        if langCode != None and langCode != "en-US":
+	    content = phrase.split(" ")
+	    result = ""
+	    count = 0
+	    length = len(content)
+	    try:
+		for word in content:
+	            count += 1
+            	    if len(result) < 90:
+                        result = result + " " + word
+        	    else:
+                        self.googleSpeak(langCode, result)
+                        result = word
+        	    if count == length:
+                        self.googleSpeak(langCode, result)
+		return
+	    except:
+		pass
+	    
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
 
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
+        os.system("espeak " + json.dumps(phrase) + OPTIONS )
         os.system("aplay -D hw:0,0 say.wav")
+
+    def googleSpeak(self, langCode, phrase):
+            url = "http://translate.google.com/translate_tts?tl=%s&q=%s" % (langCode, urllib.quote_plus(phrase))
+#           text_file = open("url.txt","w")
+#           text_file.write(str(url))
+#           text_file.close()
+            hrs = {"User-Agent":
+                   "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7"}
+            request = urllib2.Request( url , headers = hrs)
+            page = urllib2.urlopen(request)
+            file = open("say.mp3", 'wb')
+            file.write(page.read())
+            file.close()
+            os.system("ffplay -nodisp -autoexit say.mp3")
+            return
 
     def googleTranslate(self, langCode='en-US'):
 	    """
@@ -350,27 +398,29 @@ class Mic:
                 response_read = response_url.read()
                 response_read = response_read.decode('utf-8')
             except urllib2.URLError:
-                return "no_info"
+                return [ "no_info" , 0 , str(langCode) ]
             if response_read:
-                #print response_read
-                jsdata = json.loads(response_read)
-                #print jsdata
                 try:
+		    text_file = open("json.txt","w")
+                    text_file.write(str(response_read))
+            	    text_file.close()
+		    jsdata = json.loads(response_read)
+                except:
+		    return [ "no_info" , 0 , str(langCode) ]
+		try:
                     result = jsdata["hypotheses"][0]["utterance"]
                     confidence = jsdata["hypotheses"][0]["confidence"]
 		    if langCode != "en-US":
-			result = gs.translate(result, 'en_US')
-		    if confidence < 0.7:
-			result = "no_info"
+			result = str(gs.translate(result, 'en_US'))
     
                     print "==================="
                     print "JASPER: " + result
                     print "==================="
                     
-		    return result
+		    return [ str(result), float(confidence), str(langCode) ]
                 
                 except IndexError:
-                    return "no_info"
+                    return [ "no_info" , 0 , str(langCode) ]
             
             else:
-                return "no_info"
+                return [ "no_info" , 0 , str(langCode) ]
