@@ -12,3 +12,4 @@ import Joke
 import Life
 import Unclear
 import Test
+import Translate

@@ -29,7 +29,7 @@ class Brain(object):
         self.profile = profile
         self.modules = [
             WeMo, Gmail, Notifications, Birthday, Weather, HN, News, Time, 
-Joke, Life, Test]
+Joke, Life, Test, Translate]
         self.modules.append(Unclear)
 
     def query(self, text):

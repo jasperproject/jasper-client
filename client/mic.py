@@ -41,7 +41,6 @@ class Mic:
             lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
-
         hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
@@ -301,9 +300,10 @@ class Mic:
 
             average = sum(lastN) / float(len(lastN))
 
-            # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.3:
-                break
+	    if i > 3:
+                # TODO: 0.8 should not be a MAGIC NUMBER!
+                if average < THRESHOLD * 0.3:
+                    break
 
         os.system("aplay -D hw:0,0 beep_lo.wav")
 
@@ -329,8 +329,16 @@ class Mic:
 
         return self.transcribe(AUDIO_FILE)
         
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        if langCode != None and langCode != "en-US":
+    def say(self, phrase, translate=False, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+	if translate:
+	    if langCode != None and langCode != "en-US":
+		self.langCode = "en-US"
+	    else:
+		self.langCode = profile["langCode"]
+	else:
+	    self.langCode = langCode
+
+        if self.langCode != None and self.langCode != "en-US":
 	    content = phrase.split(" ")
 	    result = ""
 	    count = 0
@@ -341,10 +349,10 @@ class Mic:
             	    if len(result) < 90:
                         result = result + " " + word
         	    else:
-                        self.googleSpeak(langCode, result)
+                        self.googleSpeak(self.langCode, result)
                         result = word
         	    if count == length:
-                        self.googleSpeak(langCode, result)
+                        self.googleSpeak(self.langCode, result)
 		return
 	    except:
 		pass

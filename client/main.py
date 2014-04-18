@@ -21,7 +21,8 @@ if __name__ == "__main__":
     profile = yaml.safe_load(open("profile.yml", "r"))
 
     mic = Mic("languagemodel.lm", "dictionary.dic",
-              "languagemodel_persona.lm", "dictionary_persona.dic")
+              "languagemodel_persona.lm", "dictionary_persona.dic",
+	      profile)
 
     mic.say("How can I be of service?")
 
