@@ -33,7 +33,8 @@ def run():
         except:
             print("Not a valid language code. Try again.")
             lang = raw_input("Language Code: ")
-    profile['langCode'] = 'en-US'
+    if not lang:
+	profile['langCode'] = 'en-US'
 
     # gmail
     print "\nJasper uses your Gmail to send notifications. Alternatively, you can skip this step (or just fill in the email address if you want to receive email notifications) and setup a Mailgun account, as at http://jasperproject.github.io/documentation/software/#mailgun.\n"

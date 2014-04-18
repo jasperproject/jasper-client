@@ -75,20 +75,23 @@ class Mic:
         elif GOOGLE:
             result1 = self.googleTranslate()
 	    profile_langCode = profile["langCode"]
-	    result2 = self.googleTranslate(langCode=profile_langCode)
-	    if result1[1] > result2[1]:
-		result = str(result1[0])
-		langCode = str(result1[2])
-	    elif result1[1] < result2[1]:
-		result = str(result2[0])
-		langCode = str(result2[2])
+	    if profile_langCode != "en-US":
+	        result2 = self.googleTranslate(langCode=profile_langCode)
+	        if result1[1] > result2[1]:
+		    result = str(result1[0])
+		    langCode = str(result1[2])
+	        elif result1[1] < result2[1]:
+		    result = str(result2[0])
+		    langCode = str(result2[2])
+	        else:
+		    result = "no_info"
+		    langCode = "en-US"
 	    else:
-		result = "no_info"
-		langCode = "en-US"
-            text_file = open("result.txt","w")
-            text_file.write(str(result1[0]) + " | " + str(result1[1]) + " | " + str(result1[2]) + "\n")
-	    text_file.write(str(result2[0]) + " | " + str(result2[1]) + " | " + str(result2[2]))
-            text_file.close()
+		result = str(result1[0])
+#            text_file = open("result.txt","w")
+#            text_file.write(str(result1[0]) + " | " + str(result1[1]) + " | " + str(result1[2]) + "\n")
+#	    text_file.write(str(result2[0]) + " | " + str(result2[1]) + " | " + str(result2[2]))
+#            text_file.close()
             return str(result)
 	else:
             self.speechRec.decode_raw(wavFile)
