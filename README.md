@@ -24,6 +24,7 @@ Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Char
 
 Jasper has recieved contributions by:
 - [FRITZ|FRITZ](http://www.fritztech.net) ( [fritz@fritztech.net](mailto:fritz@fritztech.net) )
+- [Exadrid](https://github.com/Exadrid)
 
 ## License
 
