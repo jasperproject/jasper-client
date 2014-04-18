@@ -11,7 +11,7 @@ import vocabcompiler
 def say(phrase, OPTIONS = " -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
 
     os.system("espeak " + json.dumps(phrase) + OPTIONS)
-    os.system("aplay -D hw:0,0 say.wav")
+    os.system("aplay say.wav")
 
 
 

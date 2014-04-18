@@ -274,7 +274,7 @@ class Mic:
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:0,0 beep_hi.wav")
+        os.system("aplay beep_hi.wav")
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -305,7 +305,7 @@ class Mic:
                 if average < THRESHOLD * 0.3:
                     break
 
-        os.system("aplay -D hw:0,0 beep_lo.wav")
+        os.system("aplay beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
@@ -361,7 +361,7 @@ class Mic:
         phrase = alteration.clean(phrase)
 
         os.system("espeak " + json.dumps(phrase) + OPTIONS )
-        os.system("aplay -D hw:0,0 say.wav")
+        os.system("aplay say.wav")
 
     def googleSpeak(self, langCode, phrase):
             url = "http://translate.google.com/translate_tts?tl=%s&q=%s" % (langCode, urllib.quote_plus(phrase))
