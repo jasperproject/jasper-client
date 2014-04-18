@@ -1,13 +1,29 @@
-jasper-client
-=============
+#jasper-client
 
 Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
 
 Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation.
 
+## Additional Installations
+### Required Installations
+```
+sudo pip install --upgrade setuptools
+``` 
+```
+sudo pip install -r jasper/client/requirements.txt
+```
+
+### Optional Installations
+```sudo pip install ouimeaux``` <== This is for control of WeMo switches
+
 ## Contact
 
 Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
+
+## Contributions
+
+Jasper has recieved contributions by:
+- [FRITZ|FRITZ](http://www.fritztech.net) ( [fritz@fritztech.net](mailto:fritz@fritztech.net) )
 
 ## License
 
