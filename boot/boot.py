@@ -89,6 +89,6 @@ if __name__ == "__main__":
     print "COPYRIGHT 2013 SHUBHRO SAHA, CHARLIE MARSH"
     print "=========================================="
     say("Hello.... I am Jasper... Please wait one moment.")
-    configure(1)
-    sleep(60)
+#    configure(1)
+#    sleep(60)
     configure(2)
