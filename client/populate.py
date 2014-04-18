@@ -21,6 +21,20 @@ def run():
     simple_request('first_name', 'First name')
     simple_request('last_name', 'Last name')
 
+    # Other Language
+    print "\nThis version of Jasper has been configured to allow bilingual interaction. Please enter the language code of your secondary language (Acceptable codes can be found at https://developers.google.com/translate/v2/using_rest#language-params *Not all languages have been tested). If you only use English just hit'Enter' with a blank field."
+#    simple_request('other_langCode', 'Language Code')
+    lang = raw_input("Language Code: ")
+    while lang:
+        try:
+            # TODO: add verification of language code
+            profile['langCode'] = lang
+            break
+        except:
+            print("Not a valid language code. Try again.")
+            lang = raw_input("Language Code: ")
+    profile['langCode'] = 'en-US'
+
     # gmail
     print "\nJasper uses your Gmail to send notifications. Alternatively, you can skip this step (or just fill in the email address if you want to receive email notifications) and setup a Mailgun account, as at http://jasperproject.github.io/documentation/software/#mailgun.\n"
     simple_request('gmail_address', 'Gmail address')

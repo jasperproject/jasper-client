@@ -13,6 +13,7 @@ import urllib2
 import urllib
 import json
 import goslate
+import yaml
 
 # quirky bug where first import doesn't work
 try:
@@ -21,6 +22,8 @@ except:
     import pocketsphinx as ps
 
 langCode = None
+
+profile = yaml.safe_load(open("profile.yml", "r"))
 
 class Mic:
 
@@ -47,7 +50,7 @@ class Mic:
             hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
         self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False, GOOGLE=True):
+    def transcribe(self, audio_file_path, profile=profile, PERSONA_ONLY=False, MUSIC=False, GOOGLE=True):
         """
             Performs TTS, transcribing an audio file and returning the result.
 
@@ -72,10 +75,8 @@ class Mic:
             result = self.speechRec_persona.get_hyp()
         elif GOOGLE:
             result1 = self.googleTranslate()
-	    result2 = self.googleTranslate(langCode='pl-pl')
-#	    result = result.replace("no_info", "")
-#	    if bool(not result or result.isspace()):
-#		result = "no_info"
+	    profile_langCode = profile["langCode"]
+	    result2 = self.googleTranslate(langCode=profile_langCode)
 	    if result1[1] > result2[1]:
 		result = str(result1[0])
 		langCode = str(result1[2])
@@ -375,7 +376,7 @@ class Mic:
 		 english or polish into english for JASPER
 
 		It can be adapted for any language supported by google
-		 by changing the language code from "pl" to any from
+		 by changing profile.yaml to any language code from
 		 the list found at:
 		 https://developers.google.com/translate/v2/using_rest#language-params
 	    """
