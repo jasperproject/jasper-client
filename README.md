@@ -13,7 +13,7 @@ sudo pip install --upgrade setuptools
 sudo pip install -r jasper/client/requirements.txt
 ```
 ##### Raspberry Pi Users
-Raspberry Pi users must add this to their ```/etc/asound.conf``` file:
+Raspberry Pi users must configure their ```/etc/asound.conf``` file. More help can be found [here](http://atgn.tumblr.com/post/54588497569/how-to-set-default-audio-input-output-devices-on). For example:
 ```
 pcm.!default {
 type hw
