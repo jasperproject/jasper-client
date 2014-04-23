@@ -39,7 +39,7 @@ def getTopStories(maxResults=None):
     return matches
 
 
-def handle(text, mic, profile):
+def handle(text, sender, receiver, profile):
     """
         Responds to user-input, typically speech text, with a sample of
         Hacker News's top headlines, sending them to the user over email
@@ -50,7 +50,7 @@ def handle(text, mic, profile):
         mic -- used to interact with the user (for both input and output)
         profile -- contains information related to the user (e.g., phone number)
     """
-    mic.say("Pulling up some stories.")
+    sender.say("Pulling up some stories.")
     stories = getTopStories(maxResults=3)
     all_titles = '... '.join(str(idx + 1) + ") " +
                              story.title for idx, story in enumerate(stories))
@@ -69,7 +69,7 @@ def handle(text, mic, profile):
         send_all = chosen_articles is [] and app_utils.isPositive(text)
 
         if send_all or chosen_articles:
-            mic.say("Sure, just give me a moment")
+            sender.say("Sure, just give me a moment")
 
             if profile['prefers_email']:
                 body = "<ul>"
@@ -91,7 +91,7 @@ def handle(text, mic, profile):
                         body += article_link
                     else:
                         if not app_utils.emailUser(profile, SUBJECT="", BODY=article_link):
-                            mic.say(
+                            sender.say(
                                 "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
                             return
 
@@ -99,22 +99,22 @@ def handle(text, mic, profile):
             if profile['prefers_email']:
                 body += "</ul>"
                 if not app_utils.emailUser(profile, SUBJECT="From the Front Page of Hacker News", BODY=body):
-                    mic.say(
+                    sender.say(
                         "I'm having trouble sending you these articles. Please make sure that your phone number and carrier are correct on the dashboard.")
                     return
 
-            mic.say("All done.")
+            sender.say("All done.")
 
         else:
-            mic.say("OK I will not send any articles")
+            sender.say("OK I will not send any articles")
 
     if profile['phone_number']:
-        mic.say("Here are some front-page articles. " +
+        sender.say("Here are some front-page articles. " +
                 all_titles + ". Would you like me to send you these? If so, which?")
-        handleResponse(mic.activeListen())
+        handleResponse(receiver.activeListen())
 
     else:
-        mic.say(
+        sender.say(
             "Here are some front-page articles. " + all_titles)
 
 

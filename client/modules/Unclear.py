@@ -3,7 +3,7 @@ import random
 WORDS = []
 
 
-def handle(text, mic, profile):
+def handle(text, sender, receiver, profile):
     """
         Reports that the user has unclear or unusable input.
 
@@ -19,7 +19,7 @@ def handle(text, mic, profile):
 
     message = random.choice(messages)
 
-    mic.say(message)
+    sender.say(message)
 
 
 def isValid(text):

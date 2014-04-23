@@ -1,13 +1,9 @@
-"""
-    The Mic class handles all interactions with the microphone and speaker.
-"""
+__author__ = 'seanfitz'
 
 import os
-import json
 from wave import open as open_audio
 import audioop
 import pyaudio
-import alteration
 
 
 # quirky bug where first import doesn't work
@@ -17,10 +13,12 @@ except:
     import pocketsphinx as ps
 
 
-class Mic:
-
+class Receiver(object):
     speechRec = None
     speechRec_persona = None
+
+    def new(self, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
+        return Receiver(lmd, dictd, lmd_persona, dictd_persona, lmd_music, dictd_music)
 
     def __init__(self, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
         """
@@ -287,10 +285,3 @@ class Mic:
             return self.transcribe(AUDIO_FILE, MUSIC=True)
 
         return self.transcribe(AUDIO_FILE)
-        
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        # alter phrase before speaking
-        phrase = alteration.clean(phrase)
-
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        os.system("aplay -D hw:1,0 say.wav")

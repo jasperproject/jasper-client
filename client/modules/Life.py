@@ -4,7 +4,7 @@ import re
 WORDS = ["MEANING", "OF", "LIFE"]
 
 
-def handle(text, mic, profile):
+def handle(text, sender, receiver, profile):
     """
         Responds to user-input, typically speech text, by relaying the
         meaning of life.
@@ -19,7 +19,7 @@ def handle(text, mic, profile):
 
     message = random.choice(messages)
 
-    mic.say(message)
+    sender.say(message)
 
 
 def isValid(text):
