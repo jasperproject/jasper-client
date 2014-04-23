@@ -5,11 +5,12 @@ from brain import Brain
 
 class Conversation(object):
 
-    def __init__(self, persona, mic, profile):
+    def __init__(self, persona, sender, receiver, profile):
         self.persona = persona
-        self.mic = mic
+        self.sender = sender
+        self.receiver = receiver
         self.profile = profile
-        self.brain = Brain(mic, profile)
+        self.brain = Brain(sender, receiver, profile)
         self.notifier = Notifier(profile)
 
     def delegateInput(self, text):
@@ -17,7 +18,7 @@ class Conversation(object):
 
         # check if input is meant to start the music module
         if any(x in text.upper() for x in ["SPOTIFY","MUSIC"]):
-            self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
+            self.sender.say("Please give me a moment, I'm loading your Spotify playlists.")
             music_mode = MusicMode(self.persona, self.mic)
             music_mode.handleForever()
             return
@@ -35,13 +36,17 @@ class Conversation(object):
                 print notif
 
             try:
-                threshold, transcribed = self.mic.passiveListen(self.persona)
+                threshold, transcribed = self.receiver.passiveListen(self.persona)
+            except KeyboardInterrupt:
+                break
             except:
                 continue
 
             if threshold:
-                input = self.mic.activeListen(threshold)
+                input = self.receiver.activeListen(threshold)
                 if input:
                     self.delegateInput(input)
                 else:
-                    self.mic.say("Pardon?")
+                    self.sender.say("Pardon?")
+
+        self.notifier.shutdown()

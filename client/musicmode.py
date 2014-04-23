@@ -3,14 +3,14 @@
 """
 
 import os
-from mic import Mic
 import g2p
 from music import *
 
 
 class MusicMode:
 
-    def __init__(self, PERSONA, mic):
+    def __init__(self, PERSONA, sender, receiver):
+        self.sender = sender
         self.persona = PERSONA
         # self.mic - we're actually going to ignore the mic they passed in
         self.music = Music()
@@ -38,7 +38,7 @@ class MusicMode:
             "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
 
         # create a new mic with the new music models
-        self.mic = Mic(
+        self.receiver = receiver.new(
             "languagemodel.lm", "dictionary.dic", "languagemodel_persona.lm",
             "dictionary_persona.dic", "languagemodel_spotify.lm", "dictionary_spotify.dic")
 
@@ -50,40 +50,40 @@ class MusicMode:
         if "PLAYLIST" in command:
             command = command.replace("PLAYLIST", "")
         elif "STOP" in command:
-            self.mic.say("Stopping music")
+            self.sender.say("Stopping music")
             self.music.stop()
             return
         elif "PLAY" in command:
-            self.mic.say("Playing %s" % self.music.current_song())
+            self.sender.say("Playing %s" % self.music.current_song())
             self.music.play()
             return
         elif "PAUSE" in command:
-            self.mic.say("Pausing music")
+            self.sender.say("Pausing music")
             # not pause because would need a way to keep track of pause/play
             # state
             self.music.stop()
             return
         elif any(ext in command for ext in ["LOUDER", "HIGHER"]):
-            self.mic.say("Louder")
+            self.sender.say("Louder")
             self.music.volume(interval=10)
             self.music.play()
             return
         elif any(ext in command for ext in ["SOFTER", "LOWER"]):
-            self.mic.say("Softer")
+            self.sender.say("Softer")
             self.music.volume(interval=-10)
             self.music.play()
             return
         elif "NEXT" in command:
-            self.mic.say("Next song")
+            self.sender.say("Next song")
             self.music.play()  # backwards necessary to get mopidy to work
             self.music.next()
-            self.mic.say("Playing %s" % self.music.current_song())
+            self.sender.say("Playing %s" % self.music.current_song())
             return
         elif "PREVIOUS" in command:
-            self.mic.say("Previous song")
+            self.sender.say("Previous song")
             self.music.play()  # backwards necessary to get mopidy to work
             self.music.previous()
-            self.mic.say("Playing %s" % self.music.current_song())
+            self.sender.say("Playing %s" % self.music.current_song())
             return
 
         # SONG SELECTION... requires long-loading dictionary and language model
@@ -106,11 +106,11 @@ class MusicMode:
         # PLAYLIST SELECTION
         playlists = self.music.fuzzy_playlists(query=command)
         if playlists:
-            self.mic.say("Loading playlist %s" % playlists[0])
+            self.sender.say("Loading playlist %s" % playlists[0])
             self.music.play(playlist_name=playlists[0])
-            self.mic.say("Playing %s" % self.music.current_song())
+            self.sender.say("Playing %s" % self.music.current_song())
         else:
-            self.mic.say("No playlists found. Resuming current song.")
+            self.sender.say("No playlists found. Resuming current song.")
             self.music.play()
 
         return
@@ -118,12 +118,12 @@ class MusicMode:
     def handleForever(self):
 
         self.music.play()
-        self.mic.say("Playing %s" % self.music.current_song())
+        self.sender.say("Playing %s" % self.music.current_song())
 
         while True:
 
             try:
-                threshold, transcribed = self.mic.passiveListen(self.persona)
+                threshold, transcribed = self.receiver.passiveListen(self.persona)
             except:
                 continue
 
@@ -131,16 +131,16 @@ class MusicMode:
 
                 self.music.pause()
 
-                input = self.mic.activeListen(MUSIC=True)
+                input = self.receiver.activeListen(MUSIC=True)
 
                 if "close" in input.lower():
-                    self.mic.say("Closing Spotify")
+                    self.receiver.say("Closing Spotify")
                     return
 
                 if input:
                     self.delegateInput(input)
                 else:
-                    self.mic.say("Pardon?")
+                    self.sender.say("Pardon?")
                     self.music.play()
 
 if __name__ == "__main__":

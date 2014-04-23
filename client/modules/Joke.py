@@ -29,7 +29,7 @@ def getRandomJoke(filename="JOKES.txt"):
     return joke
 
 
-def handle(text, mic, profile):
+def handle(text, sender, receiver, profile):
     """
         Responds to user-input, typically speech text, by telling a joke.
 
@@ -40,17 +40,17 @@ def handle(text, mic, profile):
     """
     joke = getRandomJoke()
 
-    mic.say("Knock knock")
+    sender.say("Knock knock")
 
     def firstLine(text):
-        mic.say(joke[0])
+        sender.say(joke[0])
 
         def punchLine(text):
-            mic.say(joke[1])
+            sender.say(joke[1])
 
-        punchLine(mic.activeListen())
+        punchLine(receiver.activeListen())
 
-    firstLine(mic.activeListen())
+    firstLine(receiver.activeListen())
 
 
 def isValid(text):

@@ -7,9 +7,11 @@ def isLocal():
     return len(sys.argv) > 1 and sys.argv[1] == "--local"
 
 if isLocal():
-    from local_mic import Mic
+    from input.text import Receiver as Receiver
+    from output.text import Sender as Sender
 else:
-    from mic import Mic
+    from input.audio import Receiver as Receiver
+    from output.audio import Sender as Sender
 
 if __name__ == "__main__":
 
@@ -20,11 +22,13 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open("profile.yml", "r"))
 
-    mic = Mic("languagemodel.lm", "dictionary.dic",
+    receiver = Receiver("languagemodel.lm", "dictionary.dic",
               "languagemodel_persona.lm", "dictionary_persona.dic")
 
-    mic.say("How can I be of service?")
+    sender = Sender()
 
-    conversation = Conversation("JASPER", mic, profile)
+    sender.say("How can I be of service?")
+
+    conversation = Conversation("JASPER", sender, receiver, profile)
 
     conversation.handleForever()

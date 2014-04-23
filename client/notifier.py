@@ -66,3 +66,6 @@ class Notifier(object):
             notif = self.getNotification()
 
         return notifs
+
+    def shutdown(self):
+        self.sched.shutdown()
