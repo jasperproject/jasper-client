@@ -30,23 +30,21 @@ def run():
     clean_number = lambda s: re.sub(r'[^0-9]', '', s)
     phone_number = clean_number(raw_input(
         "\nPhone number (no country code). Any dashes or spaces will be removed for you: "))
-    if phone_number:
-        profile['phone_number'] = phone_number
+    profile['phone_number'] = phone_number
 
     # carrier
     print("\nPhone carrier (for sending text notifications).")
     print(
         "If you have a US phone number, you can enter one of the following: 'AT&T', 'Verizon', 'T-Mobile' (without the quotes). If your carrier isn't listed or you have an international number, go to http://www.emailtextmessages.com and enter the email suffix for your carrier (e.g., for Virgin Mobile, enter 'vmobl.com'; for T-Mobile Germany, enter 't-d1-sms.de').")
     carrier = raw_input('Carrier: ')
-    if carrier:
-        if carrier == 'AT&T':
-            profile['carrier'] = 'txt.att.net'
-        elif carrier == 'Verizon':
-            profile['carrier'] = 'vtext.com'
-        elif carrier == 'T-Mobile':
-            profile['carrier'] = 'tmomail.net'
-        else:
-            profile['carrier'] = carrier
+    if carrier == 'AT&T':
+        profile['carrier'] = 'txt.att.net'
+    elif carrier == 'Verizon':
+        profile['carrier'] = 'vtext.com'
+    elif carrier == 'T-Mobile':
+        profile['carrier'] = 'tmomail.net'
+    else:
+        profile['carrier'] = carrier
 
     # location
     def verifyLocation(place):
