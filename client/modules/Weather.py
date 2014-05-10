@@ -56,7 +56,7 @@ def handle(text, mic, profile):
     tz = getTimezone(profile)
 
     service = DateService(tz=tz)
-    date = service.parseDay(text)
+    date = service.extractDates(text)
     if not date:
         date = datetime.datetime.now(tz=tz)
     weekday = service.__daysOfWeek__[date.weekday()]
