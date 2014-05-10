@@ -11,7 +11,7 @@ python-dateutil==2.1
 python-mpd==0.3.0
 pytz==2013b
 quantities==0.10.1
-semantic==1.0.1
+semantic==1.0.3
 six==1.6.1
 ws4py==0.3.2
 requests==2.1.0

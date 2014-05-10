@@ -29,14 +29,14 @@ def run():
     # phone number
     clean_number = lambda s: re.sub(r'[^0-9]', '', s)
     phone_number = clean_number(raw_input(
-        "Phone number. No country code. Any dashes or spaces will be removed for you: "))
+        "\nPhone number (no country code). Any dashes or spaces will be removed for you: "))
     if phone_number:
         profile['phone_number'] = phone_number
 
     # carrier
-    print("Phone carrier (for sending text notifications).")
+    print("\nPhone carrier (for sending text notifications).")
     print(
-        "Enter one of the following: 'AT&T', 'Verizon', 'T-Mobile' OR go to http://www.emailtextmessages.com and enter the email suffix for your carrier (e.g., for Virgin Mobile, enter 'vmobl.com').")
+        "If you have a US phone number, you can enter one of the following: 'AT&T', 'Verizon', 'T-Mobile' (without the quotes). If your carrier isn't listed or you have an international number, go to http://www.emailtextmessages.com and enter the email suffix for your carrier (e.g., for Virgin Mobile, enter 'vmobl.com'; for T-Mobile Germany, enter 't-d1-sms.de').")
     carrier = raw_input('Carrier: ')
     if carrier:
         if carrier == 'AT&T':
@@ -59,7 +59,7 @@ def run():
             return True
 
     print(
-        "Location should be a 5-digit US zipcode (e.g., 08544). If you are outside the US, insert the name of your nearest big town/city. For weather requests.")
+        "\nLocation should be a 5-digit US zipcode (e.g., 08544). If you are outside the US, insert the name of your nearest big town/city. For weather requests.")
     location = raw_input("Location: ")
     while location and (verifyLocation(location)==False):
         print("Weather not found. Please try another location.")
@@ -69,7 +69,7 @@ def run():
 
     # timezone
     print(
-        "Please enter a timezone from the list located in the TZ* column at http://en.wikipedia.org/wiki/List_of_tz_database_time_zones, or none at all.")
+        "\nPlease enter a timezone from the list located in the TZ* column at http://en.wikipedia.org/wiki/List_of_tz_database_time_zones, or none at all.")
     tz = raw_input("Timezone: ")
     while tz:
         try:
@@ -81,7 +81,7 @@ def run():
             tz = raw_input("Timezone: ")
 
     response = raw_input(
-        "Would you prefer to have notifications sent by email (E) or text message (T)? ")
+        "\nWould you prefer to have notifications sent by email (E) or text message (T)? ")
     while not response or (response != 'E' and response != 'T'):
         response = raw_input("Please choose email (E) or text message (T): ")
     profile['prefers_email'] = (response == 'E')
