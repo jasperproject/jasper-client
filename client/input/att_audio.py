@@ -9,6 +9,12 @@ import yaml
 
 profile = yaml.safe_load(open("profile.yml", "r"))
 
+# quirky bug where first import doesn't work
+try:
+    import pocketsphinx as ps
+except:
+    import pocketsphinx as ps
+
 
 def get_att_auth_token(client_id, client_secret):
     response = requests.post('https://api.att.com/oauth/token',
@@ -34,7 +40,13 @@ class Receiver(object):
             lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
-        pass
+        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+
+        if lmd_music and dictd_music:
+            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
+        self.speechRec_persona = ps.Decoder(
+            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
+        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
 
     def att_transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -259,7 +271,7 @@ class Receiver(object):
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:1,0 beep_hi.wav")
+        os.system("aplay beep_hi.wav")
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -289,7 +301,7 @@ class Receiver(object):
             if average < THRESHOLD * 0.8:
                 break
 
-        os.system("aplay -D hw:1,0 beep_lo.wav")
+        os.system("aplay beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
@@ -313,3 +325,4 @@ class Receiver(object):
 if __name__ == "__main__":
     mic = Receiver(None, None, None, None, lmd_music=None, dictd_music=None)
     mic.activeListen()
+    mic.transcribe('/home/seanfitz/development/jasper-client/client/passive.wav')

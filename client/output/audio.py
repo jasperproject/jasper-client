@@ -9,4 +9,4 @@ class Sender(object):
         phrase = alteration.clean(phrase)
 
         os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        os.system("aplay -D hw:1,0 say.wav")
+        os.system("aplay say.wav")
