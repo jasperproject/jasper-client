@@ -57,9 +57,6 @@ class Receiver(object):
             PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
             MUSIC -- if True, uses the 'Music' language model and dictionary
         """
-
-
-
         auth_token = get_att_auth_token(profile.get('att_api_client_id'), profile.get('att_api_client_secret'))
 
         response = requests.post('https://api.att.com/speech/v3/speechToText',
