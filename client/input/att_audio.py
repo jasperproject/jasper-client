@@ -64,13 +64,13 @@ class Receiver(object):
                              'Accept': 'application/json', 'Content-Type': 'audio/wav'},
                     data=open(audio_file_path))
 
-        result = response.json().get('Recognition').get('NBest')
+        result = response.json().get('Recognition', {}).get('NBest', [{}])
 
         print "==================="
-        print "JASPER: " + result[0].get('ResultText')
+        print "JASPER: " + result[0].get('ResultText', {})
         print "==================="
 
-        return result[0].get('ResultText')
+        return result[0].get('ResultText', 'Could not understand you.')
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
