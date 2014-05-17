@@ -28,13 +28,15 @@ def configure():
         print "STARTING CLIENT PROGRAM"
 
         try:
-            os.system("/home/pi/jasper/client/start.sh &")
-        except:
+            os.system("sudo -u pi /home/pi/jasper/client/start.sh &")
+        except Exception, e:
+            print(repr(e))
             os.system("/home/pi/jasper/backup/start.sh &")
         finally:
             return
 
-    except:
+    except Exception, e:
+        print(repr(e))
 
         networks = yaml.safe_load(open("networks.yml", "r"))
 
