@@ -1,5 +1,3 @@
-import threading
-
 __author__ = 'seanfitz'
 import alteration
 import json
@@ -8,6 +6,7 @@ import requests
 import yaml
 import sys
 import pyaudio
+import wave
 import time
 profile = yaml.safe_load(open("profile.yml", "r"))
 
@@ -17,9 +16,6 @@ def get_att_auth_token(client_id, client_secret):
                   headers={'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'},
                   data={'client_id': client_id, 'client_secret': client_secret, 'scope':'SPEECH,TTS', 'grant_type':'client_credentials'})
     return response.json()
-
-BLOCK=1024
-BUFFER_BLOCKS=16
 
 class Sender(object):
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
@@ -38,40 +34,20 @@ class Sender(object):
                                          'Content-Type': 'text/plain',
                                          'Authorization': 'Bearer %s' % auth_token.get('access_token')},
                                 data=phrase, stream=True)
-
-
-
         if not response.ok:
             # fall back onto espeak
             print(response.text)
             os.system("espeak " + json.dumps(phrase) + OPTIONS)
             os.system("aplay -D hw:1,0 say.wav")
         else:
-            buffer = []
-            started = False
-            finished = False
-            def play_audio():
-                while not started:
-                    time.sleep(.1)
-                while not finished or len(buffer) > 0:
-                    stream.write(buffer.pop(0))
-
-            t = threading.Thread(target=play_audio)
-            t.start()
-
             for block in response.iter_content(1024):
                 if not block:
                     break
 
-                buffer.append(block)
-                if not started and len(buffer) > BUFFER_BLOCKS:
-                    started = True
-            started = True
-            finished = True
-        t.join()
+                stream.write(block)
+
         # sleep for .5 seconds to allow stream to complete
         time.sleep(.5)
-
 
         stream.stop_stream()
         stream.close()
