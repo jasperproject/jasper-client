@@ -5,9 +5,6 @@ import os
 import requests
 import yaml
 import sys
-import pyaudio
-import wave
-import time
 profile = yaml.safe_load(open("profile.yml", "r"))
 
 
@@ -22,37 +19,24 @@ class Sender(object):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
         auth_token = get_att_auth_token(profile.get('att_api_client_id'), profile.get('att_api_client_secret'))
-        p = pyaudio.PyAudio()
+        with open('say.wav', 'wb') as handle:
+            response = requests.post('https://api.att.com/speech/v3/textToSpeech',
+                                    headers={'Accept': 'audio/x-wav', 'Content-Length': sys.getsizeof(phrase),
+                                             'Content-Type': 'text/plain',
+                                             'Authorization': 'Bearer %s' % auth_token.get('access_token')},
+                                    data=phrase, stream=True)
+            if not response.ok:
+                # fall back onto espeak
+                print(response.text)
+                os.system("espeak " + json.dumps(phrase) + OPTIONS)
 
-        stream = p.open(format=p.get_format_from_width(2),
-                        channels=1,
-                        rate=16000,
-                        output=True)
+            else:
+                for block in response.iter_content(1024):
+                    if not block:
+                        break
 
-        response = requests.post('https://api.att.com/speech/v3/textToSpeech',
-                                headers={'Accept': 'audio/x-wav', 'Content-Length': sys.getsizeof(phrase),
-                                         'Content-Type': 'text/plain',
-                                         'Authorization': 'Bearer %s' % auth_token.get('access_token')},
-                                data=phrase, stream=True)
-        if not response.ok:
-            # fall back onto espeak
-            print(response.text)
-            os.system("espeak " + json.dumps(phrase) + OPTIONS)
-            os.system("aplay -D hw:1,0 say.wav")
-        else:
-            for block in response.iter_content(1024):
-                if not block:
-                    break
-
-                stream.write(block)
-
-        # sleep for .5 seconds to allow stream to complete
-        time.sleep(.5)
-
-        stream.stop_stream()
-        stream.close()
-
-        p.terminate()
+                    handle.write(block)
+        os.system("aplay -D hw:1,0 say.wav")
 
 if __name__ == "__main__":
     sender = Sender()
