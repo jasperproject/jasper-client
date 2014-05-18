@@ -6,6 +6,7 @@ import audioop
 import pyaudio
 import requests
 import yaml
+from output.player import play
 
 profile = yaml.safe_load(open("profile.yml", "r"))
 
@@ -268,7 +269,7 @@ class Receiver(object):
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:1,0 beep_hi.wav")
+        play("beep_hi.wav")
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -298,7 +299,7 @@ class Receiver(object):
             if average < THRESHOLD * 0.8:
                 break
 
-        os.system("aplay -D hw:1,0 beep_lo.wav")
+        play("beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
@@ -322,4 +323,4 @@ class Receiver(object):
 if __name__ == "__main__":
     mic = Receiver(None, None, None, None, lmd_music=None, dictd_music=None)
     mic.activeListen()
-    mic.transcribe('/home/seanfitz/development/jasper-client/client/passive.wav')
+    mic.transcribe('active.wav')

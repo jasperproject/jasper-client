@@ -1,3 +1,5 @@
+import time
+
 __author__ = 'seanfitz'
 import alteration
 import json
@@ -5,6 +7,7 @@ import os
 import requests
 import yaml
 import sys
+from output.player import play
 profile = yaml.safe_load(open("profile.yml", "r"))
 
 
@@ -36,7 +39,9 @@ class Sender(object):
                         break
 
                     handle.write(block)
-        os.system("aplay -D hw:1,0 say.wav")
+        # os.system("aplay -D hw:1,0 say.wav")
+        play('say.wav')
+
 
 if __name__ == "__main__":
     sender = Sender()
