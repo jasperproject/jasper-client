@@ -1,10 +1,7 @@
-import subprocess
 import os
 
 def play(wav_file):
-    try:
-        subprocess.check_output("aplay -D hw:1,0 %s" % wav_file)
-    except Exception, e:
+    if os.system("aplay -D hw:1,0 %s" % wav_file) != 0:
         os.system("aplay %s" % wav_file)
 
 
