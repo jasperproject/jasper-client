@@ -11,7 +11,7 @@ if isLocal():
     from output.text import Sender as Sender
 else:
     from input.att_audio import Receiver as Receiver
-    from output.audio import Sender as Sender
+    from output.att_audio import Sender as Sender
 
 if __name__ == "__main__":
 
