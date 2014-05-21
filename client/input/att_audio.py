@@ -68,7 +68,7 @@ class Receiver(object):
         result = response.json().get('Recognition', {}).get('NBest', [{}])
 
         print "==================="
-        print "JASPER: " + result[0].get('ResultText', {})
+        print "JASPER: " + result[0].get('ResultText', '')
         print "==================="
 
         return result[0].get('ResultText', 'Could not understand you.')
