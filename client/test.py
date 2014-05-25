@@ -1,5 +1,5 @@
 import unittest
-from mock import Mock, patch
+from mock import patch
 from urllib2 import URLError, urlopen
 import yaml
 from test_mic import Mic
