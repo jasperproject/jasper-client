@@ -1,3 +1,4 @@
+env/
 client/env
 client/venv
 *.pyc

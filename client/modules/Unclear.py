@@ -1,6 +1,9 @@
+from sys import maxint
 import random
 
 WORDS = []
+
+PRIORITY = -(maxint + 1)
 
 
 def handle(text, mic, profile):
