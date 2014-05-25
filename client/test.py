@@ -117,8 +117,9 @@ class TestBrain(unittest.TestCase):
     def testSortByPriority(self):
         """Does Brain sort modules by priority?"""
         my_brain = TestBrain._emptyBrain()
-        with_priority = filter(lambda m: hasattr(m, 'PRIORITY'), my_brain.modules)
-        self.assertEqual(sorted(with_priority, key=lambda m: m.PRIORITY), with_priority)
+        priorities = filter(lambda m: hasattr(m, 'PRIORITY'), my_brain.modules)
+        target = sorted(priorities, key=lambda m: m.PRIORITY, reverse=True)
+        self.assertEqual(target, priorities)
 
     def testPriority(self):
         """Does Brain correctly send query to higher-priority module?"""
