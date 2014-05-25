@@ -38,8 +38,6 @@ class Brain(object):
             def get_module_names():
                 module_names = [m.replace('.py', '')
                                 for m in listdir(folder) if m.endswith('.py')]
-                module_names.remove('__init__')
-                module_names.remove('app_utils')
                 module_names = map(lambda s: folder + '.' + s, module_names)
                 return module_names
 
@@ -57,6 +55,7 @@ class Brain(object):
                     return 0
 
             modules = map(import_module, get_module_names())
+            modules = filter(lambda m: hasattr(m, 'WORDS'), modules)
             modules.sort(key=get_module_priority, reverse=True)
             return modules
 
