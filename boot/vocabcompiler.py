@@ -1,5 +1,5 @@
 """
-    This iterates over all the WORDS variables in the modules and creates a dictionary that the client program will use
+    Iterates over all the WORDS variables in the modules and creates a dictionary for the client.
 """
 
 import os
