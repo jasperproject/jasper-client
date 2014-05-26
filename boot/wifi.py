@@ -15,7 +15,6 @@ class Wifi:
 
             if "Address" in line:
 
-                address = line[29:-1]
                 name = lines[index + 1].split("\"")[1]
                 self.access_points.append(name)
 

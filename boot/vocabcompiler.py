@@ -12,7 +12,6 @@ mod_path = os.path.abspath('../client/modules/')
 sys.path.append(lib_path)
 sys.path.append(mod_path)
 
-import modules
 import g2p
 
 

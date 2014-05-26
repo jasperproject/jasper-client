@@ -2,7 +2,6 @@
 
 import os, json
 import urllib2
-import subprocess
 import yaml
 from wifi import *
 
