@@ -5,9 +5,14 @@
 import os
 import sys
 import pkgutil
+import glob
 
 lib_path = os.path.abspath('../client')
+mod_path = os.path.abspath('../client/modules/')
+
 sys.path.append(lib_path)
+sys.path.append(mod_path)
+
 import modules
 import g2p
 
@@ -17,12 +22,13 @@ def compile():
         Gets the words and creates the dictionary
     """
 
-    m = [name for _, name, _ in pkgutil.iter_modules(['modules'])]
+    m = [os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname("../client/modules/")+"/*.py")]
 
     words = []
     for module_name in m:
         try:
-            eval("words.extend(modules.%s.WORDS)" % module_name)
+            exec("import %s" % module_name)
+            eval("words.extend(%s.WORDS)" % module_name)
         except:
             pass  # module probably doesn't have the property
 
