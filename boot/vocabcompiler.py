@@ -4,7 +4,6 @@
 
 import os
 import sys
-import pkgutil
 import glob
 
 lib_path = os.path.abspath('../client')
