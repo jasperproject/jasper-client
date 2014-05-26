@@ -23,7 +23,7 @@ def text2lm(in_filename, out_filename):
         os.system(cmd)
 
     def idngram2lm(in_filename, out_filename):
-        cmd = "idngram2lm -idngram temp.idngram -vocab ../client/sentences.txt -arpa %s" % (
+        cmd = "idngram2lm -idngram temp.idngram -vocab %s -arpa %s" % (
             in_filename, out_filename)
         os.system(cmd)
 
@@ -31,7 +31,7 @@ def text2lm(in_filename, out_filename):
     idngram2lm(in_filename, out_filename)
 
 
-def compile():
+def compile(sentences, dictionary, languagemodel):
     """
         Gets the words and creates the dictionary
     """
@@ -57,14 +57,14 @@ def compile():
     zipped = zip(words, pronounced)
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
-    with open("../client/dictionary.dic", "w") as f:
+    with open(dictionary, "w") as f:
         f.write("\n".join(lines) + "\n")
 
     # create the language model
-    with open("../client/sentences.txt", "w") as f:
+    with open(sentences, "w") as f:
         f.write("\n".join(words) + "\n")
         f.write("<s> \n </s> \n")
         f.close()
 
     # make language model
-    text2lm("../client/sentences.txt", "../client/languagemodel.lm")
+    text2lm(sentences, languagemodel)

@@ -22,7 +22,7 @@ def configure():
 
         print "CONNECTED TO INTERNET"
         print "COMPILING DICTIONARY"
-        vocabcompiler.compile()
+        vocabcompiler.compile("../client/sentences.txt", "../client/dictionary.dic", "../client/languagemodel.lm")
 
         print "STARTING CLIENT PROGRAM"
 
@@ -49,7 +49,7 @@ def configure():
 
                 print "CONNECTED TO INTERNET"
                 print "COMPILING DICTIONARY"
-                vocabcompiler.compile()
+                vocabcompiler.compile("../client/sentences.txt", "../client/dictionary.dic", "../client/languagemodel.lm")
 
                 print "STARTING CLIENT PROGRAM"
 
