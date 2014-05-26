@@ -17,7 +17,7 @@ def compile():
         Gets the words and creates the dictionary
     """
 
-    m = dir(modules)
+    m = [name for _, name, _ in pkgutil.iter_modules(['modules'])]
 
     words = []
     for module_name in m:
