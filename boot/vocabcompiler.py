@@ -15,12 +15,29 @@ sys.path.append(mod_path)
 import g2p
 
 
+def text2lm(in_filename, out_filename):
+    """Wrapper around the language model compilation tools"""
+    def text2idngram(in_filename, out_filename):
+        cmd = "text2idngram -vocab %s < %s -idngram temp.idngram" % (out_filename,
+                                                                     in_filename)
+        os.system(cmd)
+
+    def idngram2lm(in_filename, out_filename):
+        cmd = "idngram2lm -idngram temp.idngram -vocab ../client/sentences.txt -arpa %s" % (
+            in_filename, out_filename)
+        os.system(cmd)
+
+    text2idngram(in_filename, in_filename)
+    idngram2lm(in_filename, out_filename)
+
+
 def compile():
     """
         Gets the words and creates the dictionary
     """
 
-    m = [os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname("../client/modules/")+"/*.py")]
+    m = [os.path.basename(f)[:-3]
+         for f in glob.glob(os.path.dirname("../client/modules/") + "/*.py")]
 
     words = []
     for module_name in m:
@@ -33,7 +50,7 @@ def compile():
     words = list(set(words))
 
     # for spotify module
-    words.extend(["MUSIC","SPOTIFY"])
+    words.extend(["MUSIC", "SPOTIFY"])
 
     # create the dictionary
     pronounced = g2p.translateWords(words)
@@ -50,7 +67,4 @@ def compile():
         f.close()
 
     # make language model
-    os.system(
-        "text2idngram -vocab ../client/sentences.txt < ../client/sentences.txt -idngram temp.idngram")
-    os.system(
-        "idngram2lm -idngram temp.idngram -vocab ../client/sentences.txt -arpa ../client/languagemodel.lm")
+    text2lm("../client/sentences.txt", "../client/languagemodel.lm")
