@@ -48,7 +48,6 @@ def compile(sentences, dictionary, languagemodel):
             pass  # module probably doesn't have the property
 
     words = list(set(words))
-    print words
 
     # for spotify module
     words.extend(["MUSIC", "SPOTIFY"])
