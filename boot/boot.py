@@ -9,16 +9,11 @@ from wifi import *
 import vocabcompiler
 
 def say(phrase, OPTIONS = " -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-
     os.system("espeak " + json.dumps(phrase) + OPTIONS)
     os.system("aplay -D hw:1,0 say.wav")
 
-
-
-# check if there is network connection
 def configure():
     try:
-
         urllib2.urlopen("http://www.google.com").getcode()
 
         print "CONNECTED TO INTERNET"
@@ -26,58 +21,12 @@ def configure():
         vocabcompiler.compile()
 
         print "STARTING CLIENT PROGRAM"
-
-        try:
-            os.system("/home/pi/jasper/client/start.sh &")
-        except:
-            os.system("/home/pi/jasper/backup/start.sh &")
-        finally:
-            return
-
+        os.system("/home/pi/jasper/client/start.sh &")
+        
     except:
 
-        networks = yaml.safe_load(open("networks.yml", "r"))
-
-        wifi = Wifi()
-
-        for network in networks:
-            wifi.set_default_wifi(network['SSID'], network['KEY'])
-            say("Attempting to connect to network " + network['SSID'])
-
-            try:
-
-                urllib2.urlopen("http://www.google.com").getcode()
-
-                print "CONNECTED TO INTERNET"
-                print "COMPILING DICTIONARY"
-                vocabcompiler.compile()
-
-                print "STARTING CLIENT PROGRAM"
-
-                try:
-                    os.system("/home/pi/jasper/client/start.sh &")
-                except:
-                    os.system("/home/pi/jasper/backup/start.sh &")
-                finally:
-                    return
-
-            except:
-                pass
-
-        print "NOT CONNECTED TO INTERNET. RUNNING AD HOC NETWORK."
-
-        wifi.setup_adhoc()
-
-        os.system("sudo app/app.sh &")
-        say("Hello.... I could not connect to a wifi network... Please log in with your computer to help me")
-
-        original = open("networks.yml",'r').readlines()
-        while True:
-            list = open("networks.yml",'r').readlines()
-            if list != original:
-                break
-
-        say("Thank you for adding a wifi network. Just give me a few minutes to restart.")
+        print "COULD NOT CONNECT TO NETWORK"
+        say("Hello, I could not connect to a network. Please read the documentation to configure your Raspberry Pi.")
         os.system("sudo shutdown -r now")
 
 if __name__ == "__main__":
