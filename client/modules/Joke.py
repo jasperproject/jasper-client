@@ -4,7 +4,7 @@ import re
 WORDS = ["JOKE", "KNOCK KNOCK"]
 
 
-def getRandomJoke(filename="JOKES.txt"):
+def getRandomJoke(filename="../static/text/JOKES.txt"):
     jokeFile = open(filename, "r")
     jokes = []
     start = ""

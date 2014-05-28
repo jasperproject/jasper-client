@@ -6,9 +6,9 @@ import yaml
 
 import vocabcompiler
 
-def say(phrase, OPTIONS = " -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+def say(phrase, OPTIONS = " -vdefault+m3 -p 40 -s 160 --stdout > ../static/audio/say.wav"):
     os.system("espeak " + json.dumps(phrase) + OPTIONS)
-    os.system("aplay -D hw:1,0 say.wav")
+    os.system("aplay -D hw:1,0 ../static/audio/say.wav")
 
 def configure():
     try:
@@ -20,9 +20,9 @@ def configure():
 
         print "STARTING CLIENT PROGRAM"
         os.system("/home/pi/jasper/client/start.sh &")
-        
+
     except:
-        
+
         print "COULD NOT CONNECT TO NETWORK"
         say("Hello, I could not connect to a network. Please read the documentation to configure your Raspberry Pi.")
         os.system("sudo shutdown -r now")
