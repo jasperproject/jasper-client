@@ -3,7 +3,6 @@
 import os, json
 import urllib2
 import yaml
-from wifi import *
 
 import vocabcompiler
 
