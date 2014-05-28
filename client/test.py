@@ -48,7 +48,7 @@ class TestModules(unittest.TestCase):
         inputs = ["Who's there?", "Random response"]
         outputs = self.runConversation(query, inputs, modules.Joke)
         self.assertEqual(len(outputs), 3)
-        allJokes = open("JOKES.txt", "r").read()
+        allJokes = open("../static/text/JOKES.txt", "r").read()
         self.assertTrue(outputs[2] in allJokes)
 
     def testTime(self):
