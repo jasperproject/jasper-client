@@ -2,7 +2,6 @@
 
 import os, json
 import urllib2
-import subprocess
 import yaml
 from wifi import *
 
@@ -18,13 +17,13 @@ def configure():
 
         print "CONNECTED TO INTERNET"
         print "COMPILING DICTIONARY"
-        vocabcompiler.compile()
+        vocabcompiler.compile("../client/sentences.txt", "../client/dictionary.dic", "../client/languagemodel.lm")
 
         print "STARTING CLIENT PROGRAM"
         os.system("/home/pi/jasper/client/start.sh &")
         
     except:
-
+        
         print "COULD NOT CONNECT TO NETWORK"
         say("Hello, I could not connect to a network. Please read the documentation to configure your Raspberry Pi.")
         os.system("sudo shutdown -r now")

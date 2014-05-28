@@ -1,7 +1,7 @@
 from notifier import Notifier
 from musicmode import *
 from brain import Brain
-
+from mpd import MPDClient
 
 class Conversation(object):
 
@@ -17,6 +17,16 @@ class Conversation(object):
 
         # check if input is meant to start the music module
         if any(x in text.upper() for x in ["SPOTIFY","MUSIC"]):
+            # check if mpd client is running
+            try:
+                client = MPDClient()
+                client.timeout = None
+                client.idletimeout = None
+                client.connect("localhost", 6600)
+            except:
+                self.mic.say("I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
+                return
+            
             self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
             music_mode = MusicMode(self.persona, self.mic)
             music_mode.handleForever()
