@@ -3,7 +3,7 @@ from mock import patch
 from urllib2 import URLError, urlopen
 import yaml
 from test_mic import Mic
-from modules import *
+import modules
 import brain
 
 
@@ -39,14 +39,14 @@ class TestModules(unittest.TestCase):
     def testLife(self):
         query = "What is the meaning of life?"
         inputs = []
-        outputs = self.runConversation(query, inputs, Life)
+        outputs = self.runConversation(query, inputs, modules.Life)
         self.assertEqual(len(outputs), 1)
         self.assertTrue("42" in outputs[0])
 
     def testJoke(self):
         query = "Tell me a joke."
         inputs = ["Who's there?", "Random response"]
-        outputs = self.runConversation(query, inputs, Joke)
+        outputs = self.runConversation(query, inputs, modules.Joke)
         self.assertEqual(len(outputs), 3)
         allJokes = open("JOKES.txt", "r").read()
         self.assertTrue(outputs[2] in allJokes)
@@ -54,7 +54,7 @@ class TestModules(unittest.TestCase):
     def testTime(self):
         query = "What time is it?"
         inputs = []
-        self.runConversation(query, inputs, Time)
+        self.runConversation(query, inputs, modules.Time)
 
     @unittest.skipIf(not activeInternet(), "No internet connection")
     def testGmail(self):
@@ -64,7 +64,7 @@ class TestModules(unittest.TestCase):
 
         query = "Check my email"
         inputs = []
-        self.runConversation(query, inputs, Gmail)
+        self.runConversation(query, inputs, modules.Gmail)
 
     @unittest.skipIf(not activeInternet(), "No internet connection")
     def testHN(self):
@@ -73,7 +73,7 @@ class TestModules(unittest.TestCase):
             inputs = ["the first and third"]
         else:
             inputs = ["no"]
-        outputs = self.runConversation(query, inputs, HN)
+        outputs = self.runConversation(query, inputs, modules.HN)
         self.assertTrue("front-page articles" in outputs[1])
 
     @unittest.skipIf(not activeInternet(), "No internet connection")
@@ -83,14 +83,14 @@ class TestModules(unittest.TestCase):
             inputs = ["the first"]
         else:
             inputs = ["no"]
-        outputs = self.runConversation(query, inputs, News)
+        outputs = self.runConversation(query, inputs, modules.News)
         self.assertTrue("top headlines" in outputs[1])
 
     @unittest.skipIf(not activeInternet(), "No internet connection")
     def testWeather(self):
         query = "what's the weather like tomorrow"
         inputs = []
-        outputs = self.runConversation(query, inputs, Weather)
+        outputs = self.runConversation(query, inputs, modules.Weather)
         self.assertTrue(
             "can't see that far ahead" in outputs[0]
             or "Tomorrow" in outputs[0])
