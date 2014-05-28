@@ -57,11 +57,11 @@ def compile(sentences, dictionary, languagemodel):
     zipped = zip(words, pronounced)
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
-    with open(dictionary, "w+") as f:
+    with open(dictionary, "w") as f:
         f.write("\n".join(lines) + "\n")
 
     # create the language model
-    with open(sentences, "w+") as f:
+    with open(sentences, "w") as f:
         f.write("\n".join(words) + "\n")
         f.write("<s> \n </s> \n")
         f.close()
