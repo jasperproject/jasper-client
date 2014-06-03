@@ -25,7 +25,6 @@ def configure():
 
         print "COULD NOT CONNECT TO NETWORK"
         say("Hello, I could not connect to a network. Please read the documentation to configure your Raspberry Pi.")
-        os.system("sudo shutdown -r now")
 
 if __name__ == "__main__":
     print "==========STARTING JASPER CLIENT=========="
