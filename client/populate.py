@@ -36,6 +36,11 @@ def run():
     if not lang:
 	profile['langCode'] = 'en-US'
 
+    # Speech API
+    print "\nThis version of Jasper has been modified to use the Google Speech API. In order to use the API you MUST have a valid key. More details can be found in the readme."
+    simple_request('API_Key', 'API Key')
+
+
     # gmail
     print "\nJasper uses your Gmail to send notifications. Alternatively, you can skip this step (or just fill in the email address if you want to receive email notifications) and setup a Mailgun account, as at http://jasperproject.github.io/documentation/software/#mailgun.\n"
     simple_request('gmail_address', 'Gmail address')

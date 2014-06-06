@@ -407,13 +407,14 @@ class Mic:
 		 https://developers.google.com/translate/v2/using_rest#language-params
 	    """
 	    gs = goslate.Goslate()
+	    key = profile["API_Key"]
 
 	    RATE = 16000
             os.system("avconv -y -i active.wav -ar 16000 -acodec flac active.flac")
             flac = open("active.flac", 'rb')
             data = flac.read()
             flac.close()
-            url = "https://www.google.com/speech-api/v1/recognize?xjerr=1&client=chromium&lang=%s" % langCode
+            url = "https://www.google.com/speech-api/v2/recognize?xjerr=1&client=chromium&key=%s&lang=%s" % (key, langCode)
 	    try:
                 req = urllib2.Request(
 		    url,
@@ -432,18 +433,14 @@ class Mic:
 		    allData = response_read.splitlines()
 		    for line in allData:
 			# This is specific to the json returned by google.
-			# Debug File
-#                    	text_file = open("json.txt","w")
-                    	#text_file.write(line)
-
-#			jsdata = json.loads( response_read )
-
-#			text_file.close()
+			#text_file = open("json.txt","w")
+                        #text_file.write("line: %s" % str(line))
+                        #text_file.close()
 
 			try:
 			    if jsdata == None:
 				jsdata = json.loads(line)
-			    if jsdata["status"] == 5:
+			    if not 'confidence' in line:
 				jsdata = None
 			except:
 			    pass
@@ -455,9 +452,10 @@ class Mic:
 		    text_file.write(str(jsdata))
 		    text_file.close()
 
-		    result = jsdata["hypotheses"][0]["utterance"]
-                    confidence = jsdata["hypotheses"][0]["confidence"]
-                    if langCode != "en-US":
+		    result = jsdata['result'][0]['alternative'][0]['transcript']
+    		    confidence = jsdata['result'][0]['alternative'][0]['confidence']
+                    
+		    if langCode != "en-US":
                        	result = gs.translate(result, 'en_US').decode('utf-8')
 #		    if langCode == "en-US" and result != result2:
 #			result = resultEnglish
