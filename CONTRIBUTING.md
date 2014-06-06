@@ -27,7 +27,7 @@ While developing, you **_should_**:
 
 On the other hand, you **_should not_**:
 
-1. **Commit _any_ modules to the _jasper-client_ repository.** The modules included in _jasper-client_ are meant as illustrative examples. Any new modules that you'd like to share should be done so through other means. There should be a separate _modules_ repository around in the near future.
+1. **Commit _any_ modules to the _jasper-client_ repository.** The modules included in _jasper-client_ are meant as illustrative examples. Any new modules that you'd like to share should be done so through other means. If you'd like us to [list your module](http://jasperproject.github.io/documentation/modules/) on the web site, [submit a pull request here](https://github.com/jasperproject/jasperproject.github.io/blob/master/documentation/modules/index.md).
 2. **_Not_ do any of the DOs!**
 
 ## TODOs
