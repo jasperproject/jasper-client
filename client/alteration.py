@@ -12,7 +12,7 @@ def clean(input):
         actual speech by the TTS system. This is to fix minior
         idiomatic issues, for example, that 1901 is pronounced
         "one thousand, ninehundred and one" rather than
-        "nineteen ninety one".
+        "nineteen oh one".
 
         Arguments:
         input -- original speech text to-be modified
