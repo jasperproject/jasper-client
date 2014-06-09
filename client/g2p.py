@@ -4,6 +4,7 @@ import re
 
 TEMP_FILENAME = "g2ptemp"
 PHONE_MATCH = re.compile(r'<s> (.*) </s>')
+PHONETISAURUS_PATH = os.environ['JASPER_HOME'] + "/phonetisaurus"
 
 
 def parseLine(line):
@@ -16,7 +17,7 @@ def parseOutput(output):
 
 def translateWord(word):
     out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' %
-                                  os.path.expanduser("~/phonetisaurus/g014b2b.fst"), '--input=%s' % word])
+                                  PHONETISAURUS_PATH + "/g014b2b.fst", '--input=%s' % word])
     return parseLine(out)
 
 
@@ -34,8 +35,8 @@ def translateWords(words):
 
 
 def translateFile(input_filename, output_filename=None):
-    out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' % os.path.expanduser(
-        "~/phonetisaurus/g014b2b.fst"), '--input=%s' % input_filename, '--words', '--isfile'])
+    out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' % 
+        PHONETISAURUS_PATH + "/g014b2b.fst", '--input=%s' % input_filename, '--words', '--isfile'])
     out = parseOutput(out)
 
     if output_filename:
@@ -51,5 +52,5 @@ def translateFile(input_filename, output_filename=None):
 
 if __name__ == "__main__":
 
-    translateFile(os.path.expanduser("~/phonetisaurus/sentences.txt"),
-                  os.path.expanduser("~/phonetisaurus/dictionary.dic"))
+    translateFile(PHONETISAURUS_PATH + "/phonetisaurus/sentences.txt",
+                  PHONETISAURUS_PATH + "/phonetisaurus/dictionary.dic")

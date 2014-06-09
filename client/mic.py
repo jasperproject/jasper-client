@@ -22,17 +22,18 @@ class Mic:
     speechRec = None
     speechRec_persona = None
 
-    def __init__(self, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
+    def __init__(self, speaker, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
         """
             Initiates the pocketsphinx instance.
 
             Arguments:
+            speaker -- used to output audio 
             lmd -- filename of the full language model
             dictd -- filename of the full dictionary (.dic)
             lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
-
+        self.speaker = speaker
         hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
@@ -237,7 +238,7 @@ class Mic:
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        os.system("aplay -D hw:1,0 ../static/audio/beep_hi.wav")
+        self.speaker.playSound("../static/audio/beep_hi.wav")
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -267,7 +268,7 @@ class Mic:
             if average < THRESHOLD * 0.8:
                 break
 
-        os.system("aplay -D hw:1,0 ../static/audio/beep_lo.wav")
+        self.speaker.playSound("beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
@@ -291,6 +292,4 @@ class Mic:
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
-
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        os.system("aplay -D hw:1,0 say.wav")
+        self.speaker.say(phrase)
