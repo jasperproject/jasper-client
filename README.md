@@ -4,6 +4,18 @@ Client code for the Jasper voice computing platform. Jasper is an open source pl
 
 Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation.
 
+### Obtaining an API Key
+This version of Jasper has been configured to use Google's Speech To Text (STT) API. Due to recent changes of the API, all users must have an API key in order for Jasper to function fully. Following these steps should give you access within minutes.
+
+1. Go to [Google's Developer Console](https://cloud.google.com/console) and create a new project.
+2. Join the [Chromium Developer Group](https://groups.google.com/a/chromium.org/forum/?fromgroups#!forum/chromium-dev)
+3. In the Developer Console, select your new project > "APIs & Auth" > activate "Speech API"
+4. Under "APIs & Auth", go to "Credentials" and create a client
+5. Next, select "Create New Key" (both Browser and Server keys have been tested to work)
+6. Copy the Key for later.
+
+You will be prompted for your key when running populate.py upon installation.
+
 ## Additional Installations
 ### Required Installations
 ```
