@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys
+import os
+import sys
 import urllib2
 import yaml
 import vocabcompiler

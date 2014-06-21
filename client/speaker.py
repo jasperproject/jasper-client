@@ -1,5 +1,5 @@
 """
-A Speaker handles output from Jasper to the user.
+A Speaker handles audio output from Jasper to the user
 """
 import os, json
 

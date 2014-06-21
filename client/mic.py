@@ -27,7 +27,7 @@ class Mic:
             Initiates the pocketsphinx instance.
 
             Arguments:
-            speaker -- used to output audio 
+            speaker -- handles platform-independent audio output
             lmd -- filename of the full language model
             dictd -- filename of the full dictionary (.dic)
             lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
@@ -268,7 +268,7 @@ class Mic:
             if average < THRESHOLD * 0.8:
                 break
 
-        self.speaker.playSound("beep_lo.wav")
+        self.speaker.playSound("../static/audio/beep_lo.wav")
 
         # save the audio data
         stream.stop_stream()
