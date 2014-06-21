@@ -5,7 +5,6 @@ if os.environ.get('JASPER_HOME') is None:
 
 import sys
 import unittest
-from sets import Set
 from mock import patch
 import vocabcompiler
 

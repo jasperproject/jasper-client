@@ -22,8 +22,11 @@ class MacSpeaker:
     def isAvailable(cls):
         return os.system("which say") == 0
 
+    def shellquote(self, s):
+        return "'" + s.replace("'", "'\\''") + "'"
+
     def say(self, phrase):
-        os.system("say " + phrase)
+        os.system("say " + self.shellquote(phrase))
 
     def playSound(self, filename):
         os.system("afplay " + filename)
