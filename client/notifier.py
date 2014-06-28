@@ -1,5 +1,5 @@
 import Queue
-#from modules import Gmail
+from modules import Gmail
 from apscheduler.scheduler import Scheduler
 import logging
 logging.basicConfig()
