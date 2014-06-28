@@ -1,22 +1,33 @@
 """
 A Speaker handles audio output from Jasper to the user
+
+Speaker methods:
+    say - output 'phrase' as speech
+    play - play the audio in 'filename'
+    isAvailable - returns True if the platform supports this implementation
 """
-import os, json
+import os
+import json
 
-class PiSpeaker:
-
+class eSpeakSpeaker:
+    """
+    Uses the eSpeak speech synthesizer included in the Jasper disk image
+    """
     @classmethod
     def isAvailable(cls):
         return os.system("which espeak") == 0
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        self.playSound("say.wav")
+        self.play("say.wav")
 
-    def playSound(self, filename):
+    def play(self, filename):
         os.system("aplay -D hw:1,0 " + filename)
 
-class MacSpeaker:
+class saySpeaker:
+    """
+    Uses the OS X built-in 'say' command
+    """
 
     @classmethod
     def isAvailable(cls):
@@ -28,11 +39,19 @@ class MacSpeaker:
     def say(self, phrase):
         os.system("say " + self.shellquote(phrase))
 
-    def playSound(self, filename):
+    def play(self, filename):
         os.system("afplay " + filename)
 
 def newSpeaker():
-    for cls in [PiSpeaker, MacSpeaker]:
+    """
+    Returns:
+        A speaker implementation available on the current platform
+
+    Raises:
+        ValueError if no speaker implementation is supported on this platform
+    """
+
+    for cls in [eSpeakSpeaker, saySpeaker]:
         if cls.isAvailable():
             return cls()
     raise ValueError("Platform is not supported")

@@ -1,6 +1,7 @@
 env/
 client/env
 client/venv
+client/modules/*
 *.pyc
 client/active.wav
 client/passive.wav

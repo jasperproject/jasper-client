@@ -16,7 +16,7 @@ sys.path.append(mod_path)
 
 import g2p
 
-class ListWhereOrderDoesNotMatter(list):
+class UnorderedList(list):
     def __eq__(self, other):
         return sorted(self) == sorted(other)
     
@@ -41,7 +41,7 @@ class TestVocabCompiler(unittest.TestCase):
 
                 # 'words' is appended with ['MUSIC', 'SPOTIFY']
                 # so must be > 2 to have received WORDS from modules
-                translateWords.assert_called_once_with(ListWhereOrderDoesNotMatter(words))
+                translateWords.assert_called_once_with(UnorderedList(words))
                 self.assertTrue(text2lm.called)
         os.remove(sentences)
         os.remove(dictionary)
