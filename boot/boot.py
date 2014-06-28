@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import os, json
+import os
+import json
 import urllib2
-import yaml
 
 import vocabcompiler
 
