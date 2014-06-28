@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import os
-import sys
+import json
 import urllib2
-import yaml
+import sys
+
 import vocabcompiler
 import traceback
 
