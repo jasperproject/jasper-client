@@ -1,3 +1,4 @@
+#!/bin/bash
 if [[ -z "$JASPER_HOME" ]]; then
     if [[ -d "/home/pi" ]]; then
         JASPER_HOME="/home/pi"
