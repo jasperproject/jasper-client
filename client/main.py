@@ -23,7 +23,10 @@ if __name__ == "__main__":
     mic = Mic("languagemodel.lm", "dictionary.dic",
               "languagemodel_persona.lm", "dictionary_persona.dic")
 
-    mic.say("How can I be of service?")
+    addendum = ""
+    if 'first_name' in profile:
+        addendum = ", %s" % profile["first_name"]
+    mic.say("How can I be of service%s?" % addendum)
 
     conversation = Conversation("JASPER", mic, profile)
 
