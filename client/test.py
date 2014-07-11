@@ -1,3 +1,8 @@
+import os
+
+if os.environ.get('JASPER_HOME') is None:
+    os.environ['JASPER_HOME'] = '/home/pi'
+
 import unittest
 import argparse
 from mock import patch
@@ -6,6 +11,7 @@ import yaml
 import test_mic
 import g2p
 import brain
+import speaker
 
 
 def activeInternet():
@@ -23,7 +29,7 @@ class TestMic(unittest.TestCase):
         self.time_clip = "../static/audio/time.wav"
 
         from mic import Mic
-        self.m = Mic("languagemodel.lm", "dictionary.dic",
+        self.m = Mic(speaker.newSpeaker(), "languagemodel.lm", "dictionary.dic",
                      "languagemodel_persona.lm", "dictionary_persona.dic")
 
     def testTranscribeJasper(self):

@@ -1,4 +1,8 @@
 import os
+
+if os.environ.get('JASPER_HOME') is None:
+    os.environ['JASPER_HOME'] = '/home/pi'
+
 import sys
 import unittest
 from mock import patch
@@ -12,6 +16,10 @@ sys.path.append(mod_path)
 
 import g2p
 
+class UnorderedList(list):
+    def __eq__(self, other):
+        return sorted(self) == sorted(other)
+    
 
 class TestVocabCompiler(unittest.TestCase):
 
@@ -33,7 +41,7 @@ class TestVocabCompiler(unittest.TestCase):
 
                 # 'words' is appended with ['MUSIC', 'SPOTIFY']
                 # so must be > 2 to have received WORDS from modules
-                translateWords.assert_called_once_with(words)
+                translateWords.assert_called_once_with(UnorderedList(words))
                 self.assertTrue(text2lm.called)
         os.remove(sentences)
         os.remove(dictionary)

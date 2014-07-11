@@ -1,5 +1,6 @@
 import yaml
 import sys
+import speaker
 from conversation import Conversation
 
 
@@ -20,7 +21,7 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open("profile.yml", "r"))
 
-    mic = Mic("languagemodel.lm", "dictionary.dic",
+    mic = Mic(speaker.newSpeaker(), "languagemodel.lm", "dictionary.dic",
               "languagemodel_persona.lm", "dictionary_persona.dic")
 
     addendum = ""
