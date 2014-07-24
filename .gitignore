@@ -11,6 +11,7 @@ client/say.wav
 *.swp
 server/modules/build/*
 client/build/*
+client/modules/*
 client/profile.yml
 build/*
 server/dump.rdb

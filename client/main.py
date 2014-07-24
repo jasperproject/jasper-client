@@ -1,6 +1,8 @@
 import yaml
 import sys
 import speaker
+import stt
+from stt import PocketSphinxSTT
 from conversation import Conversation
 
 
@@ -21,8 +23,8 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open("profile.yml", "r"))
 
-    mic = Mic(speaker.newSpeaker(), "languagemodel.lm", "dictionary.dic",
-              "languagemodel_persona.lm", "dictionary_persona.dic")
+    # TODO: rename 'api_key' to 'google_stt_api_key'
+    mic = Mic(speaker.newSpeaker(), PocketSphinxSTT(), stt.newSTTEngine(profile['api_key']))
 
     mic.say("How can I be of service?")
 

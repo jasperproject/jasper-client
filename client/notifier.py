@@ -1,5 +1,5 @@
 import Queue
-from modules import Gmail
+#from modules import Gmail
 from apscheduler.scheduler import Scheduler
 import logging
 logging.basicConfig()
@@ -24,7 +24,7 @@ class Notifier(object):
         ]
 
         sched = Scheduler()
-        sched.start()
+        #sched.start()
         sched.add_interval_job(self.gather, seconds=30)
 
     def gather(self):

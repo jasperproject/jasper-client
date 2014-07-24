@@ -1,0 +1,101 @@
+import os
+import traceback
+import json
+import urllib2
+
+class PocketSphinxSTT(object):
+
+    def __init__(self, lmd = "languagemodel.lm", dictd = "dictionary.dic", lmd_persona = "languagemodel_persona.lm", dictd_persona = "dictionary_persona.dic", lmd_music=None, dictd_music=None):
+        """
+            Initiates the pocketsphinx instance.
+
+            Arguments:
+            speaker -- handles platform-independent audio output
+            lmd -- filename of the full language model
+            dictd -- filename of the full dictionary (.dic)
+            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
+            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+        """
+
+        # quirky bug where first import doesn't work
+        try:
+            import pocketsphinx as ps
+        except:
+            import pocketsphinx as ps
+
+        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+
+        if lmd_music and dictd_music:
+            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
+        self.speechRec_persona = ps.Decoder(
+            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
+        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+
+    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+            """
+                Performs STT, transcribing an audio file and returning the result.
+
+                Arguments:
+                audio_file_path -- the path to the audio file to-be transcribed
+                PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
+                MUSIC -- if True, uses the 'Music' language model and dictionary
+            """
+
+            wavFile = file(audio_file_path, 'rb')
+            wavFile.seek(44)
+
+            if MUSIC:
+                self.speechRec_music.decode_raw(wavFile)
+                result = self.speechRec_music.get_hyp()
+            elif PERSONA_ONLY:
+                self.speechRec_persona.decode_raw(wavFile)
+                result = self.speechRec_persona.get_hyp()
+            else:
+                self.speechRec.decode_raw(wavFile)
+                result = self.speechRec.get_hyp()
+
+            print "==================="
+            print "JASPER: " + result[0]
+            print "==================="
+
+            return result[0]
+
+
+class GoogleSTT(object):
+
+    RATE = 44100
+
+    def __init__(self, api_key):
+        self.api_key = api_key
+
+    def transcribe(self, audio_file):
+
+        AUDIO_FILE_FLAC = "active.flac"
+        os.system("ffmpeg -y -i %s -c:a flac -ab 44100 %s" % (audio_file, AUDIO_FILE_FLAC))
+
+        url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (self.api_key, "en-us")
+        flac = open(AUDIO_FILE_FLAC, 'rb')
+        data = flac.read()
+        flac.close()
+        try:
+            req = urllib2.Request(
+                url,
+                data=data,
+                headers={
+                    'Content-type': 'audio/x-flac; rate=%s' % GoogleSTT.RATE})
+            response_url = urllib2.urlopen(req)
+            response_read = response_url.read()
+            response_read = response_read.decode('utf-8')
+            decoded = json.loads(response_read.split("\n")[1])
+            print response_read
+            text = decoded['result'][0]['alternative'][0]['transcript']
+            print text
+            return text
+        except Exception:
+            traceback.print_exc()
+
+def newSTTEngine(api_key = None):
+    if api_key:
+        return GoogleSTT(api_key)
+    else:
+        return PocketSphinxSTT()

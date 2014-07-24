@@ -51,6 +51,7 @@ class Conversation(object):
 
             if threshold:
                 input = self.mic.activeListen(threshold)
+                print "I just heard '%s'" % input
                 if input:
                     self.delegateInput(input)
                 else:

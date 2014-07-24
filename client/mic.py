@@ -10,19 +10,12 @@ import pyaudio
 import alteration
 
 
-# quirky bug where first import doesn't work
-try:
-    import pocketsphinx as ps
-except:
-    import pocketsphinx as ps
-
-
 class Mic:
 
     speechRec = None
     speechRec_persona = None
 
-    def __init__(self, speaker, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
+    def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         """
             Initiates the pocketsphinx instance.
 
@@ -34,13 +27,8 @@ class Mic:
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
         self.speaker = speaker
-        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
-
-        if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
-        self.speechRec_persona = ps.Decoder(
-            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+        self.passive_stt_engine = passive_stt_engine
+        self.active_stt_engine = active_stt_engine
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -210,7 +198,8 @@ class Mic:
         write_frames.close()
 
         # check if PERSONA was said
-        transcribed = self.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
+        #transcribed = self.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
+        transcribed = self.passive_stt_engine.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
 
         if PERSONA in transcribed:
             return (THRESHOLD, PERSONA)
@@ -223,7 +212,8 @@ class Mic:
         """
 
         AUDIO_FILE = "active.wav"
-        RATE = 16000
+        #RATE = 16000 
+        RATE = 44100
         CHUNK = 1024
         LISTEN_TIME = 12
 
@@ -232,7 +222,8 @@ class Mic:
             if not os.path.exists(AUDIO_FILE):
                 return None
 
-            return self.transcribe(AUDIO_FILE)
+            #return self.transcribe(AUDIO_FILE)
+            return self.active_stt_engine.transcribe(AUDIO_FILE)
 
         # check if no threshold provided
         if THRESHOLD == None:
@@ -285,9 +276,11 @@ class Mic:
         # os.system("sox "+AUDIO_FILE+" temp.wav vol 20dB")
 
         if MUSIC:
-            return self.transcribe(AUDIO_FILE, MUSIC=True)
+            #return self.transcribe(AUDIO_FILE, MUSIC=True)
+            return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC=True)
 
-        return self.transcribe(AUDIO_FILE)
+            #return self.transcribe(AUDIO_FILE)
+        return self.active_stt_engine.transcribe(AUDIO_FILE)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking
