@@ -21,43 +21,12 @@ class Mic:
 
             Arguments:
             speaker -- handles platform-independent audio output
-            lmd -- filename of the full language model
-            dictd -- filename of the full dictionary (.dic)
-            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
-            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+            passive_stt_engine -- performs STT while Jasper is in passive listen mode
+            acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
-
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
-        """
-            Performs TTS, transcribing an audio file and returning the result.
-
-            Arguments:
-            audio_file_path -- the path to the audio file to-be transcribed
-            PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-            MUSIC -- if True, uses the 'Music' language model and dictionary
-        """
-
-        wavFile = file(audio_file_path, 'rb')
-        wavFile.seek(44)
-
-        if MUSIC:
-            self.speechRec_music.decode_raw(wavFile)
-            result = self.speechRec_music.get_hyp()
-        elif PERSONA_ONLY:
-            self.speechRec_persona.decode_raw(wavFile)
-            result = self.speechRec_persona.get_hyp()
-        else:
-            self.speechRec.decode_raw(wavFile)
-            result = self.speechRec.get_hyp()
-
-        print "==================="
-        print "JASPER: " + result[0]
-        print "==================="
-
-        return result[0]
 
     def getScore(self, data):
         rms = audioop.rms(data, 2)
@@ -198,7 +167,6 @@ class Mic:
         write_frames.close()
 
         # check if PERSONA was said
-        #transcribed = self.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
         transcribed = self.passive_stt_engine.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
 
         if PERSONA in transcribed:
@@ -222,7 +190,6 @@ class Mic:
             if not os.path.exists(AUDIO_FILE):
                 return None
 
-            #return self.transcribe(AUDIO_FILE)
             return self.active_stt_engine.transcribe(AUDIO_FILE)
 
         # check if no threshold provided
@@ -276,10 +243,8 @@ class Mic:
         # os.system("sox "+AUDIO_FILE+" temp.wav vol 20dB")
 
         if MUSIC:
-            #return self.transcribe(AUDIO_FILE, MUSIC=True)
             return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC=True)
 
-            #return self.transcribe(AUDIO_FILE)
         return self.active_stt_engine.transcribe(AUDIO_FILE)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):

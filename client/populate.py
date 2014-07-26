@@ -85,7 +85,7 @@ def run():
     profile['prefers_email'] = (response == 'E')
 
     print ("\nIf you wish to depend on the Google Speech To Text API, please enter your API key, or leave blank to use Jasper's default speech to text implementation.")
-    simple_request('api_key', 'API Key')
+    simple_request('google_api_key', 'API Key')
 
     # write to profile
     print("Writing to profile...")

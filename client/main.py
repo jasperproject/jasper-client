@@ -23,8 +23,13 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open("profile.yml", "r"))
 
-    # TODO: rename 'api_key' to 'google_stt_api_key'
-    mic = Mic(speaker.newSpeaker(), PocketSphinxSTT(), stt.newSTTEngine(profile['api_key']))
+    try:
+        google_api_key = profile['google_api_key']
+    except KeyError:
+        print "Google STT API Key not present in profile - defaulting to PocketSphinx..."
+        google_api_key = None
+
+    mic = Mic(speaker.newSpeaker(), PocketSphinxSTT(), stt.newSTTEngine(google_api_key))
 
     mic.say("How can I be of service?")
 
