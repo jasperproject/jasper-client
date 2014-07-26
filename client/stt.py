@@ -124,6 +124,10 @@ class GoogleSTT(object):
             decoded = json.loads(response_read.split("\n")[1])
             print response_read
             text = decoded['result'][0]['alternative'][0]['transcript']
+            if text:
+                print "==================="
+                print "JASPER: " + text
+                print "==================="
             return text
         except Exception:
             traceback.print_exc()
