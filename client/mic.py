@@ -180,7 +180,6 @@ class Mic:
         """
 
         AUDIO_FILE = "active.wav"
-        #RATE = 16000 
         RATE = 44100
         CHUNK = 1024
         LISTEN_TIME = 12
