@@ -3,14 +3,20 @@ jasper-client
 
 Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
 
-Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation.
+Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation. For the relevant disk image, please visit [SourceForge](http://sourceforge.net/projects/jasperproject/).
+
+## Contributing
+
+If you'd like to contribute to Jasper, we've created a Contributing Guide, available [here](https://github.com/jasperproject/jasper-client/blob/master/CONTRIBUTING.md). It outlines the philosophies to preserve, tests to run, and more. If you're looking for potential features to build, we've included some recommendations there as well.
+
+We highly recommend reading through this guide before writing any code. Thanks in advance for any and all work you contribute to Jasper!
 
 ## Contact
 
 Jasper is developed by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
 
 ## Major Updates
-
+- 2014-07-11: More platform-independent audio output. https://github.com/jasperproject/jasper-client/pull/100. Thank you, astahlman!
 - 2014-05-27: The network setup wizard has been removed because of unreliability. The client code and documentation has been updated, requiring new users to manually configure their `/etc/network/interfaces` file.
 
 ## License
