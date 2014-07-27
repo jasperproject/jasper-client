@@ -29,17 +29,19 @@ class TestMic(unittest.TestCase):
         self.time_clip = "../static/audio/time.wav"
 
         from mic import Mic
-        self.m = Mic(speaker.newSpeaker(), "languagemodel.lm", "dictionary.dic",
-                     "languagemodel_persona.lm", "dictionary_persona.dic")
+        from stt import PocketSphinxSTT
+
+        self.stt = PocketSphinxSTT()
 
     def testTranscribeJasper(self):
         """Does Jasper recognize his name (i.e., passive listen)?"""
-        transcription = self.m.transcribe(self.jasper_clip, PERSONA_ONLY=True)
+        transcription = self.stt.transcribe(self.jasper_clip, PERSONA_ONLY=True)
         self.assertTrue("JASPER" in transcription)
 
     def testTranscribe(self):
         """Does Jasper recognize 'time' (i.e., active listen)?"""
-        transcription = self.m.transcribe(self.time_clip)
+        transcription = self.stt.transcribe(self.time_clip)
+        print transcription
         self.assertTrue("TIME" in transcription)
 
 

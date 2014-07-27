@@ -12,6 +12,7 @@ client/say.wav
 server/modules/build/*
 client/build/*
 client/modules/*
+client/modules-bak/*
 client/profile.yml
 build/*
 server/dump.rdb

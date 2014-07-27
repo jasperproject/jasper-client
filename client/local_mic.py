@@ -8,7 +8,7 @@ implementation, Jasper is always active listening with local_mic.
 class Mic:
     prev = None
 
-    def __init__(self, lmd, dictd, lmd_persona, dictd_persona):
+    def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         return
 
     def passiveListen(self, PERSONA):
