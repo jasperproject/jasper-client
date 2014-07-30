@@ -10,7 +10,7 @@ class PocketSphinxSTT(object):
 
     def __init__(self, lmd = "languagemodel.lm", dictd = "dictionary.dic",
                 lmd_persona = "languagemodel_persona.lm", dictd_persona = "dictionary_persona.dic",
-                lmd_music=None, dictd_music=None):
+                lmd_music=None, dictd_music=None, **kwargs):
         """
             Initiates the pocketsphinx instance.
 
@@ -75,49 +75,50 @@ To obtain an API key:
 2. Create a project through the Google Developers console: https://console.developers.google.com/project
 3. Select your project. In the sidebar, navigate to "APIs & Auth." Activate the Speech API.
 4. Under "APIs & Auth," navigate to "Credentials." Create a new key for public API access.
-5. Copy your API key and run client/populate.py. When prompted, paste this key for access to the Speech API.
+5. Add your credentials to your profile.yml. Add an entry to the 'keys' section using the key name 'GOOGLE_SPEECH.' Sample configuration:
+6. Set the value of the 'stt_engine' key in your profile.yml to 'google'
 
-This implementation also requires that the avconv audio utility be present on your $PATH. On RPi, simply run:
-    sudo apt-get install avconv
+
+Excerpt from sample profile.yml:
+
+    ...
+    timezone: US/Pacific
+    stt_engine: google
+    keys:
+        GOOGLE_SPEECH: $YOUR_KEY_HERE
+
 """
 class GoogleSTT(object):
 
-    RATE = 44100
+    RATE = 16000
 
-    def __init__(self, api_key):
+    def __init__(self, api_key, **kwargs):
         """
         Arguments:
         api_key - the public api key which allows access to Google APIs
         """
-
         self.api_key = api_key
-        for tool in ("avconv", "ffmpeg"):
-            if os.system("which %s" % tool) == 0:
-                self.audio_tool = tool
-                break  
-        if not self.audio_tool:
-            raise Exception("Could not find an audio tool to convert .wav files to .flac")
 
-    def transcribe(self, audio_file_path):
+    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
             Performs STT via the Google Speech API, transcribing an audio file 
             and returning an English string.
-            audio_file_path -- the path to the audio file to-be transcribed
 
+            Arguments:
+                audio_file_path -- the path to the .wav file to be transcribed
         """
-        AUDIO_FILE_FLAC = "active.flac"
-        os.system("%s -y -i %s -f flac -b:a 44100 %s" % (self.audio_tool, audio_file_path, AUDIO_FILE_FLAC))
-
         url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (self.api_key, "en-us")
-        flac = open(AUDIO_FILE_FLAC, 'rb')
-        data = flac.read()
-        flac.close()
+
+        wav = open(audio_file_path, 'rb')
+        data = wav.read()
+        wav.close()
+
         try:
             req = urllib2.Request(
                 url,
                 data=data,
                 headers={
-                    'Content-type': 'audio/x-flac; rate=%s' % GoogleSTT.RATE})
+                    'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE})
             response_url = urllib2.urlopen(req)
             response_read = response_url.read()
             response_read = response_read.decode('utf-8')
@@ -135,21 +136,18 @@ class GoogleSTT(object):
 """
 Returns a Speech-To-Text engine.
 
-If api_key is not supplied, Jasper will rely on the PocketSphinx STT engine for
-audio transcription.
-
-If api_key is supplied, Jasper will use the Google Speech API for transcribing
-audio while in the active listen phase. Jasper will continue to rely on the
-PocketSphinx engine during the passive listen phase, as the Google Speech API 
-is rate limited to 50 requests/day.
+Currently, the supported implementations are the default Pocket Sphinx and
+the Google Speech API
 
 Arguments:
-api_key - if supplied, Jasper will use the Google Speech API for transcribing
-audio in the active listen phase.
-
+    engine_type - one of "sphinx" or "google"
+    kwargs - keyword arguments passed to the constructor of the STT engine
 """
-def newSTTEngine(api_key = None):
-    if api_key:
-        return GoogleSTT(api_key)
+def newSTTEngine(engine_type, **kwargs):
+    t = engine_type.lower()
+    if t == "sphinx":
+        return PocketSphinxSTT(**kwargs)
+    elif t == "google":
+        return GoogleSTT(**kwargs)
     else:
-        return PocketSphinxSTT()
+        raise ValueError("Unsupported STT engine type: " + engine_type)

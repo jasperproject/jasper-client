@@ -28,9 +28,7 @@ class TestMic(unittest.TestCase):
         self.jasper_clip = "../static/audio/jasper.wav"
         self.time_clip = "../static/audio/time.wav"
 
-        from mic import Mic
         from stt import PocketSphinxSTT
-
         self.stt = PocketSphinxSTT()
 
     def testTranscribeJasper(self):
@@ -41,7 +39,6 @@ class TestMic(unittest.TestCase):
     def testTranscribe(self):
         """Does Jasper recognize 'time' (i.e., active listen)?"""
         transcription = self.stt.transcribe(self.time_clip)
-        print transcription
         self.assertTrue("TIME" in transcription)
 
 

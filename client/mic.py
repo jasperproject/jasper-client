@@ -180,7 +180,7 @@ class Mic:
         """
 
         AUDIO_FILE = "active.wav"
-        RATE = 44100
+        RATE = 16000 
         CHUNK = 1024
         LISTEN_TIME = 12
 
@@ -241,10 +241,7 @@ class Mic:
         # DO SOME AMPLIFICATION
         # os.system("sox "+AUDIO_FILE+" temp.wav vol 20dB")
 
-        if MUSIC:
-            return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC=True)
-
-        return self.active_stt_engine.transcribe(AUDIO_FILE)
+        return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking

@@ -2,7 +2,6 @@ import yaml
 import sys
 import speaker
 import stt
-from stt import PocketSphinxSTT
 from conversation import Conversation
 
 
@@ -24,12 +23,17 @@ if __name__ == "__main__":
     profile = yaml.safe_load(open("profile.yml", "r"))
 
     try:
-        google_api_key = profile['google_api_key']
+        api_key = profile['keys']['GOOGLE_SPEECH']
     except KeyError:
-        print "Google STT API Key not present in profile - defaulting to PocketSphinx..."
-        google_api_key = None
+        api_key = None
 
-    mic = Mic(speaker.newSpeaker(), PocketSphinxSTT(), stt.newSTTEngine(google_api_key))
+    try:
+        stt_engine_type = profile['stt_engine']
+    except KeyError:
+        print "stt_engine not specified in profile, defaulting to PocketSphinx"
+        stt_engine_type = "sphinx"
+
+    mic = Mic(speaker.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     addendum = ""
     if 'first_name' in profile:
