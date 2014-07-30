@@ -4,7 +4,6 @@ import yaml
 from pytz import timezone
 import feedparser
 
-
 def run():
     profile = {}
 
@@ -83,6 +82,26 @@ def run():
     while not response or (response != 'E' and response != 'T'):
         response = raw_input("Please choose email (E) or text message (T): ")
     profile['prefers_email'] = (response == 'E')
+
+    stt_engines = { 
+        "sphinx" : None,
+        "google" : "GOOGLE_SPEECH"
+    }
+
+    response = raw_input(
+        "\nIf you would like to choose a specific STT engine, please specify which." + 
+        "\nAvailable implementations: %s. (Press Enter to default to PocketSphinx): " %  stt_engines.keys())
+    if (response in stt_engines):
+        profile["stt_engine"] = response
+        api_key_name = stt_engines[response]
+        if api_key_name:
+            key = raw_input("\nPlease enter your API key: ")
+            profile["keys"] = { api_key_name : key }
+    else:
+        print("Unrecognized STT engine. Available implementations: %s" % stt_engines.keys())
+        profile["stt_engine"] = "sphinx"
+            
+            
 
     # write to profile
     print("Writing to profile...")
