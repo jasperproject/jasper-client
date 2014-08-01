@@ -6,6 +6,7 @@ import os
 from mic import Mic
 import g2p
 from music import *
+import speaker
 
 
 class MusicMode:
@@ -39,6 +40,7 @@ class MusicMode:
 
         # create a new mic with the new music models
         self.mic = Mic(
+            speaker.newSpeaker(),
             "languagemodel.lm", "dictionary.dic", "languagemodel_persona.lm",
             "dictionary_persona.dic", "languagemodel_spotify.lm", "dictionary_spotify.dic")
 
