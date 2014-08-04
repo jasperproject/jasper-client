@@ -5,39 +5,40 @@
 import os
 import sys
 import glob
-
-lib_path = os.path.abspath('../client')
-mod_path = os.path.abspath('../client/modules/')
-
-sys.path.append(lib_path)
-sys.path.append(mod_path)
-
+import tempfile
 import g2p
+import jasperpath
 
 
-def text2lm(in_filename, out_filename):
+def text2lm(in_filename, out_filename, in_filename2=None):
     """Wrapper around the language model compilation tools"""
-    def text2idngram(in_filename, out_filename):
-        cmd = "text2idngram -vocab %s < %s -idngram temp.idngram" % (out_filename,
-                                                                     in_filename)
+    def text2idngram(in_filename, in_filename2, tmp_filename):
+        cmd = 'text2idngram -idngram "%s" -vocab "%s" < "%s" ' % (tmp_filename, in_filename, in_filename2)
         os.system(cmd)
-
-    def idngram2lm(in_filename, out_filename):
-        cmd = "idngram2lm -idngram temp.idngram -vocab %s -arpa %s" % (
-            in_filename, out_filename)
+    def idngram2lm(in_filename, out_filename, tmp_filename):
+        cmd = 'idngram2lm -idngram "%s" -vocab "%s" -arpa "%s"' % (tmp_filename, in_filename, out_filename)
         os.system(cmd)
+    
+    out_filename = jasperpath.vocab(out_filename)
+    in_filename = jasperpath.vocab(in_filename)
+    in_filename2 = jasperpath.vocab(in_filename2) if in_filename2 is not None else in_filename
 
-    text2idngram(in_filename, in_filename)
-    idngram2lm(in_filename, out_filename)
+    with tempfile.NamedTemporaryFile(suffix='.idngram',delete=False) as f:
+        tmp_filename = f.name
+
+    text2idngram(in_filename, in_filename2, tmp_filename)
+    idngram2lm(in_filename, out_filename, tmp_filename)
+
+    os.remove(tmp_filename)
 
 
 def compile(sentences, dictionary, languagemodel):
     """
         Gets the words and creates the dictionary
     """
+    module_files = glob.glob(jasperpath.clientmodules('*.py'))
 
-    m = [os.path.basename(f)[:-3]
-         for f in glob.glob(os.path.dirname("../client/modules/") + "/*.py")]
+    m = [os.path.basename(f)[:-3] for f in module_files]
 
     words = []
     for module_name in m:
@@ -57,6 +58,10 @@ def compile(sentences, dictionary, languagemodel):
     zipped = zip(words, pronounced)
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
+    dictionary = jasperpath.vocab(dictionary)
+    sentences = jasperpath.vocab(sentences)
+    languagemodel = jasperpath.vocab(languagemodel)
+
     with open(dictionary, "w") as f:
         f.write("\n".join(lines) + "\n")
 
@@ -64,7 +69,6 @@ def compile(sentences, dictionary, languagemodel):
     with open(sentences, "w") as f:
         f.write("\n".join(words) + "\n")
         f.write("<s> \n </s> \n")
-        f.close()
 
     # make language model
     text2lm(sentences, languagemodel)

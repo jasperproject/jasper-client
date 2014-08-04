@@ -5,8 +5,18 @@
 import os
 from mic import Mic
 import g2p
+import vocabcompiler
+import jasperpath
 from music import *
 
+
+sentences_spotify     = jasperpath.config("sentences_spotify.txt")
+languagemodel         = jasperpath.config("languagemodel.lm")
+languagemodel_persona = jasperpath.config("languagemodel_persona.lm")
+languagemodel_spotify = jasperpath.config("languagemodel_spotify.lm")
+dictionary            = jasperpath.config("dictionary.dic")
+dictionary_persona    = jasperpath.config("dictionary_persona.dic")
+dictionary_spotify    = jasperpath.config("dictionary_spotify.dic")
 
 class MusicMode:
 
@@ -29,18 +39,17 @@ class MusicMode:
         with open("sentences_spotify.txt", "w") as f:
             f.write("\n".join(original) + "\n")
             f.write("<s> \n </s> \n")
-            f.close()
 
         # make language model
-        os.system(
-            "text2idngram -vocab sentences_spotify.txt < sentences_spotify.txt -idngram spotify.idngram")
-        os.system(
-            "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
+
+        
+        vocabcompiler.text2lm(sentences_spotify, languagemodel_spotify)
 
         # create a new mic with the new music models
         self.mic = Mic(
-            "languagemodel.lm", "dictionary.dic", "languagemodel_persona.lm",
-            "dictionary_persona.dic", "languagemodel_spotify.lm", "dictionary_spotify.dic")
+            languagemodel, dictionary,
+            languagemodel_persona, dictionary_persona,
+            languagemodel_spotify, dictionary_spotify)
 
     def delegateInput(self, input):
 
@@ -157,23 +166,23 @@ if __name__ == "__main__":
     zipped = zip(original, pronounced)
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
-    with open("dictionary_spotify.dic", "w") as f:
+    dictionary_spotify          = "dictionary_spotify.dic"
+    sentences_spotify           = "sentences_spotify.txt"
+    sentences_spotify_separated = "sentences_spotify_separated.txt"
+    languagemodel_spotify       = "languagemodel_spotify.lm"
+
+    with open(dictionary_spotify, "w") as f:
         f.write("\n".join(lines) + "\n")
 
-    with open("sentences_spotify.txt", "w") as f:
+    with open(sentences_spotify, "w") as f:
         f.write("\n".join(original) + "\n")
         f.write("<s> \n </s> \n")
-        f.close()
 
-    with open("sentences_spotify_separated.txt", "w") as f:
+    with open(dictionary_spotify_separated, "w") as f:
         f.write("\n".join(music.get_soup_separated()) + "\n")
         f.write("<s> \n </s> \n")
-        f.close()
 
     # make language model
-    os.system(
-        "text2idngram -vocab sentences_spotify.txt < sentences_spotify_separated.txt -idngram spotify.idngram")
-    os.system(
-        "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
+    vocabcompiler.text2lm(sentences_spotify,languagemodel_spotify,sentences_spotify_separated)
 
     print "Language Model and Dictionary Done"

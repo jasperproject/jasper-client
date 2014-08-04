@@ -4,11 +4,13 @@
 
 import os
 import json
+import tempfile
 from wave import open as open_audio
 import audioop
 import pyaudio
 import alteration
 
+import jasperpath
 
 # quirky bug where first import doesn't work
 try:
@@ -34,13 +36,12 @@ class Mic:
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
         self.speaker = speaker
-        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
+            self.speechRec_music = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd_music, dict=dictd_music)
         self.speechRec_persona = ps.Decoder(
-            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+            hmm=jasperpath.HMM_PATH, lm=lmd_persona, dict=dictd_persona)
+        self.speechRec = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd, dict=dictd)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -51,8 +52,7 @@ class Mic:
             PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
             MUSIC -- if True, uses the 'Music' language model and dictionary
         """
-
-        wavFile = file(audio_file_path, 'rb')
+        wavFile = open(audio_file_path,"rb")
         wavFile.seek(44)
 
         if MUSIC:
@@ -81,7 +81,6 @@ class Mic:
         # TODO: Consolidate all of these variables from the next three
         # functions
         THRESHOLD_MULTIPLIER = 1.8
-        AUDIO_FILE = "passive.wav"
         RATE = 16000
         CHUNK = 1024
 
@@ -128,7 +127,6 @@ class Mic:
         """
 
         THRESHOLD_MULTIPLIER = 1.8
-        AUDIO_FILE = "passive.wav"
         RATE = 16000
         CHUNK = 1024
 
@@ -145,7 +143,6 @@ class Mic:
                             rate=RATE,
                             input=True,
                             frames_per_buffer=CHUNK)
-
         # stores the audio data
         frames = []
 
@@ -190,27 +187,27 @@ class Mic:
 
         # cutoff any recording before this disturbance was detected
         frames = frames[-20:]
-
         # otherwise, let's keep recording for few seconds and save the file
         DELAY_MULTIPLIER = 1
         for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
 
             data = stream.read(CHUNK)
             frames.append(data)
-
         # save the audio data
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
-        write_frames.setnchannels(1)
-        write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        write_frames.setframerate(RATE)
-        write_frames.writeframes(''.join(frames))
-        write_frames.close()
-
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
+            write_frames = open_audio(audio_file, 'wb')
+            write_frames.setnchannels(1)
+            write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            write_frames.setframerate(RATE)
+            write_frames.writeframes(''.join(frames))
+            write_frames.close()
+            audio_file_path = audio_file.name
         # check if PERSONA was said
-        transcribed = self.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
+        transcribed = self.transcribe(audio_file_path, PERSONA_ONLY=True)
+        os.remove(audio_file_path)
 
         if PERSONA in transcribed:
             return (THRESHOLD, PERSONA)
@@ -222,7 +219,6 @@ class Mic:
             Records until a second of silence or times out after 12 seconds
         """
 
-        AUDIO_FILE = "active.wav"
         RATE = 16000
         CHUNK = 1024
         LISTEN_TIME = 12
@@ -274,20 +270,21 @@ class Mic:
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
-        write_frames.setnchannels(1)
-        write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        write_frames.setframerate(RATE)
-        write_frames.writeframes(''.join(frames))
-        write_frames.close()
 
-        # DO SOME AMPLIFICATION
-        # os.system("sox "+AUDIO_FILE+" temp.wav vol 20dB")
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
+            write_frames = open_audio(audio_file, 'wb')
+            write_frames.setnchannels(1)
+            write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            write_frames.setframerate(RATE)
+            write_frames.writeframes(''.join(frames))
+            write_frames.close()
+            audio_file_path = audio_file.name
 
-        if MUSIC:
-            return self.transcribe(AUDIO_FILE, MUSIC=True)
+        # DO SOME AMPLIFICATION 
+        # os.system("sox "+audio_file_path+" temp.wav vol 20dB")
 
-        return self.transcribe(AUDIO_FILE)
+        transcribed = self.transcribe(audio_file_path, MUSIC=MUSIC)
+        return transcribed
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking

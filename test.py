@@ -1,20 +1,10 @@
 import os
-
-if os.environ.get('JASPER_HOME') is None:
-    os.environ['JASPER_HOME'] = '/home/pi'
-
 import sys
 import unittest
+import tempfile
 from mock import patch
-import vocabcompiler
-
-lib_path = os.path.abspath('../client')
-mod_path = os.path.abspath('../client/modules/')
-
-sys.path.append(lib_path)
-sys.path.append(mod_path)
-
-import g2p
+import client.vocabcompiler as vocabcompiler
+import client.g2p as g2p
 
 class UnorderedList(list):
     def __eq__(self, other):
@@ -24,9 +14,12 @@ class UnorderedList(list):
 class TestVocabCompiler(unittest.TestCase):
 
     def testWordExtraction(self):
-        sentences = "temp_sentences.txt"
-        dictionary = "temp_dictionary.dic"
-        languagemodel = "temp_languagemodel.lm"
+        with tempfile.NamedTemporaryFile(prefix='sentences', suffix='.txt', delete=False) as f:
+            sentences = f.name
+        with tempfile.NamedTemporaryFile(prefix='dictionary', suffix='.dic', delete=False) as f:
+            dictionary = f.name
+        with tempfile.NamedTemporaryFile(prefix='languagemodel', suffix='.lm', delete=False) as f:
+            languagemodel = f.name
 
         words = [
             'HACKER', 'LIFE', 'FACEBOOK', 'THIRD', 'NO', 'JOKE',
@@ -43,8 +36,10 @@ class TestVocabCompiler(unittest.TestCase):
                 # so must be > 2 to have received WORDS from modules
                 translateWords.assert_called_once_with(UnorderedList(words))
                 self.assertTrue(text2lm.called)
+        
         os.remove(sentences)
         os.remove(dictionary)
+        os.remove(languagemodel)
 
 if __name__ == '__main__':
     unittest.main()

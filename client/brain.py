@@ -1,6 +1,7 @@
 import logging
-from os import listdir
-
+import os
+import jasperpath
+import pkgutil
 
 def logError():
     logger = logging.getLogger('jasper')
@@ -33,13 +34,10 @@ class Brain(object):
             module, a priority of 0 is assumed.
             """
 
-            folder = 'modules'
-
             def get_module_names():
-                module_names = [m.replace('.py', '')
-                                for m in listdir(folder) if m.endswith('.py')]
-                module_names = map(lambda s: folder + '.' + s, module_names)
-                return module_names
+                pkgprefix = ".".join(os.path.split(os.path.relpath(jasperpath.CLIENTMODULES_PATH)))
+                mods = [".".join([pkgprefix, name]) for loader, name, ispkg in pkgutil.iter_modules([jasperpath.CLIENTMODULES_PATH])]
+                return mods
 
             def import_module(name):
                 mod = __import__(name)

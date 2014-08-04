@@ -8,6 +8,7 @@ Speaker methods:
 """
 import os
 import json
+import tempfile
 
 class eSpeakSpeaker:
     """
@@ -17,12 +18,15 @@ class eSpeakSpeaker:
     def isAvailable(cls):
         return os.system("which espeak") == 0
 
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
-        self.play("say.wav")
+    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > %s"):
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            fname = f.name
+        os.system("espeak " + json.dumps(phrase) + OPTIONS % fname)
+        self.play(fname)
+        os.remove(fname)
 
     def play(self, filename):
-        os.system("aplay -D hw:1,0 " + filename)
+        os.system("aplay -D default " + filename)
 
 class saySpeaker:
     """
