@@ -1,3 +1,4 @@
+
 """
     The Mic class handles all interactions with the microphone and speaker.
 """
@@ -36,7 +37,7 @@ class Mic:
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
         self.speaker = speaker
-
+        
         if lmd_music and dictd_music:
             self.speechRec_music = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd_music, dict=dictd_music)
         self.speechRec_persona = ps.Decoder(
@@ -52,7 +53,7 @@ class Mic:
             PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
             MUSIC -- if True, uses the 'Music' language model and dictionary
         """
-        wavFile = open(audio_file_path,"rb")
+        wavFile = open(audio_file_path, "rb")
         wavFile.seek(44)
 
         if MUSIC:
@@ -280,11 +281,7 @@ class Mic:
             write_frames.close()
             audio_file_path = audio_file.name
 
-        # DO SOME AMPLIFICATION 
-        # os.system("sox "+audio_file_path+" temp.wav vol 20dB")
-
-        transcribed = self.transcribe(audio_file_path, MUSIC=MUSIC)
-        return transcribed
+        return self.transcribe(audio_file_path, MUSIC=MUSIC)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking

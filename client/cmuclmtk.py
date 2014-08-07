@@ -36,6 +36,7 @@ import os
 import io
 import tempfile
 import subprocess
+import shutil
 
 # TODO: add wrapper functions for tools
 #  text2wngram
@@ -65,7 +66,6 @@ def text2wfreq(text, output_file, hashtablesize=1000000, verbosity=2):
 
     with tempfile.SpooledTemporaryFile(mode='w+') as input_f:
         input_f.write(text)
-        input_f.write(" <s> </s>")
         input_f.seek(0)
         with open(output_file,'w+') as output_f:
             exitcode = subprocess.call(cmd, stdin=input_f, stdout=output_f)
@@ -133,6 +133,13 @@ def text2idngram(text, vocab_file, output_file, buffersize=100, hashtablesize=20
                            '-verbosity',verbosity,
                            '-n',n,
                            '-fof_size',fof_size]
+
+    # Save CWD
+    curdir = os.getcwd()
+    # Go into tempdir
+    tempdir = tempfile.mkdtemp(prefix='cmuclmtk-')
+    os.chdir(tempdir)
+
     if compress:
         cmd.append('-compress')
     if write_ascii:
@@ -147,6 +154,10 @@ def text2idngram(text, vocab_file, output_file, buffersize=100, hashtablesize=20
         with tempfile.SpooledTemporaryFile() as output_f:
             exitcode = subprocess.call(cmd, stdin=input_f, stdout=output_f)
             output = output_f.read()
+
+    # Go back and throw away tempdir
+    os.chdir(curdir)
+    shutil.rmtree(tempdir)
 
     if exitcode != 0:
         raise ConversionError("'%r' returned with non-zero exit status '%s'" % (cmd, exitcode))
@@ -195,6 +206,7 @@ def idngram2lm(idngram_file, vocab_file, output_file, context_file=None, vocab_t
     with tempfile.SpooledTemporaryFile() as output_f:
         exitcode = subprocess.call(cmd, stdout=output_f)
         output = output_f.read()
+    print output
 
     if exitcode != 0:
         raise ConversionError("'%s' returned with non-zero exit status '%s'" % (cmd[0], exitcode))

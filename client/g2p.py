@@ -31,6 +31,8 @@ def translateWords(words):
     output = translateFile(TEMP_FILENAME)
     os.remove(TEMP_FILENAME)
 
+    print output
+
     return output
 
 

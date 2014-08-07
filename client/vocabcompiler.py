@@ -5,6 +5,7 @@
 import glob
 import os.path
 import importlib
+import tempfile
 
 import jasperpath
 import g2p
@@ -33,30 +34,51 @@ def create_dict(words, output_file):
     # create the dictionary
     pronounced = g2p.translateWords(words)
     zipped = zip(words, pronounced)
+    print "ZIPPPPPPED"
+    print zipped
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
     with open(output_file, "w") as f:
         for line in lines:
             f.write("%s\n" % line)
 
-def create_languagemodel(words, output_file):
+def create_languagemodel(text, output_file):
     """
-        Creates the languagemodel from words
+        Creates the languagemodel from text, returns a list of words in vocabulary
     """
-    text = " ".join(words)
-    cmuclmtk.text2lm(text, output_file)
+    with tempfile.NamedTemporaryFile(suffix='.vocab', delete=False) as f:
+        vocab_file = f.name
 
-def compile_words(words, dictionary, languagemodel):
-    dictionary_file = jasperpath.dictionary(dictionary)
-    languagemodel_file = jasperpath.languagemodel(languagemodel)
+    # Create vocab file from text
+    cmuclmtk.text2vocab_file(text, vocab_file)
+    # Create language model from text
+    cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
+    words = []
+    with open(vocab_file,'r',) as f:
+        for line in f:
+            line = line.strip()
+            if not line.startswith('#') and not line in ('<s>','</s>'):
+                words.append(line)
+    os.remove(vocab_file)
+    # return used vocabulary
+    return words
+
+
+def compile_text(text, name="default"):
+
+    dictionary_file = jasperpath.dictionary(name)
+    languagemodel_file = jasperpath.languagemodel(name)
     
+    if not '<s>' in text:
+        text = "<s> %s </s>" % compile_text
+    words = create_languagemodel(text, languagemodel_file)
     create_dict(words, dictionary_file)
-    create_languagemodel(words, languagemodel_file)
+    return words
 
-def compile(dictionary, languagemodel):
+def compile(name="default"):
     """
         Creates the dictionary and languagemodel
     """
     words = get_words()
-    compile_words(words, dictionary, languagemodel)
-
+    text = " ".join(["<s> %s </s>" % word for word in words])
+    compile_text(text, name=name)
