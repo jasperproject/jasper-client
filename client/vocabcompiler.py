@@ -34,8 +34,6 @@ def create_dict(words, output_file):
     # create the dictionary
     pronounced = g2p.translateWords(words)
     zipped = zip(words, pronounced)
-    print "ZIPPPPPPED"
-    print zipped
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
     with open(output_file, "w") as f:

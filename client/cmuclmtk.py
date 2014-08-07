@@ -206,7 +206,6 @@ def idngram2lm(idngram_file, vocab_file, output_file, context_file=None, vocab_t
     with tempfile.SpooledTemporaryFile() as output_f:
         exitcode = subprocess.call(cmd, stdout=output_f)
         output = output_f.read()
-    print output
 
     if exitcode != 0:
         raise ConversionError("'%s' returned with non-zero exit status '%s'" % (cmd[0], exitcode))
