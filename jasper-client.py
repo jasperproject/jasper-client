@@ -44,9 +44,9 @@ if __name__ == "__main__":
     print "==========================================================="
 
     tempspeaker = client.speaker.newSpeaker()
-    #tempspeaker.say("Hello.... I am Jasper... Please wait one moment.")
+    tempspeaker.say("Hello.... I am Jasper... Please wait one moment.")
 
-    for directory in [jasperpath.CONFIG_PATH, jasperpath.config("languagemodels"), jasperpath.config("dictionaries")]:
+    for directory in [jasperpath.CONFIG_PATH, jasperpath.config("sentences"), jasperpath.config("languagemodels"), jasperpath.config("dictionaries")]:
         if not os.path.exists(directory):
             try:
                 os.mkdir(directory)
@@ -67,22 +67,22 @@ if __name__ == "__main__":
 
     if args.compile:
         print "COMPILING DICTIONARY"
-        client.vocabcompiler.compile("dictionary","languagemodel")
+        client.vocabcompiler.compile()
 
     profile = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
 
     mic = Mic(client.speaker.newSpeaker(), \
-        jasperpath.languagemodel("languagemodel"), \
-        jasperpath.dictionary("dictionary"), \
-        jasperpath.data("vocab", "languagemodel_persona.lm"), \
-        jasperpath.data("vocab", "dictionary_persona.dic"))
+              jasperpath.languagemodel(), \
+              jasperpath.dictionary(), \
+              jasperpath.languagemodel("persona", static=True), \
+              jasperpath.dictionary("persona", static=True))
 
     del tempspeaker
 
     addendum = ""
     if 'first_name' in profile:
         addendum = ", %s" % profile["first_name"]
-    #mic.say("How can I be of service%s?" % addendum)
+    mic.say("How can I be of service%s?" % addendum)
 
     conversation = Conversation("JASPER", mic, profile)
 

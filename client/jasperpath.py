@@ -1,11 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 import os
-JASPER_PATH = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),os.pardir))
+JASPER_PATH = os.path.normpath( os.path.join( os.path.dirname(os.path.abspath(__file__)), os.pardir) )
 DATA_PATH = os.path.join(JASPER_PATH, "static")
 CLIENTMODULES_PATH = os.path.join(JASPER_PATH, "client", "modules")
 
-CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG','~/.jasper-client'))
+CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG', '~/.jasper-client'))
 
 def _getprefix(name):
 	prefixes = ('/usr/share','/usr/local/share','/opt')
@@ -16,18 +16,28 @@ def _getprefix(name):
 	raise OSError("Could not find '%s'. Are you sure it's installed?")
 
 PHONETISAURUS_PATH = _getprefix('phonetisaurus')
-PHONETISAURUS_SCRIPTS_PATH = os.path.join(PHONETISAURUS_PATH,"scripts")
+PHONETISAURUS_SCRIPTS_PATH = os.path.join(PHONETISAURUS_PATH, "scripts")
 
-HMM_PATH = os.path.join(_getprefix('pocketsphinx'),'model/hmm/en_US/hub4wsj_sc_8k')
+HMM_PATH = os.path.join(_getprefix('pocketsphinx'), 'model/hmm/en_US/hub4wsj_sc_8k')
 
 def config(*fname):
     return os.path.join(CONFIG_PATH, *fname)
 
-def languagemodel(name):
-	return config("languagemodels", "%s.lm" % name)
+def languagemodel(name="default", static=False):
+	components = ("languagemodels", "%s.lm" % name)
+	if static:
+		path = data(*components)
+	else:
+		path = config(*components)
+	return path
 
-def dictionary(name):
-	return config("dictionaries", "%s.dic" % name)
+def dictionary(name="default", static=False):
+	components = ("dictionaries", "%s.dic" % name)
+	if static:
+		path = data(*components)
+	else:
+		path = config(*components)
+	return path
 
 def data(*fname):
     return os.path.join(DATA_PATH, *fname)
