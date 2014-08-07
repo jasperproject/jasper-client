@@ -2,73 +2,61 @@
     Iterates over all the WORDS variables in the modules and creates a dictionary for the client.
 """
 
-import os
-import sys
 import glob
-import tempfile
-import g2p
+import os.path
+import importlib
+
 import jasperpath
+import g2p
+import cmuclmtk
+import brain
 
-
-def text2lm(in_filename, out_filename, in_filename2=None):
-    """Wrapper around the language model compilation tools"""
-    def text2idngram(in_filename, in_filename2, tmp_filename):
-        cmd = 'text2idngram -idngram "%s" -vocab "%s" < "%s" ' % (tmp_filename, in_filename, in_filename2)
-        os.system(cmd)
-    def idngram2lm(in_filename, out_filename, tmp_filename):
-        cmd = 'idngram2lm -idngram "%s" -vocab "%s" -arpa "%s"' % (tmp_filename, in_filename, out_filename)
-        os.system(cmd)
-    
-    out_filename = jasperpath.vocab(out_filename)
-    in_filename = jasperpath.vocab(in_filename)
-    in_filename2 = jasperpath.vocab(in_filename2) if in_filename2 is not None else in_filename
-
-    with tempfile.NamedTemporaryFile(suffix='.idngram',delete=False) as f:
-        tmp_filename = f.name
-
-    text2idngram(in_filename, in_filename2, tmp_filename)
-    idngram2lm(in_filename, out_filename, tmp_filename)
-
-    os.remove(tmp_filename)
-
-
-def compile(sentences, dictionary, languagemodel):
+def get_words(additional_words=['MUSIC','SPOTIFY']):
     """
-        Gets the words and creates the dictionary
+        Gets the words from modules
     """
-    module_files = glob.glob(jasperpath.clientmodules('*.py'))
-
-    m = [os.path.basename(f)[:-3] for f in module_files]
-
     words = []
-    for module_name in m:
-        try:
-            exec("import %s" % module_name)
-            eval("words.extend(%s.WORDS)" % module_name)
-        except:
-            pass  # module probably doesn't have the property
 
-    words = list(set(words))
+    # For spotify module
+    words.extend(additional_words)
 
-    # for spotify module
-    words.extend(["MUSIC", "SPOTIFY"])
+    modules = brain.get_modules()
+    for mod in modules:
+        words.extend(mod.WORDS)
 
+    return words
+
+def create_dict(words, output_file):
+    """
+        Creates the dictionary from words
+    """
     # create the dictionary
     pronounced = g2p.translateWords(words)
     zipped = zip(words, pronounced)
     lines = ["%s %s" % (x, y) for x, y in zipped]
 
-    dictionary = jasperpath.vocab(dictionary)
-    sentences = jasperpath.vocab(sentences)
-    languagemodel = jasperpath.vocab(languagemodel)
+    with open(output_file, "w") as f:
+        for line in lines:
+            f.write("%s\n" % line)
 
-    with open(dictionary, "w") as f:
-        f.write("\n".join(lines) + "\n")
+def create_languagemodel(words, output_file):
+    """
+        Creates the languagemodel from words
+    """
+    text = " ".join(words)
+    cmuclmtk.text2lm(text, output_file)
 
-    # create the language model
-    with open(sentences, "w") as f:
-        f.write("\n".join(words) + "\n")
-        f.write("<s> \n </s> \n")
+def compile_words(words, dictionary, languagemodel):
+    dictionary_file = jasperpath.dictionary(dictionary)
+    languagemodel_file = jasperpath.languagemodel(languagemodel)
+    
+    create_dict(words, dictionary_file)
+    create_languagemodel(words, languagemodel_file)
 
-    # make language model
-    text2lm(sentences, languagemodel)
+def compile(dictionary, languagemodel):
+    """
+        Creates the dictionary and languagemodel
+    """
+    words = get_words()
+    compile_words(words, dictionary, languagemodel)
+

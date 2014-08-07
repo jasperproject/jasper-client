@@ -44,22 +44,16 @@ if __name__ == "__main__":
     print "==========================================================="
 
     tempspeaker = client.speaker.newSpeaker()
-    tempspeaker.say("Hello.... I am Jasper... Please wait one moment.")
+    #tempspeaker.say("Hello.... I am Jasper... Please wait one moment.")
 
-    if not os.path.exists(jasperpath.CONFIG_PATH):
-        try:
-            os.mkdir(jasperpath.CONFIG_PATH)
-        except OSError(errno, strerror):
-            print("Can't create configdir '%s': %s" % (client.jasperpath.CONFIG_PATH, strerror))
-            tempspeaker.say("Hello, I could not access the configuration directory. Please check if you have the right permissions.")
-            sys.exit(1)
-    if not os.path.exists(jasperpath.VOCAB_PATH):
-        try:
-            os.mkdir(jasperpath.VOCAB_PATH)
-        except OSError(errno, strerror):
-            print("Can't create vocabdir '%s': %s" % (client.jasperpath.VOCAB_PATH, strerror))
-            tempspeaker.say("Hello, I could not access the vocabulary directory. Please check if you have the right permissions.")
-            sys.exit(1)
+    for directory in [jasperpath.CONFIG_PATH, jasperpath.config("languagemodels"), jasperpath.config("dictionaries")]:
+        if not os.path.exists(directory):
+            try:
+                os.mkdir(directory)
+            except OSError(errno, strerror):
+                print("Can't create configdir '%s': %s" % (directory, strerror))
+                tempspeaker.say("Hello, I could not access the configuration directory or one of its subdirectories. Please check if you have the right permissions.")
+                sys.exit(1)
 
 
     if args.checknetwork:
@@ -73,14 +67,13 @@ if __name__ == "__main__":
 
     if args.compile:
         print "COMPILING DICTIONARY"
-        vocabfiles = ("sentences.txt","dictionary.dic","languagemodel.lm")
-        client.vocabcompiler.compile(*vocabfiles)
+        client.vocabcompiler.compile("dictionary","languagemodel")
 
     profile = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
 
     mic = Mic(client.speaker.newSpeaker(), \
-        jasperpath.vocab("languagemodel.lm"), \
-        jasperpath.vocab("dictionary.dic"), \
+        jasperpath.languagemodel("languagemodel"), \
+        jasperpath.dictionary("dictionary"), \
         jasperpath.data("vocab", "languagemodel_persona.lm"), \
         jasperpath.data("vocab", "dictionary_persona.dic"))
 
@@ -89,8 +82,11 @@ if __name__ == "__main__":
     addendum = ""
     if 'first_name' in profile:
         addendum = ", %s" % profile["first_name"]
-    mic.say("How can I be of service%s?" % addendum)
+    #mic.say("How can I be of service%s?" % addendum)
 
     conversation = Conversation("JASPER", mic, profile)
 
-    conversation.handleForever()
+    try:
+        conversation.handleForever()
+    except:
+        sys.exit(1)

@@ -6,7 +6,6 @@ DATA_PATH = os.path.join(JASPER_PATH, "static")
 CLIENTMODULES_PATH = os.path.join(JASPER_PATH, "client", "modules")
 
 CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG','~/.jasper-client'))
-VOCAB_PATH = os.path.join(CONFIG_PATH, "vocab")
 
 def _getprefix(name):
 	prefixes = ('/usr/share','/usr/local/share','/opt')
@@ -24,8 +23,11 @@ HMM_PATH = os.path.join(_getprefix('pocketsphinx'),'model/hmm/en_US/hub4wsj_sc_8
 def config(*fname):
     return os.path.join(CONFIG_PATH, *fname)
 
-def vocab(*fname):
-	return os.path.join(VOCAB_PATH, *fname)
+def languagemodel(name):
+	return config("languagemodels", "%s.lm" % name)
+
+def dictionary(name):
+	return config("dictionaries", "%s.dic" % name)
 
 def data(*fname):
     return os.path.join(DATA_PATH, *fname)
