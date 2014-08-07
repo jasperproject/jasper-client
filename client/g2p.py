@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 import re
@@ -51,6 +52,9 @@ def translateFile(input_filename, output_filename=None):
     return out
 
 if __name__ == "__main__":
-    sentences_path = jasperpath.config('sentences.txt')
-    dictionary_path = jasperpath.config('dictionary.dic')
-    translateFile(sentences_path,dictionary_path)
+    # This seems to be for testing purposes
+    # We take the path from the first arg
+    if len(sys.argv) != 2:
+        print "Usage: %s INPUT_FILENAME" % sys.argv[0]
+        sys.exit(1)
+    print translateFile(sys.argv[1])
