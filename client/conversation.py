@@ -2,6 +2,7 @@ from notifier import Notifier
 from musicmode import *
 from brain import Brain
 from mpd import MPDClient
+from mic import NoDisturbanceDetectedException
 
 class Conversation(object):
 
@@ -46,7 +47,8 @@ class Conversation(object):
 
             try:
                 threshold, transcribed = self.mic.passiveListen(self.persona)
-            except:
+            except NoDisturbanceDetectedException:
+                print "No disturbance detected"
                 continue
 
             if threshold:

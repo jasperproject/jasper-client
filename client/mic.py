@@ -6,6 +6,8 @@
 import os
 import json
 import tempfile
+from contextlib import contextmanager
+
 from wave import open as open_audio
 import audioop
 import pyaudio
@@ -18,7 +20,6 @@ try:
     import pocketsphinx as ps
 except:
     import pocketsphinx as ps
-
 
 class Mic:
 
@@ -37,6 +38,7 @@ class Mic:
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
         self.speaker = speaker
+        self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
         
         if lmd_music and dictd_music:
             self.speechRec_music = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd_music, dict=dictd_music)
@@ -72,97 +74,13 @@ class Mic:
 
         return result[0]
 
-    def getScore(self, data):
-        rms = audioop.rms(data, 2)
-        score = rms / 3
-        return score
-
-    def fetchThreshold(self):
-
-        # TODO: Consolidate all of these variables from the next three
-        # functions
-        THRESHOLD_MULTIPLIER = 1.8
-        RATE = 16000
-        CHUNK = 1024
-
-        # number of seconds to allow to establish threshold
-        THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
-
-        # prepare recording stream
-        audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
-                            input=True,
-                            frames_per_buffer=CHUNK)
-
-        # stores the audio data
-        frames = []
-
-        # stores the lastN score values
-        lastN = [i for i in range(20)]
-
-        # calculate the long run average, and thereby the proper threshold
-        for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
-
-        # this will be the benchmark to cause a disturbance over!
-        THRESHOLD = average * THRESHOLD_MULTIPLIER
-
-        return THRESHOLD
-
-    def passiveListen(self, PERSONA):
+    def passiveListen(self, PERSONA, timeout=10, delay_multiplier=1):
         """
-            Listens for PERSONA in everyday sound
-            Times out after LISTEN_TIME, so needs to be restarted
+            Listens for 'PERSONA' in everyday sound
+            Times out after 'timeout' (in seconds), so needs to be restarted
         """
 
-        THRESHOLD_MULTIPLIER = 1.8
-        RATE = 16000
-        CHUNK = 1024
-
-        # number of seconds to allow to establish threshold
-        THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
-
-        # prepare recording stream
-        audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
-                            input=True,
-                            frames_per_buffer=CHUNK)
-        # stores the audio data
-        frames = []
-
-        # stores the lastN score values
-        lastN = [i for i in range(30)]
-
-        # calculate the long run average, and thereby the proper threshold
-        for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
-
-        # this will be the benchmark to cause a disturbance over!
-        THRESHOLD = average * THRESHOLD_MULTIPLIER
+        threshold = self.ar.get_threshold()
 
         # save some memory for sound data
         frames = []
@@ -170,120 +88,162 @@ class Mic:
         # flag raised when sound disturbance detected
         didDetect = False
 
-        # start passively listening for disturbance above threshold
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
+        with self.ar.record_audio_stream() as stream:
+            # start passively listening for disturbance above threshold
+            for i in range(0, self.ar.rate_chunk_ratio * timeout):
 
-            data = stream.read(CHUNK)
-            frames.append(data)
-            score = self.getScore(data)
+                data = stream.read(self.ar.chunksize)
+                frames.append(data)
+                score = self.ar.get_score(data)
 
-            if score > THRESHOLD:
-                didDetect = True
-                break
+                if score > threshold:
+                    didDetect = True
+                    # cutoff any recording before this disturbance was detected
+                    frames = frames[-20:]
+                    # let's keep recording for few seconds and save the file
+                    for i in range(0, self.ar.rate_chunk_ratio * delay_multiplier):
+                        data = stream.read(self.ar.chunksize)
+                        frames.append(data)
 
-        # no use continuing if no flag raised
         if not didDetect:
-            print "No disturbance detected"
-            return
+            raise NoDisturbanceDetectedException()
+            return (None, None)
 
-        # cutoff any recording before this disturbance was detected
-        frames = frames[-20:]
-        # otherwise, let's keep recording for few seconds and save the file
-        DELAY_MULTIPLIER = 1
-        for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
         # save the audio data
-        stream.stop_stream()
-        stream.close()
-        audio.terminate()
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
-            write_frames = open_audio(audio_file, 'wb')
-            write_frames.setnchannels(1)
-            write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-            write_frames.setframerate(RATE)
-            write_frames.writeframes(''.join(frames))
-            write_frames.close()
-            audio_file_path = audio_file.name
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            self.ar.save_audio(f, frames)
+            audio_file_path = f.name
+
         # check if PERSONA was said
         transcribed = self.transcribe(audio_file_path, PERSONA_ONLY=True)
         os.remove(audio_file_path)
 
         if PERSONA in transcribed:
-            return (THRESHOLD, PERSONA)
+            return (threshold, PERSONA)
 
-        return (False, transcribed)
+        return (None, transcribed)
 
-    def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
+    def activeListen(self, threshold=None, timeout=12, audio_file=None, music=False):
         """
             Records until a second of silence or times out after 12 seconds
         """
 
-        RATE = 16000
-        CHUNK = 1024
-        LISTEN_TIME = 12
-
         # user can request pre-recorded sound
-        if not LISTEN:
-            if not os.path.exists(AUDIO_FILE):
+        if audio_file:
+            if not os.path.exists(audio_file):
                 return None
+            transcribe_file = audio_file
+        else:
+            # check if no threshold provided
+            if not threshold:
+                threshold = self.ar.get_threshold()
 
-            return self.transcribe(AUDIO_FILE)
+            self.speaker.play(jasperpath.data("audio", "beep_hi.wav"))
 
-        # check if no threshold provided
-        if THRESHOLD == None:
-            THRESHOLD = self.fetchThreshold()
+            frames = []
 
-        self.speaker.play(jasperpath.data("audio", "beep_hi.wav"))
+            # increasing the range # results in longer pause after command
+            # generation
+            lastN = [threshold * 1.2 for i in range(30)]
 
+            for data in self.ar.record_audio_data(seconds):
+                frames.append(data)
+                score = self.ar.get_score(data)
+
+                lastN.pop(0)
+                lastN.append(score)
+
+                average = sum(lastN) / float(len(lastN))
+
+                # TODO: 0.8 should not be a MAGIC NUMBER!
+                if average <  threshold * 0.8:
+                    break
+
+            self.speaker.play(jasperpath.data("audio", "beep_lo.wav"))
+
+            # Save recorded data as .wav file
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+                self.ar.save_audio(f, frames)
+                transcribe_file = tmpfile_path = f.name
+
+        # Transcribe the .wav file
+        transcribed = self.transcribe(transcribe_file, music=music)
+        
+        if not audio_file:
+            # Remove the temporary .wav file afterwards
+            os.remove(tmpfile_path)
+
+        return transcribed
+
+    def say(self, phrase):
+        # alter phrase before speaking
+        phrase = alteration.clean(phrase)
+        self.speaker.say(phrase)
+
+class NoDisturbanceDetectedException(Exception):
+    pass
+
+class AudioRecorder(object):
+    def __init__(self, rate, format, channels, chunksize):
+        self.rate = rate
+        self.format = format
+        self.channels = channels
+        self.chunksize = chunksize
+
+    @property
+    def rate_chunk_ratio(self):
+        return (self.rate / self.chunksize)
+
+    @contextmanager
+    def record_audio_stream(self):
         # prepare recording stream
         audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
+        stream = audio.open(format=self.format,
+                            channels=self.channels,
+                            rate=self.rate,
                             input=True,
-                            frames_per_buffer=CHUNK)
+                            frames_per_buffer=self.chunksize)
 
-        frames = []
-        # increasing the range # results in longer pause after command
-        # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
-
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-            score = self.getScore(data)
-
-            lastN.pop(0)
-            lastN.append(score)
-
-            average = sum(lastN) / float(len(lastN))
-
-            # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
-                break
-
-        self.speaker.play(jasperpath.data("audio", "beep_lo.wav"))
-
-        # save the audio data
+        yield stream
+        # close recording stream
         stream.stop_stream()
         stream.close()
         audio.terminate()
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as audio_file:
-            write_frames = open_audio(audio_file, 'wb')
-            write_frames.setnchannels(1)
-            write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-            write_frames.setframerate(RATE)
-            write_frames.writeframes(''.join(frames))
-            write_frames.close()
-            audio_file_path = audio_file.name
+    def record_audio_data(self, seconds):
+        with self.record_audio_stream() as stream:
+            for i in range(0, self.rate_chunk_ratio * seconds):
+                yield stream.read(self.chunksize)
 
-        return self.transcribe(audio_file_path, MUSIC=MUSIC)
+    @classmethod
+    def get_score(cls, data):
+        rms = audioop.rms(data, 2)
+        score = rms / 3
+        return score
 
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        # alter phrase before speaking
-        phrase = alteration.clean(phrase)
-        self.speaker.say(phrase)
+    def get_threshold(self, multiplier=1.8, seconds=1):
+        # TODO: Consolidate parameter default values
+
+        # stores the lastN score values
+        lastN = [i for i in range(20)]
+
+        # calculate the long run average, and thereby the proper threshold
+        for data in self.record_audio_data(seconds):
+            # save this data point as a score
+            lastN.pop(0)
+            lastN.append(self.get_score(data))
+            average = sum(lastN) / len(lastN)
+
+        # this will be the benchmark to cause a disturbance over!
+        threshold = average * multiplier
+
+        return threshold
+
+    def save_audio(self, fp, frames):
+        sample_width = pyaudio.get_sample_size(self.format)
+        f = open_audio(fp, 'wb')
+        f.setsampwidth(sample_width)
+        f.setframerate(self.rate)
+        f.setnchannels(1)
+        f.writeframes(''.join(frames))
+        f.close()
