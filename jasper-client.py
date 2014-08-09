@@ -86,7 +86,4 @@ if __name__ == "__main__":
 
     conversation = Conversation("JASPER", mic, profile)
 
-    try:
-        conversation.handleForever()
-    except:
-        sys.exit(1)
+    conversation.handleForever()
