@@ -1,6 +1,7 @@
 import yaml
 import sys
 import speaker
+import stt
 from conversation import Conversation
 
 
@@ -21,8 +22,18 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open("profile.yml", "r"))
 
-    mic = Mic(speaker.newSpeaker(), "languagemodel.lm", "dictionary.dic",
-              "languagemodel_persona.lm", "dictionary_persona.dic")
+    try:
+        api_key = profile['keys']['GOOGLE_SPEECH']
+    except KeyError:
+        api_key = None
+
+    try:
+        stt_engine_type = profile['stt_engine']
+    except KeyError:
+        print "stt_engine not specified in profile, defaulting to PocketSphinx"
+        stt_engine_type = "sphinx"
+
+    mic = Mic(speaker.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     addendum = ""
     if 'first_name' in profile:
