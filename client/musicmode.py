@@ -6,6 +6,8 @@ import os
 from mic import Mic
 import g2p
 from music import *
+import speaker
+import stt
 
 
 class MusicMode:
@@ -39,8 +41,10 @@ class MusicMode:
 
         # create a new mic with the new music models
         self.mic = Mic(
-            "languagemodel.lm", "dictionary.dic", "languagemodel_persona.lm",
-            "dictionary_persona.dic", "languagemodel_spotify.lm", "dictionary_spotify.dic")
+            speaker.newSpeaker(),
+            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic"),
+            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic")
+        )
 
     def delegateInput(self, input):
 
