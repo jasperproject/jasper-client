@@ -12,6 +12,7 @@ import client.vocabcompiler
 import client.speaker 
 from client.conversation import Conversation
 import client.jasperpath as jasperpath
+import client.stt
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local", help="Use local_mic", action="store_true")
@@ -43,8 +44,8 @@ if __name__ == "__main__":
     print " Copyright 2013 Shubhro Saha & Charlie Marsh               "
     print "==========================================================="
 
-    tempspeaker = client.speaker.newSpeaker()
-    tempspeaker.say("Hello.... I am Jasper... Please wait one moment.")
+    speaker = client.speaker.newSpeaker()
+    speaker.say("Hello.... I am Jasper... Please wait one moment.")
 
     for directory in [jasperpath.CONFIG_PATH, jasperpath.config("sentences"), jasperpath.config("languagemodels"), jasperpath.config("dictionaries")]:
         if not os.path.exists(directory):
@@ -52,7 +53,7 @@ if __name__ == "__main__":
                 os.mkdir(directory)
             except OSError(errno, strerror):
                 print("Can't create configdir '%s': %s" % (directory, strerror))
-                tempspeaker.say("Hello, I could not access the configuration directory or one of its subdirectories. Please check if you have the right permissions.")
+                speaker.say("Hello, I could not access the configuration directory or one of its subdirectories. Please check if you have the right permissions.")
                 sys.exit(1)
 
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
         else:
             print "COULD NOT CONNECT TO NETWORK"
             traceback.print_exc()
-            tempspeaker.say("Hello, I could not connect to a network. Please read the documentation to configure your network.")
+            speaker.say("Hello, I could not connect to a network. Please read the documentation to configure your network.")
             sys.exit(1)
 
     if args.compile:
@@ -71,13 +72,18 @@ if __name__ == "__main__":
 
     profile = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
 
-    mic = Mic(client.speaker.newSpeaker(), \
-              jasperpath.languagemodel(), \
-              jasperpath.dictionary(), \
-              jasperpath.languagemodel("persona", static=True), \
-              jasperpath.dictionary("persona", static=True))
+    try:
+        api_key = profile['keys']['GOOGLE_SPEECH']
+    except KeyError:
+        api_key = None
 
-    del tempspeaker
+    try:
+        stt_engine_type = profile['stt_engine']
+    except KeyError:
+        print "stt_engine not specified in profile, defaulting to PocketSphinx"
+        stt_engine_type = "sphinx"
+
+    mic = Mic(speaker, client.stt.PocketSphinxSTT(), client.stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     addendum = ""
     if 'first_name' in profile:

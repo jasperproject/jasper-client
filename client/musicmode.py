@@ -8,15 +8,11 @@ import g2p
 import vocabcompiler
 import jasperpath
 from music import *
-
-languagemodel         = jasperpath.languagemodel()
-dictionary            = jasperpath.dictionary()
+import speaker
+import stt
 
 languagemodel_spotify = jasperpath.languagemodel("spotify")
 dictionary_spotify    = jasperpath.dictionary("spotify")
-
-languagemodel_persona = jasperpath.languagemodel("persona", static=True)
-dictionary_persona    = jasperpath.dictionary("persona", static=True)
 
 class MusicMode:
 
@@ -34,9 +30,10 @@ class MusicMode:
 
         # create a new mic with the new music models
         self.mic = Mic(
-            languagemodel, dictionary,
-            languagemodel_persona, dictionary_persona,
-            languagemodel_spotify, dictionary_spotify)
+            speaker.newSpeaker(),
+            stt.PocketSphinxSTT(lmd_music=languagemodel_spotify, dictd_music=dictionary_spotify),
+            stt.PocketSphinxSTT(lmd_music=languagemodel_spotify, dictd_music=dictionary_spotify)
+        )
 
     def delegateInput(self, input):
 

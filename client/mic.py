@@ -1,4 +1,3 @@
-
 """
     The Mic class handles all interactions with the microphone and speaker.
 """
@@ -15,64 +14,26 @@ import alteration
 
 import jasperpath
 
-# quirky bug where first import doesn't work
-try:
-    import pocketsphinx as ps
-except:
-    import pocketsphinx as ps
 
 class Mic:
 
     speechRec = None
     speechRec_persona = None
 
-    def __init__(self, speaker, lmd, dictd, lmd_persona, dictd_persona, lmd_music=None, dictd_music=None):
+    def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         """
             Initiates the pocketsphinx instance.
 
             Arguments:
             speaker -- handles platform-independent audio output
-            lmd -- filename of the full language model
-            dictd -- filename of the full dictionary (.dic)
-            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
-            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+            passive_stt_engine -- performs STT while Jasper is in passive listen mode
+            acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
-        self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
-        
-        if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd_music, dict=dictd_music)
-        self.speechRec_persona = ps.Decoder(
-            hmm=jasperpath.HMM_PATH, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd, dict=dictd)
+	self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
+        self.passive_stt_engine = passive_stt_engine
+        self.active_stt_engine = active_stt_engine
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
-        """
-            Performs TTS, transcribing an audio file and returning the result.
-
-            Arguments:
-            audio_file_path -- the path to the audio file to-be transcribed
-            PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-            MUSIC -- if True, uses the 'Music' language model and dictionary
-        """
-        wavFile = open(audio_file_path, "rb")
-        wavFile.seek(44)
-
-        if MUSIC:
-            self.speechRec_music.decode_raw(wavFile)
-            result = self.speechRec_music.get_hyp()
-        elif PERSONA_ONLY:
-            self.speechRec_persona.decode_raw(wavFile)
-            result = self.speechRec_persona.get_hyp()
-        else:
-            self.speechRec.decode_raw(wavFile)
-            result = self.speechRec.get_hyp()
-
-        print "==================="
-        print "JASPER: " + result[0]
-        print "==================="
-
-        return result[0]
 
     def passiveListen(self, PERSONA, timeout=10, delay_multiplier=1):
         """
@@ -105,6 +66,7 @@ class Mic:
                         data = stream.read(self.ar.chunksize)
                         frames.append(data)
 
+        # no use continuing if no flag raised
         if not didDetect:
             raise NoDisturbanceDetectedException()
             return (None, None)
@@ -115,8 +77,7 @@ class Mic:
             audio_file_path = f.name
 
         # check if PERSONA was said
-        transcribed = self.transcribe(audio_file_path, PERSONA_ONLY=True)
-        os.remove(audio_file_path)
+        transcribed = self.passive_stt_engine.transcribe(audio_file_path, PERSONA_ONLY=True)
 
         if PERSONA in transcribed:
             return (threshold, PERSONA)
@@ -167,7 +128,7 @@ class Mic:
                 transcribe_file = tmpfile_path = f.name
 
         # Transcribe the .wav file
-        transcribed = self.transcribe(transcribe_file, music=music)
+        transcribed = self.active_stt_engine.transcribe(transcribe_file, music)
         
         if not audio_file:
             # Remove the temporary .wav file afterwards
