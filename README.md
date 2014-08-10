@@ -16,7 +16,7 @@ We highly recommend reading through this guide before writing any code. Thanks i
 Jasper was originally created by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
 
 ## Major Updates
-- 2014-08-09: [Modularized STT implementation](https://github.com/jasperproject/jasper-client/pull/118) with Google Speech API example, thanks to astahlman.
+- 2014-08-09: [Modularized STT implementation](https://github.com/jasperproject/jasper-client/pull/118) with Google Speech API example, thanks to astahlman. Running `populate.py` after updating is highly recommended.
 - 2014-07-11: More [platform-independent audio output](https://github.com/jasperproject/jasper-client/pull/100). Thank you, astahlman!
 - 2014-05-27: The network setup wizard has been removed because of unreliability. The client code and documentation has been updated, requiring new users to manually configure their `/etc/network/interfaces` file.
 
