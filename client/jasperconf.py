@@ -3,11 +3,25 @@
 """
 Config module
 
-Usage:
+Usage in main program:
 
 from jasperconf import Config as conf
 firstname = conf.get("firstname")
-conf.set("value",["keys","GOOGLE_SPEECH"] )
+# Alternative:
+# firstname = conf.get(["firstname"])
+conf.set(["keys","GOOGLE_SPEECH"], value="ABCDEF" )
+google_api_key = conf.get(["keys", "GOOGLE_SPEECH"])
+
+Usage in plugins (in client/modules):
+
+PLUGIN_NAME = "foo"
+
+from ..jasperconf import Config as conf
+bar = conf.plugin_get(PLUGIN_NAME, "bar")
+# Alternative:
+# bar = conf.plugin_get(PLUGIN_NAME, ["bar"])
+conf.plugin_set(PLUGIN_NAME, ['example','baz'], value="Doh!")
+doh = conf.plugin_get(PLUGIN_NAME, ['example','baz'])
 """
 import os
 import copy
