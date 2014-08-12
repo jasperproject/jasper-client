@@ -48,7 +48,7 @@ def create_languagemodel(text, output_file):
         vocab_file = f.name
 
     # Create vocab file from text
-    cmuclmtk.text2vocab_file(text, vocab_file)
+    cmuclmtk.text2vocab(text, vocab_file)
     # Create language model from text
     cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
     words = []
