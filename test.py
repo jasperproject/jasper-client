@@ -3,6 +3,7 @@ import sys
 import unittest
 import tempfile
 from mock import patch
+import cmuclmtk
 import client.vocabcompiler as vocabcompiler
 import client.g2p as g2p
 
@@ -14,30 +15,27 @@ class UnorderedList(list):
 class TestVocabCompiler(unittest.TestCase):
 
     def testWordExtraction(self):
-        with tempfile.NamedTemporaryFile(prefix='sentences', suffix='.txt', delete=False) as f:
-            sentences = f.name
         with tempfile.NamedTemporaryFile(prefix='dictionary', suffix='.dic', delete=False) as f:
             dictionary = f.name
         with tempfile.NamedTemporaryFile(prefix='languagemodel', suffix='.lm', delete=False) as f:
             languagemodel = f.name
 
-        words = [
-            'HACKER', 'LIFE', 'FACEBOOK', 'THIRD', 'NO', 'JOKE',
-            'NOTIFICATION', 'MEANING', 'TIME', 'TODAY', 'SECOND',
-            'BIRTHDAY', 'KNOCK KNOCK', 'INBOX', 'OF', 'NEWS', 'YES',
-            'TOMORROW', 'EMAIL', 'WEATHER', 'FIRST', 'MUSIC', 'SPOTIFY'
-        ]
+        
+        words = ['BIRTHDAY', 'EMAIL', 'FACEBOOK', 'FIRST', 'HACKER', 'INBOX', 'JOKE', 'KNOCK',
+            'LIFE', 'MEANING', 'MUSIC', 'NEWS', 'NO', 'NOTIFICATION', 'OF', 'SECOND',
+            'SPOTIFY', 'THIRD', 'TIME', 'TODAY', 'TOMORROW', 'WEATHER', 'YES']
 
         with patch.object(g2p, 'translateWords') as translateWords:
-            with patch.object(vocabcompiler, 'text2lm') as text2lm:
-                vocabcompiler.compile(sentences, dictionary, languagemodel)
+            with patch.object(cmuclmtk, 'text2lm') as text2lm:
+                text = "<s> %s </s>" % ' '.join(words)
+                lm_words = vocabcompiler.create_languagemodel(text, languagemodel)
+                vocabcompiler.create_dict(lm_words, dictionary)
 
                 # 'words' is appended with ['MUSIC', 'SPOTIFY']
                 # so must be > 2 to have received WORDS from modules
                 translateWords.assert_called_once_with(UnorderedList(words))
                 self.assertTrue(text2lm.called)
         
-        os.remove(sentences)
         os.remove(dictionary)
         os.remove(languagemodel)
 
