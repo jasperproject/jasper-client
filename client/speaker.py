@@ -60,7 +60,7 @@ class AbstractMp3Speaker(AbstractSpeaker):
     """
     @classmethod
     def isAvailable(cls):
-        return True if 'mad' in sys.modules.keys() else False
+        return ('mad' in sys.modules.keys())
 
     def play_mp3(cls, filename):
         f = mad.MadFile(filename)
@@ -125,7 +125,7 @@ class picoSpeaker(AbstractSpeaker):
     """
     @classmethod
     def isAvailable(cls):
-        return (super(cls, cls).isAvailable() and subprocess.call(['which','pico2wave']) == 0)
+        return (subprocess.call(['which','pico2wave']) == 0)
 
     @property
     def languages(self):
