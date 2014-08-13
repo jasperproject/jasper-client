@@ -12,7 +12,7 @@ import g2p
 import cmuclmtk
 import brain
 
-def get_words(additional_words=['MUSIC','SPOTIFY']):
+def get_words(additional_words=['MUSIC', 'SPOTIFY']):
     """
         Gets the words from modules
     """
@@ -52,7 +52,7 @@ def create_languagemodel(text, output_file):
     # Create language model from text
     cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
     words = []
-    with open(vocab_file,'r',) as f:
+    with open(vocab_file, 'r') as f:
         for line in f:
             line = line.strip()
             if not line.startswith('#') and not line in ('<s>','</s>'):

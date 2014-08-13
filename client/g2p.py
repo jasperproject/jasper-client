@@ -32,10 +32,7 @@ def translateWords(words):
     output = translateFile(TEMP_FILENAME)
     os.remove(TEMP_FILENAME)
 
-    print output
-
     return output
-
 
 def translateFile(input_filename, output_filename=None):
     out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' % PHONETISAURUS_MODEL, '--input=%s' % input_filename, '--words', '--isfile'])
@@ -52,7 +49,6 @@ def translateFile(input_filename, output_filename=None):
     return out
 
 if __name__ == "__main__":
-    # This seems to be for testing purposes
     # We take the path from the first arg
     if len(sys.argv) != 2:
         print "Usage: %s INPUT_FILENAME" % sys.argv[0]

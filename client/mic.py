@@ -30,7 +30,7 @@ class Mic:
             acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
-	self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
+        self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
 
@@ -69,7 +69,6 @@ class Mic:
         # no use continuing if no flag raised
         if not didDetect:
             raise NoDisturbanceDetectedException()
-            return (None, None)
 
         # save the audio data
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:

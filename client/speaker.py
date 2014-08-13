@@ -87,7 +87,7 @@ class eSpeakSpeaker(AbstractSpeaker):
     """
     @classmethod
     def isAvailable(cls):
-        return (super(cls, cls).isAvailable() and subprocess.call(['which','espeak']) == 0)
+        return (subprocess.call(['which','espeak']) == 0)
 
     def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
@@ -196,5 +196,3 @@ def newSpeaker():
         if cls.isAvailable():
             return cls()
     raise ValueError("Platform is not supported")
-
-    print sys.modules

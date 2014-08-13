@@ -12,7 +12,6 @@ import client.g2p as g2p
 class UnorderedList(list):
     def __eq__(self, other):
         return sorted(self) == sorted(other)
-    
 
 class TestVocabCompiler(unittest.TestCase):
 
