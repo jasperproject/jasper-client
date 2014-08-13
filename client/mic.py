@@ -128,7 +128,7 @@ class Mic:
                 transcribe_file = tmpfile_path = f.name
 
         # Transcribe the .wav file
-        transcribed = self.active_stt_engine.transcribe(transcribe_file, music)
+        transcribed = self.active_stt_engine.transcribe(transcribe_file, MUSIC=music)
         
         if not audio_file:
             # Remove the temporary .wav file afterwards
