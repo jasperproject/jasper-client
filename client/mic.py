@@ -65,6 +65,7 @@ class Mic:
                     for i in range(0, self.ar.rate_chunk_ratio * delay_multiplier):
                         data = stream.read(self.ar.chunksize)
                         frames.append(data)
+                        break
 
         # no use continuing if no flag raised
         if not didDetect:
@@ -106,7 +107,7 @@ class Mic:
             # generation
             lastN = [threshold * 1.2 for i in range(30)]
 
-            for data in self.ar.record_audio_data(seconds):
+            for data in self.ar.record_audio_data(timeout):
                 frames.append(data)
                 score = self.ar.get_score(data)
 
