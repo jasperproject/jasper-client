@@ -3,7 +3,6 @@
 """
 
 import os
-import json
 from wave import open as open_audio
 import audioop
 import pyaudio
@@ -35,18 +34,13 @@ class Mic:
 
     def fetchThreshold(self):
 
-        # TODO: Consolidate all of these variables from the next three
-        # functions
+        # TODO: Consolidate all of these variables from the next three functions
         THRESHOLD_MULTIPLIER = 1.8
-        AUDIO_FILE = "passive.wav"
         RATE = 16000
         CHUNK = 1024
 
         # number of seconds to allow to establish threshold
         THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -180,7 +174,7 @@ class Mic:
         """
 
         AUDIO_FILE = "active.wav"
-        RATE = 16000 
+        RATE = 16000
         CHUNK = 1024
         LISTEN_TIME = 12
 
@@ -237,9 +231,6 @@ class Mic:
         write_frames.setframerate(RATE)
         write_frames.writeframes(''.join(frames))
         write_frames.close()
-
-        # DO SOME AMPLIFICATION
-        # os.system("sox "+AUDIO_FILE+" temp.wav vol 20dB")
 
         return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC)
 

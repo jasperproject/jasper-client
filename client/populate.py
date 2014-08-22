@@ -4,6 +4,7 @@ import yaml
 from pytz import timezone
 import feedparser
 
+
 def run():
     profile = {}
 
@@ -49,7 +50,7 @@ def run():
     def verifyLocation(place):
         feed = feedparser.parse('http://rss.wunderground.com/auto/rss_full/' + place)
         numEntries = len(feed['entries'])
-        if numEntries==0:
+        if numEntries == 0:
             return False
         else:
             print("Location saved as " + feed['feed']['description'][33:])
@@ -58,7 +59,7 @@ def run():
     print(
         "\nLocation should be a 5-digit US zipcode (e.g., 08544). If you are outside the US, insert the name of your nearest big town/city. For weather requests.")
     location = raw_input("Location: ")
-    while location and (verifyLocation(location)==False):
+    while location and (verifyLocation(location) == False):
         print("Weather not found. Please try another location.")
         location = raw_input("Location: ")
     if location:
@@ -83,25 +84,23 @@ def run():
         response = raw_input("Please choose email (E) or text message (T): ")
     profile['prefers_email'] = (response == 'E')
 
-    stt_engines = { 
-        "sphinx" : None,
-        "google" : "GOOGLE_SPEECH"
+    stt_engines = {
+        "sphinx": None,
+        "google": "GOOGLE_SPEECH"
     }
 
     response = raw_input(
-        "\nIf you would like to choose a specific STT engine, please specify which." + 
-        "\nAvailable implementations: %s. (Press Enter to default to PocketSphinx): " %  stt_engines.keys())
+        "\nIf you would like to choose a specific STT engine, please specify which." +
+        "\nAvailable implementations: %s. (Press Enter to default to PocketSphinx): " % stt_engines.keys())
     if (response in stt_engines):
         profile["stt_engine"] = response
         api_key_name = stt_engines[response]
         if api_key_name:
             key = raw_input("\nPlease enter your API key: ")
-            profile["keys"] = { api_key_name : key }
+            profile["keys"] = {api_key_name: key}
     else:
         print("Unrecognized STT engine. Available implementations: %s" % stt_engines.keys())
         profile["stt_engine"] = "sphinx"
-            
-            
 
     # write to profile
     print("Writing to profile...")

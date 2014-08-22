@@ -1,4 +1,3 @@
-import os
 import traceback
 import json
 import urllib2
@@ -6,11 +5,13 @@ import urllib2
 """
 The default Speech-To-Text implementation which relies on PocketSphinx.
 """
+
+
 class PocketSphinxSTT(object):
 
-    def __init__(self, lmd = "languagemodel.lm", dictd = "dictionary.dic",
-                lmd_persona = "languagemodel_persona.lm", dictd_persona = "dictionary_persona.dic",
-                lmd_music=None, dictd_music=None, **kwargs):
+    def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
+                 lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
+                 lmd_music=None, dictd_music=None, **kwargs):
         """
             Initiates the pocketsphinx instance.
 
@@ -31,39 +32,39 @@ class PocketSphinxSTT(object):
         hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm = hmdir, lm = lmd_music, dict = dictd_music)
+            self.speechRec_music = ps.Decoder(hmm=hmdir, lm=lmd_music, dict=dictd_music)
         self.speechRec_persona = ps.Decoder(
             hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
         self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
-            """
-                Performs STT, transcribing an audio file and returning the result.
+        """
+            Performs STT, transcribing an audio file and returning the result.
 
-                Arguments:
-                audio_file_path -- the path to the audio file to-be transcribed
-                PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-                MUSIC -- if True, uses the 'Music' language model and dictionary
-            """
+            Arguments:
+            audio_file_path -- the path to the audio file to-be transcribed
+            PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
+            MUSIC -- if True, uses the 'Music' language model and dictionary
+        """
 
-            wavFile = file(audio_file_path, 'rb')
-            wavFile.seek(44)
+        wavFile = file(audio_file_path, 'rb')
+        wavFile.seek(44)
 
-            if MUSIC:
-                self.speechRec_music.decode_raw(wavFile)
-                result = self.speechRec_music.get_hyp()
-            elif PERSONA_ONLY:
-                self.speechRec_persona.decode_raw(wavFile)
-                result = self.speechRec_persona.get_hyp()
-            else:
-                self.speechRec.decode_raw(wavFile)
-                result = self.speechRec.get_hyp()
+        if MUSIC:
+            self.speechRec_music.decode_raw(wavFile)
+            result = self.speechRec_music.get_hyp()
+        elif PERSONA_ONLY:
+            self.speechRec_persona.decode_raw(wavFile)
+            result = self.speechRec_persona.get_hyp()
+        else:
+            self.speechRec.decode_raw(wavFile)
+            result = self.speechRec.get_hyp()
 
-            print "==================="
-            print "JASPER: " + result[0]
-            print "==================="
+        print "==================="
+        print "JASPER: " + result[0]
+        print "==================="
 
-            return result[0]
+        return result[0]
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
@@ -88,6 +89,8 @@ Excerpt from sample profile.yml:
         GOOGLE_SPEECH: $YOUR_KEY_HERE
 
 """
+
+
 class GoogleSTT(object):
 
     RATE = 16000
@@ -101,13 +104,14 @@ class GoogleSTT(object):
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
-            Performs STT via the Google Speech API, transcribing an audio file 
+            Performs STT via the Google Speech API, transcribing an audio file
             and returning an English string.
 
             Arguments:
                 audio_file_path -- the path to the .wav file to be transcribed
         """
-        url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (self.api_key, "en-us")
+        url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
+            self.api_key, "en-us")
 
         wav = open(audio_file_path, 'rb')
         data = wav.read()
@@ -143,6 +147,8 @@ Arguments:
     engine_type - one of "sphinx" or "google"
     kwargs - keyword arguments passed to the constructor of the STT engine
 """
+
+
 def newSTTEngine(engine_type, **kwargs):
     t = engine_type.lower()
     if t == "sphinx":

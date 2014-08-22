@@ -33,7 +33,8 @@ if __name__ == "__main__":
         print "stt_engine not specified in profile, defaulting to PocketSphinx"
         stt_engine_type = "sphinx"
 
-    mic = Mic(speaker.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
+    mic = Mic(speaker.newSpeaker(), stt.PocketSphinxSTT(),
+              stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     addendum = ""
     if 'first_name' in profile:
