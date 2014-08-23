@@ -16,12 +16,12 @@ class Mic:
 
     def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         """
-            Initiates the pocketsphinx instance.
+        Initiates the pocketsphinx instance.
 
-            Arguments:
-            speaker -- handles platform-independent audio output
-            passive_stt_engine -- performs STT while Jasper is in passive listen mode
-            acive_stt_engine -- performs STT while Jasper is in active listen mode
+        Arguments:
+        speaker -- handles platform-independent audio output
+        passive_stt_engine -- performs STT while Jasper is in passive listen mode
+        acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
         self.passive_stt_engine = passive_stt_engine
@@ -34,7 +34,7 @@ class Mic:
 
     def fetchThreshold(self):
 
-        # TODO: Consolidate all of these variables from the next three functions
+        # TODO: Consolidate variables from the next three functions
         THRESHOLD_MULTIPLIER = 1.8
         RATE = 16000
         CHUNK = 1024
@@ -74,8 +74,8 @@ class Mic:
 
     def passiveListen(self, PERSONA):
         """
-            Listens for PERSONA in everyday sound
-            Times out after LISTEN_TIME, so needs to be restarted
+        Listens for PERSONA in everyday sound. Times out after LISTEN_TIME, so needs to be
+        restarted.
         """
 
         THRESHOLD_MULTIPLIER = 1.8
@@ -200,8 +200,7 @@ class Mic:
                             frames_per_buffer=CHUNK)
 
         frames = []
-        # increasing the range # results in longer pause after command
-        # generation
+        # increasing the range # results in longer pause after command generation
         lastN = [THRESHOLD * 1.2 for i in range(30)]
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):

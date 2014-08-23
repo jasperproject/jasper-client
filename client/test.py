@@ -11,7 +11,6 @@ import yaml
 import test_mic
 import g2p
 import brain
-import speaker
 
 
 def activeInternet():

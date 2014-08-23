@@ -3,7 +3,7 @@ import json
 import urllib2
 
 """
-The default Speech-To-Text implementation which relies on PocketSphinx.
+The default Speech-to-Text implementation which relies on PocketSphinx.
 """
 
 
@@ -13,14 +13,14 @@ class PocketSphinxSTT(object):
                  lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
                  lmd_music=None, dictd_music=None, **kwargs):
         """
-            Initiates the pocketsphinx instance.
+        Initiates the pocketsphinx instance.
 
-            Arguments:
-            speaker -- handles platform-independent audio output
-            lmd -- filename of the full language model
-            dictd -- filename of the full dictionary (.dic)
-            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
-            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+        Arguments:
+        speaker -- handles platform-independent audio output
+        lmd -- filename of the full language model
+        dictd -- filename of the full dictionary (.dic)
+        lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
+        dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
         # quirky bug where first import doesn't work
@@ -39,12 +39,12 @@ class PocketSphinxSTT(object):
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
-            Performs STT, transcribing an audio file and returning the result.
+        Performs STT, transcribing an audio file and returning the result.
 
-            Arguments:
-            audio_file_path -- the path to the audio file to-be transcribed
-            PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-            MUSIC -- if True, uses the 'Music' language model and dictionary
+        Arguments:
+        audio_file_path -- the path to the audio file to-be transcribed
+        PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
+        MUSIC -- if True, uses the 'Music' language model and dictionary
         """
 
         wavFile = file(audio_file_path, 'rb')
@@ -104,11 +104,11 @@ class GoogleSTT(object):
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
-            Performs STT via the Google Speech API, transcribing an audio file
-            and returning an English string.
+        Performs STT via the Google Speech API, transcribing an audio file and returning an English
+        string.
 
-            Arguments:
-                audio_file_path -- the path to the .wav file to be transcribed
+        Arguments:
+        audio_file_path -- the path to the .wav file to be transcribed
         """
         url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
             self.api_key, "en-us")
@@ -144,8 +144,8 @@ Currently, the supported implementations are the default Pocket Sphinx and
 the Google Speech API
 
 Arguments:
-    engine_type - one of "sphinx" or "google"
-    kwargs - keyword arguments passed to the constructor of the STT engine
+engine_type - one of "sphinx" or "google"
+kwargs - keyword arguments passed to the constructor of the STT engine
 """
 
 

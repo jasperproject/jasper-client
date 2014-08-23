@@ -35,7 +35,7 @@ def translateWords(words):
 
 
 def translateFile(input_filename, output_filename=None):
-    out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' % 
+    out = subprocess.check_output(['phonetisaurus-g2p', '--model=%s' %
         PHONETISAURUS_PATH + "/g014b2b.fst", '--input=%s' % input_filename, '--words', '--isfile'])
     out = parseOutput(out)
 
