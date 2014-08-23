@@ -9,9 +9,10 @@ import shutil
 
 if sys.version_info.major == 3:
     import urllib.parse as urlparse
-    raw_input = input
+    get_input = input
 else:
     import urlparse
+    get_input = raw_input
 
 # third party modules
 import pytz
@@ -33,14 +34,13 @@ class ConfigPopulator(object):
         if description:
             print(description)
         current_value = self.config.get(variable)
-        if not self.sanitize_yesno(raw_input("%s (Current Value is: %r). Edit? [yN] " % (name, current_value))):
+        if not self.sanitize_yesno(get_input("%s (Current Value is: %r). Edit? [yN] " % (name, current_value))):
             print("")
             return
         while True:
             try:
-                value = raw_input("Enter new value for '%s': " % name)
+                value = get_input("Enter new value for '%s': " % name)
             except KeyboardInterrupt:
-                print("")
                 print("")
                 return
             else:
@@ -52,26 +52,21 @@ class ConfigPopulator(object):
                         return
                 break
         self.config.set(variable, value=value)
-        print("'%s' set to %r" % ("/".join(variable), value))
-        print("")
+        print("'%s' set to %r\n" % ("/".join(variable), value))
 
     def run(self):
         print("Welcome to the Jasper profile populator")
         print("If you chose to edit a value, but then " + \
               "changed your mind and prefer not to " + \
               "enter the requested information, just " + \
-              "hit CTRL + C.")
-        print("")
+              "hit CTRL + C.\n")
 
         for setting in self.SETTINGS:
             self.prompt(*setting)
 
     # sanitize funcs
     def sanitize_yesno(self, response):
-        if not response or not response.lower() in ('y','yes','true','ok'):
-            return False
-        else:
-            return True
+        return response and response.lower() in ('y','yes','true','ok'):
 
     def sanitize_phonenumber(self, phonenumber):
         return re.sub(r'[^0-9]', '', phonenumber)
@@ -134,42 +129,48 @@ class ConfigPopulator(object):
     ]
 
     SETTINGS = [  
-        [ ['first_name'], # variable
+        [ 
+          ['first_name'], # variable
           'First Name',   # name
-           None,          # description
-           None,          # sanitize_func
-           None           # checkdepends_func
+          None,          # description
+          None,          # sanitize_func
+          None           # checkdepends_func
         ],
-        [ ['last_name'],
+        [
+          ['last_name'],
           'Last Name',
           None,
           None,
           None
-        ],
-        [ ['gmail_address'],
+         ],
+        [
+          ['gmail_address'],
           'Gmail Adress',
           'Jasper uses your Gmail to send notifications. Alternatively, ' + \
             'you can skip this step (or just fill in the email address if ' + \
             'if you want to receive email notifications) and setup a' + \
             'Mailgun account, as at http://jasperproject.github.io/' + \
             'documentation/software/#mailgun.',
-           None,
-           None
+          None,
+          None
         ],
-        [ ['gmail_password'],
+        [
+          ['gmail_password'],
           'Gmail Password',
           None,
           None,
-            lambda x: x.checkdepends_key('gmail_address')
+          lambda x: x.checkdepends_key('gmail_address')
         ],
-        [ ['phone_number'],
+        [
+          ['phone_number'],
           'Phone number',
           'Your phone number (no country code). Any dashes or spaces ' + \
             'will be removed for you',
           sanitize_phonenumber,
           None
         ],
-        [ ['carrier'],
+        [
+          ['carrier'],
           'Phone carrier (for sending text notifications)',
           "If you have a US phone number, you can enter one of the " + \
             "following: 'AT&T', 'Verizon', 'T-Mobile' (without the " + \
@@ -181,7 +182,8 @@ class ConfigPopulator(object):
           sanitize_carrier,
           lambda x: x.checkdepends_key('phone_number')
         ],
-        [ ['location'],
+        [
+          ['location'],
           'Location (for weather requests)',
           'Location should be a 5-digit US zipcode (e.g., 08544). ' + \
             'If you are outside the US, insert the name of your ' + \
@@ -189,7 +191,8 @@ class ConfigPopulator(object):
           sanitize_location,
           None
         ],
-        [ ['timezone'],
+        [
+          ['timezone'],
           'Timezone',
           'Please enter a timezone from the list located in the TZ* ' + \
             ' column at http://en.wikipedia.org/wiki/' + \
@@ -197,27 +200,30 @@ class ConfigPopulator(object):
           sanitize_timezone,
           None
         ],
-        [ ['prefers_email'],
+        [
+          ['prefers_email'],
           'Email notifications',
           'Would you prefer to have notifications sent by email? ' + \
             'If not, Jasper will try to use text message instead.',
           sanitize_yesno,
           lambda x: (x.checkdepends_key('phonenumber') and x.checkdepends_key('gmail_address'))
         ],
-        [ ['stt_engine'],
+        [
+          ['stt_engine'],
           'Speech-To-Text (STT) engine',
           '\n'.join(['If you would like to choose a specific STT ' + \
             ' engine, please specify which.'] + ["  %d. %s" % (i, info[1]) \
             for i, info in enumerate(AVAILABLE_STT_ENGINES, start=1)]),
           sanitize_sttengines,
-          lambda x: (len(x.AVAILABLE_STT_ENGINES)>1)
+          lambda x: (len(x.AVAILABLE_STT_ENGINES) > 1)
         ],
-        [ ['keys','GOOGLE_SPEECH'],
+        [
+          ['keys','GOOGLE_SPEECH'],
           'Google API key',
           'To use the Google Translate TTS engine, you need an API key from ' + \
             'https://console.developers.google.com/.',
           None,
-          lambda x: (True if x.config.get('stt_engine') == "google" else False)
+          lambda x: (x.config.get('stt_engine') == "google")
         ]
     ]
 
@@ -235,8 +241,7 @@ if __name__ == "__main__":
     else:
         conf = jasperconf.DEFAULT_CONFIG_TYPE(fname=args.file)
 
-    print("Config file will be written to '%s'" % args.file)
-    print("")
+    print("Config file will be written to '%s'\n" % args.file)
 
     populator = ConfigPopulator(conf)
     populator.run()
