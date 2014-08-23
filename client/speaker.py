@@ -95,7 +95,8 @@ class eSpeakSpeaker(AbstractSpeaker):
         cmd = ['espeak', '-v', voice,
                          '-p', pitch_adjustment,
                          '-s', words_per_minute,
-                         '-w', fname]
+                         '-w', fname,
+                         phrase]
         cmd = [str(x) for x in cmd]
         subprocess.call(cmd)
         self.play(fname)

@@ -1,8 +1,11 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 import re
 from getpass import getpass
 import yaml
 from pytz import timezone
 import feedparser
+import jasperpath
 
 def run():
     profile = {}
@@ -100,12 +103,10 @@ def run():
     else:
         print("Unrecognized STT engine. Available implementations: %s" % stt_engines.keys())
         profile["stt_engine"] = "sphinx"
-            
-            
 
     # write to profile
     print("Writing to profile...")
-    outputFile = open("profile.yml", "w")
+    outputFile = open(jasperpath.config("profile.yml"), "w")
     yaml.dump(profile, outputFile, default_flow_style=False)
     print("Done.")
 
