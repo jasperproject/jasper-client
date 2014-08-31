@@ -120,4 +120,4 @@ def isPositive(phrase):
         Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return re.search(r'\b(sure|yes|yeah|go)\b', phrase, re.IGNORECASE)
+    return bool(re.search(r'\b(sure|yes|yeah|go)\b', phrase, re.IGNORECASE))
