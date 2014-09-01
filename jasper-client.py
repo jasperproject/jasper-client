@@ -1,6 +1,18 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
-import os
+import logging
+import logging.config
+import os.path
+import client.jasperpath as jasperpath
+def logging_init():
+    logfile = jasperpath.data("logging.cfg")
+    try:
+        logging.config.fileConfig(logfile)
+    except Exception:
+        logging.basicConfig()
+logging_init()
+logger = logging.getLogger()
+
 import sys
 import argparse
 import socket
@@ -10,7 +22,6 @@ import shutil
 import yaml
 import client.speaker 
 from client.conversation import Conversation
-import client.jasperpath as jasperpath
 import client.stt
 import client.g2p
 
@@ -30,7 +41,10 @@ class Jasper(object):
         self.create_config_dirs()
 
         # Load config
-        self.config = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
+        config_filename = jasperpath.config("profile.yml")
+        logger.debug("Using config file: '%s'", config_filename)
+        with open(config_filename, "r") as f:
+            self.config = yaml.safe_load(f);
 
         try:
             client.stt.HMM_PATH = self.config['advanced_settings']['hmm']
@@ -50,8 +64,10 @@ class Jasper(object):
         try:
             stt_engine_type = self.config['stt_engine']
         except KeyError:
-            print "stt_engine not specified in profile, defaulting to PocketSphinx"
             stt_engine_type = "sphinx"
+            logger.info("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
+        else:
+            logger.debug("Using stt_engine '%s' from profile", stt_engine_type)
 
         # create Audio IO
         speaker = client.speaker.newSpeaker()
@@ -68,9 +84,11 @@ class Jasper(object):
             # connect to the host -- tells us if the host is actually
             # reachable
             s = socket.create_connection((host, 80), 2)
-        except:
+        except Exception:
+            logger.debug('Network connection check failed.', exc_info=True)
             return False
         else:
+            logger.debug('Network connection check successful.')
             return True
 
     def create_config_dirs(self):
@@ -79,9 +97,10 @@ class Jasper(object):
                 try:
                     os.mkdir(directory)
                 except OSError(errno, strerror):
+                    logger.exception("Error creating config dir '%s'!", directory)
                     raise
                 else:
-                    pass
+                    logger.debug("Created config dir '%s'.", directory)
 
     def start_conversation(self):
         addendum = ""
@@ -89,6 +108,7 @@ class Jasper(object):
             addendum = ", %s" % self.config["first_name"]
         self.audio.say("How can I be of service%s?" % addendum)
         conversation = Conversation("JASPER", self.audio, self.config)
+        logger.debug('Starting to handle conversation...')
         conversation.handleForever()
 
 if __name__ == "__main__":
@@ -99,13 +119,9 @@ if __name__ == "__main__":
 
     app = Jasper(compile=args.compile)
 
-    if args.checknetwork:
-        if app.has_network_connection():
-            print "CONNECTED TO INTERNET"
-        else:
-            print "COULD NOT CONNECT TO NETWORK"
-            traceback.print_exc()
-            app.audio.say("Hello, I could not connect to a network. Please read the documentation to configure your network.")
-            sys.exit(1)
+    if args.checknetwork and not app.has_network_connection():
+        logger.error('Network connection check failed, quitting...')
+        app.audio.say("Hello, I could not connect to a network. Please read the documentation to configure your network.")
+        sys.exit(1)
 
     app.start_conversation()
