@@ -5,11 +5,15 @@ import logging.config
 import os.path
 import client.jasperpath as jasperpath
 def logging_init():
-    logfile = jasperpath.data("logging.cfg")
+    logfile = jasperpath.config("logging.cfg")
     try:
         logging.config.fileConfig(logfile)
     except Exception:
-        logging.basicConfig()
+        logfile = jasperpath.data("logging.cfg")
+        try:
+            logging.config.fileConfig(logfile)
+        except Exception:
+            logging.basicConfig()
 logging_init()
 logger = logging.getLogger()
 
