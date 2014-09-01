@@ -1,5 +1,5 @@
 """
-    The Mic class handles all interactions with the microphone and speaker.
+The Mic class handles all interactions with the microphone and speaker.
 """
 
 import os
@@ -22,12 +22,12 @@ class Mic:
 
     def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         """
-            Initiates the pocketsphinx instance.
+        Initiates the pocketsphinx instance.
 
-            Arguments:
-            speaker -- handles platform-independent audio output
-            passive_stt_engine -- performs STT while Jasper is in passive listen mode
-            acive_stt_engine -- performs STT while Jasper is in active listen mode
+        Arguments:
+        speaker -- handles platform-independent audio output
+        passive_stt_engine -- performs STT while Jasper is in passive listen mode
+        acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
         self.ar = AudioRecorder(16000, pyaudio.paInt16, 1, 1024)
@@ -37,8 +37,8 @@ class Mic:
 
     def passiveListen(self, PERSONA, timeout=10, delay_multiplier=1):
         """
-            Listens for 'PERSONA' in everyday sound
-            Times out after 'timeout' (in seconds), so needs to be restarted
+        Listens for 'PERSONA' in everyday sound
+        Times out after 'timeout' (in seconds), so needs to be restarted
         """
 
         threshold = self.ar.get_threshold()
@@ -86,7 +86,7 @@ class Mic:
 
     def activeListen(self, threshold=None, timeout=12, audio_file=None, music=False):
         """
-            Records until a second of silence or times out after 12 seconds
+        Records until a second of silence or times out after 12 seconds
         """
 
         # user can request pre-recorded sound

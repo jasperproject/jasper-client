@@ -37,6 +37,5 @@ If you're looking for something to do, here are some suggestions:
 1. Improve unit-testing for `jasper-client`. The Jasper modules and `brain.py` have ample testing, but other Python modules (`conversation.py`, `mic.py`, etc.) do not.
 2. Come up with a better way to automate testing on the Pi. This might include spinning up some sort of VM with [Docker](http://docs.docker.io), or take a completely different approach.
 3. Buff up the text-refinement functions in [`alteration.py`](https://github.com/jasperproject/jasper-client/blob/master/client/alteration.py). These are meant to convert text to a form that will sound more human-friendly when spoken by your TTS software, but are quite minimal at the moment.
-4. Make Jasper platform-independent (this is a big one). For example, allow Jasper to run on OS X.
+4. Make Jasper more platform-independent. Currently, Jasper is only supported on Raspberry Pi and OS X.
 5. Decouple Jasper from any specific Linux audio driver implementation.
-6. Modularize the speech-to-text and text-to-speech system so that Jasper developers can swap in their own implementations. This would allow some users to plug in, for example, the AT&T speech-to-text service while avoiding an inherent dependence (for Jasper core) on a third-party web service.

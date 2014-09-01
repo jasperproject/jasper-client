@@ -1,7 +1,7 @@
 import os
-import traceback
 import json
 import urllib2
+import traceback
 import jasperpath
 
 # quirky bug where first import doesn't work
@@ -11,7 +11,7 @@ except:
     import pocketsphinx as ps
 
 """
-The default Speech-To-Text implementation which relies on PocketSphinx.
+The default Speech-to-Text implementation which relies on PocketSphinx.
 """
 
 languagemodel         = jasperpath.languagemodel()
@@ -27,14 +27,14 @@ class PocketSphinxSTT(object):
                 lmd_persona=languagemodel_persona, dictd_persona=dictionary_persona,
                 lmd_music=None, dictd_music=None, **kwargs):
         """
-            Initiates the pocketsphinx instance.
+        Initiates the pocketsphinx instance.
 
-            Arguments:
-            speaker -- handles platform-independent audio output
-            lmd -- filename of the full language model
-            dictd -- filename of the full dictionary (.dic)
-            lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
-            dictd_persona -- filename of the 'Persona' dictionary (.dic)
+        Arguments:
+        speaker -- handles platform-independent audio output
+        lmd -- filename of the full language model
+        dictd -- filename of the full dictionary (.dic)
+        lmd_persona -- filename of the 'Persona' language model (containing, e.g., 'Jasper')
+        dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
         base_config = {'logfn': os.devnull, 'hmm': HMM_PATH}
@@ -96,6 +96,7 @@ Excerpt from sample profile.yml:
         GOOGLE_SPEECH: $YOUR_KEY_HERE
 
 """
+
 class GoogleSTT(object):
 
     RATE = 16000
@@ -109,13 +110,14 @@ class GoogleSTT(object):
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
-            Performs STT via the Google Speech API, transcribing an audio file 
-            and returning an English string.
+        Performs STT via the Google Speech API, transcribing an audio file and returning an English
+        string.
 
-            Arguments:
-                audio_file_path -- the path to the .wav file to be transcribed
+        Arguments:
+        audio_file_path -- the path to the .wav file to be transcribed
         """
-        url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (self.api_key, "en-us")
+        url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
+            self.api_key, "en-us")
 
         wav = open(audio_file_path, 'rb')
         data = wav.read()
@@ -148,9 +150,10 @@ Currently, the supported implementations are the default Pocket Sphinx and
 the Google Speech API
 
 Arguments:
-    engine_type - one of "sphinx" or "google"
-    kwargs - keyword arguments passed to the constructor of the STT engine
+engine_type - one of "sphinx" or "google"
+kwargs - keyword arguments passed to the constructor of the STT engine
 """
+
 def newSTTEngine(engine_type, **kwargs):
     t = engine_type.lower()
     if t == "sphinx":
