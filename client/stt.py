@@ -4,6 +4,12 @@ import json
 import urllib2
 import jasperpath
 
+# quirky bug where first import doesn't work
+try:
+    import pocketsphinx as ps
+except:
+    import pocketsphinx as ps
+
 """
 The default Speech-To-Text implementation which relies on PocketSphinx.
 """
@@ -15,7 +21,6 @@ languagemodel_persona = jasperpath.languagemodel("persona", static=True)
 dictionary_persona    = jasperpath.dictionary("persona", static=True)
 
 class PocketSphinxSTT(object):
-
     def __init__(self, lmd=languagemodel, dictd=dictionary,
                 lmd_persona=languagemodel_persona, dictd_persona=dictionary_persona,
                 lmd_music=None, dictd_music=None, **kwargs):
@@ -30,16 +35,12 @@ class PocketSphinxSTT(object):
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
-        # quirky bug where first import doesn't work
-        try:
-            import pocketsphinx as ps
-        except:
-            import pocketsphinx as ps
+        base_config = {'logfn': os.devnull, 'hmm': jasperpath.HMM_PATH}
 
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=jasperpath.HMM_PATH, lm = lmd_music, dict = dictd_music)
-        self.speechRec_persona = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=jasperpath.HMM_PATH, lm=lmd, dict=dictd)
+            self.speechRec_music = ps.Decoder(lm=lmd_music, dict=dictd_music, **base_config)
+        self.speechRec_persona = ps.Decoder(lm=lmd_persona, dict=dictd_persona, **base_config)
+        self.speechRec = ps.Decoder(lm=lmd_persona, dict=dictd_persona, **base_config)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
             """
