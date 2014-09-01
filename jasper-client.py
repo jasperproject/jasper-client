@@ -13,6 +13,7 @@ import client.speaker
 from client.conversation import Conversation
 import client.jasperpath as jasperpath
 import client.stt
+import client.g2p
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--local", help="Use local_mic", action="store_true")
@@ -56,6 +57,17 @@ if __name__ == "__main__":
                 speaker.say("Hello, I could not access the configuration directory or one of its subdirectories. Please check if you have the right permissions.")
                 sys.exit(1)
 
+    profile = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
+
+    try:
+        client.stt.HMM_PATH = profile['advanced_settings']['hmm']
+    except KeyError:
+        pass
+
+    try:
+        client.g2p.PHONETISAURUS_MODEL = profile['advanced_settings']['fst']
+    except KeyError:
+        pass
 
     if args.checknetwork:
         if has_network_connection():
@@ -69,8 +81,6 @@ if __name__ == "__main__":
     if args.compile:
         print "COMPILING DICTIONARY"
         client.vocabcompiler.compile()
-
-    profile = yaml.safe_load(open(jasperpath.config("profile.yml"), "r"));
 
     try:
         api_key = profile['keys']['GOOGLE_SPEECH']

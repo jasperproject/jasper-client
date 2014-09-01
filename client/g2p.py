@@ -7,7 +7,8 @@ import jasperpath
 
 PHONE_MATCH = re.compile(r'<s> (.*) </s>')
 
-PHONETISAURUS_MODEL = jasperpath.phonetisaurus('scripts', 'g014b2b', 'g014b2b.fst')
+# FIXME: This hardcoded path will be put into the the defaults config file as soon as PR #128 as has been merged
+PHONETISAURUS_MODEL = '/home/pi/phonetisaurus/g014b2b.fst'
 
 def parseLine(line):
     return PHONE_MATCH.search(line).group(1)

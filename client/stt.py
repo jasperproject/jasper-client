@@ -20,6 +20,8 @@ dictionary            = jasperpath.dictionary()
 languagemodel_persona = jasperpath.languagemodel("persona", static=True)
 dictionary_persona    = jasperpath.dictionary("persona", static=True)
 
+HMM_PATH = '/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k'
+
 class PocketSphinxSTT(object):
     def __init__(self, lmd=languagemodel, dictd=dictionary,
                 lmd_persona=languagemodel_persona, dictd_persona=dictionary_persona,
@@ -35,8 +37,8 @@ class PocketSphinxSTT(object):
             dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
-        base_config = {'logfn': os.devnull, 'hmm': jasperpath.HMM_PATH}
-
+        base_config = {'logfn': os.devnull, 'hmm': HMM_PATH}
+        
         if lmd_music and dictd_music:
             self.speechRec_music = ps.Decoder(lm=lmd_music, dict=dictd_music, **base_config)
         self.speechRec_persona = ps.Decoder(lm=lmd_persona, dict=dictd_persona, **base_config)
