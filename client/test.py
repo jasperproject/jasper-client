@@ -205,6 +205,9 @@ if __name__ == '__main__':
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
 
+    suite = unittest.TestSuite()
+
     for test_case in test_cases:
-        suite = unittest.TestLoader().loadTestsFromTestCase(test_case)
-        unittest.TextTestRunner(verbosity=2).run(suite)
+        suite.addTests(unittest.TestLoader().loadTestsFromTestCase(test_case))
+
+    unittest.TextTestRunner(verbosity=2).run(suite)
