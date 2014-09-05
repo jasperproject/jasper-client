@@ -7,13 +7,21 @@ Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where 
 
 ## Contributing
 
-If you'd like to contribute to Jasper, we've created a Contributing Guide, available [here](https://github.com/jasperproject/jasper-client/blob/master/CONTRIBUTING.md). It outlines the philosophies to preserve, tests to run, and more. If you're looking for potential features to build, we've included some recommendations there as well.
+If you'd like to contribute to Jasper, please read through our **[Contributing Guide](https://github.com/jasperproject/jasper-client/blob/master/CONTRIBUTING.md)**, which outlines the philosophies to preserve, tests to run, and more. We highly recommend reading through this guide before writing any code.
 
-We highly recommend reading through this guide before writing any code. Thanks in advance for any and all work you contribute to Jasper!
+The Contributing Guide also outlines some prospective features and areas that could use love. However, for a more thorough overview of Jasper's direction and goals, check out the **[Product Roadmap](https://github.com/jasperproject/jasper-client/wiki/Roadmap)**.
+
+Thanks in advance for any and all work you contribute to Jasper!
+
+## Support
+
+If you run into an issue or require technical support, please first look through the closed and open **[GitHub Issues](https://github.com/jasperproject/jasper-client/issues)**, as you may find a solution there (or some useful advice, at least).
+
+If you're still having trouble, the next place to look would be the new **[Google Group support forum](https://groups.google.com/forum/#!forum/jasper-support-forum)**. If your problem remains unsolved, feel free to create a post there describing the issue, the steps you've taken to debug it, etc.
 
 ## Contact
 
-Jasper was originally created by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively.
+Jasper was originally created by [Shubhro Saha](http://www.princeton.edu/~saha/) and [Charles Marsh](http://www.princeton.edu/~crmarsh/). Both can be reached by email at [saha@princeton.edu](mailto:saha@princeton.edu) and [crmarsh@princeton.edu](mailto:crmarsh@princeton.edu) respectively. However, for technical support and other problems, please go through the channels mentioned above.
 
 ## Major Updates
 - 2014-08-09: [Modularized STT implementation](https://github.com/jasperproject/jasper-client/pull/118) with Google Speech API example, thanks to astahlman. Running `populate.py` after updating is highly recommended.
