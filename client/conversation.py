@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 from notifier import Notifier
 from musicmode import *
 from brain import Brain

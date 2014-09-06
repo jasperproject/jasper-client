@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 import os
 import urllib2
 import sys

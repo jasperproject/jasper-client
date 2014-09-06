@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 """
     The Mic class handles all interactions with the microphone and speaker.
 """
