@@ -1,5 +1,5 @@
 import logging
-from os import listdir
+import os
 
 
 def logError():
@@ -36,9 +36,12 @@ class Brain(object):
             folder = 'modules'
 
             def get_module_names():
-                module_names = [m.replace('.py', '')
-                                for m in listdir(folder) if m.endswith('.py')]
-                module_names = map(lambda s: folder + '.' + s, module_names)
+                current_path = os.getcwd()
+                full_path = os.path.join(current_path, folder)
+                file_names = [os.path.join(dp, f) for dp, dn, fn in os.walk(full_path, followlinks=True) for f in fn]
+
+                module_names = [m.replace('.py', '').replace(current_path+'/', '').replace('/', '.')
+                    for m in file_names if m.endswith('.py')]
                 return module_names
 
             def import_module(name):
