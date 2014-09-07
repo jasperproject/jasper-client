@@ -1,5 +1,4 @@
 APScheduler==2.1.2
-CherryPy==3.2.2
 PyYAML==3.10
 Pykka==1.2.0
 argparse==1.2.1
