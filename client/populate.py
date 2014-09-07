@@ -1,8 +1,11 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 import re
 from getpass import getpass
 import yaml
 from pytz import timezone
 import feedparser
+import jasperpath
 
 
 def run():
@@ -104,7 +107,7 @@ def run():
 
     # write to profile
     print("Writing to profile...")
-    outputFile = open("profile.yml", "w")
+    outputFile = open(jasperpath.config("profile.yml"), "w")
     yaml.dump(profile, outputFile, default_flow_style=False)
     print("Done.")
 

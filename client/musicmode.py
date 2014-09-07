@@ -5,10 +5,14 @@
 import os
 from mic import Mic
 import g2p
+import vocabcompiler
+import jasperpath
 from music import *
 import speaker
 import stt
 
+languagemodel_spotify = jasperpath.languagemodel("spotify")
+dictionary_spotify    = jasperpath.dictionary("spotify")
 
 class MusicMode:
 
@@ -18,32 +22,17 @@ class MusicMode:
         self.music = Music()
 
         # index spotify playlists into new dictionary and language models
-        original = self.music.get_soup_playlist(
-        ) + ["STOP", "CLOSE", "PLAY", "PAUSE",
+        words = self.music.get_soup_playlist() + ["STOP", "CLOSE", "PLAY", "PAUSE",
              "NEXT", "PREVIOUS", "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME", "PLAYLIST"]
-        pronounced = g2p.translateWords(original)
-        zipped = zip(original, pronounced)
-        lines = ["%s %s" % (x, y) for x, y in zipped]
-
-        with open("dictionary_spotify.dic", "w") as f:
-            f.write("\n".join(lines) + "\n")
-
-        with open("sentences_spotify.txt", "w") as f:
-            f.write("\n".join(original) + "\n")
-            f.write("<s> \n </s> \n")
-            f.close()
-
+        text = "\n".join(["<s> %s </s>" for word in words])
         # make language model
-        os.system(
-            "text2idngram -vocab sentences_spotify.txt < sentences_spotify.txt -idngram spotify.idngram")
-        os.system(
-            "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
+        vocabcompiler.compile_text(text, languagemodel_spotify)
 
         # create a new mic with the new music models
         self.mic = Mic(
             speaker.newSpeaker(),
-            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic"),
-            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic")
+            stt.PocketSphinxSTT(lmd_music=languagemodel_spotify, dictd_music=dictionary_spotify),
+            stt.PocketSphinxSTT(lmd_music=languagemodel_spotify, dictd_music=dictionary_spotify)
         )
 
     def delegateInput(self, input):
@@ -149,35 +138,17 @@ class MusicMode:
 
 if __name__ == "__main__":
     """
-        Indexes the Spotify music library to dictionary_spotify.dic and languagemodel_spotify.lm
+        Indexes the Spotify music library into languagemodel/dictionary
     """
 
     musicmode = MusicMode("JASPER", None)
     music = musicmode.music
 
-    original = music.get_soup() + ["STOP", "CLOSE", "PLAY",
-                                   "PAUSE", "NEXT", "PREVIOUS", "LOUDER", "SOFTER"]
-    pronounced = g2p.translateWords(original)
-    zipped = zip(original, pronounced)
-    lines = ["%s %s" % (x, y) for x, y in zipped]
-
-    with open("dictionary_spotify.dic", "w") as f:
-        f.write("\n".join(lines) + "\n")
-
-    with open("sentences_spotify.txt", "w") as f:
-        f.write("\n".join(original) + "\n")
-        f.write("<s> \n </s> \n")
-        f.close()
-
-    with open("sentences_spotify_separated.txt", "w") as f:
-        f.write("\n".join(music.get_soup_separated()) + "\n")
-        f.write("<s> \n </s> \n")
-        f.close()
-
+    # index spotify playlists into new dictionary and language models
+    words = self.music.get_soup_separated() + ["STOP", "CLOSE", "PLAY", "PAUSE",
+         "NEXT", "PREVIOUS", "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME", "PLAYLIST"]
+    text = "\n".join(["<s> %s </s>" for word in words])
     # make language model
-    os.system(
-        "text2idngram -vocab sentences_spotify.txt < sentences_spotify_separated.txt -idngram spotify.idngram")
-    os.system(
-        "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
+    vocabcompiler.compile_text(text, "spotify", "spotify")
 
     print "Language Model and Dictionary Done"

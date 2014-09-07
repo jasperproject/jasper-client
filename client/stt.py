@@ -1,17 +1,31 @@
-import traceback
+import os
 import json
 import urllib2
+import traceback
+import jasperpath
+
+# quirky bug where first import doesn't work
+try:
+    import pocketsphinx as ps
+except:
+    import pocketsphinx as ps
 
 """
 The default Speech-to-Text implementation which relies on PocketSphinx.
 """
 
+languagemodel         = jasperpath.languagemodel()
+dictionary            = jasperpath.dictionary()
+
+languagemodel_persona = jasperpath.languagemodel("persona", static=True)
+dictionary_persona    = jasperpath.dictionary("persona", static=True)
+
+HMM_PATH = '/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k'
 
 class PocketSphinxSTT(object):
-
-    def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
-                 lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
-                 lmd_music=None, dictd_music=None, **kwargs):
+    def __init__(self, lmd=languagemodel, dictd=dictionary,
+                lmd_persona=languagemodel_persona, dictd_persona=dictionary_persona,
+                lmd_music=None, dictd_music=None, **kwargs):
         """
         Initiates the pocketsphinx instance.
 
@@ -23,48 +37,41 @@ class PocketSphinxSTT(object):
         dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
-        # quirky bug where first import doesn't work
-        try:
-            import pocketsphinx as ps
-        except:
-            import pocketsphinx as ps
-
-        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
-
+        base_config = {'logfn': os.devnull, 'hmm': HMM_PATH}
+        
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=hmdir, lm=lmd_music, dict=dictd_music)
-        self.speechRec_persona = ps.Decoder(
-            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+            self.speechRec_music = ps.Decoder(lm=lmd_music, dict=dictd_music, **base_config)
+        self.speechRec_persona = ps.Decoder(lm=lmd_persona, dict=dictd_persona, **base_config)
+        self.speechRec = ps.Decoder(lm=lmd_persona, dict=dictd_persona, **base_config)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
-        """
-        Performs STT, transcribing an audio file and returning the result.
+            """
+                Performs STT, transcribing an audio file and returning the result.
 
-        Arguments:
-        audio_file_path -- the path to the audio file to-be transcribed
-        PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
-        MUSIC -- if True, uses the 'Music' language model and dictionary
-        """
+                Arguments:
+                audio_file_path -- the path to the audio file to-be transcribed
+                PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
+                MUSIC -- if True, uses the 'Music' language model and dictionary
+            """
 
-        wavFile = file(audio_file_path, 'rb')
-        wavFile.seek(44)
+            wavFile = file(audio_file_path, 'rb')
+            wavFile.seek(44)
 
-        if MUSIC:
-            self.speechRec_music.decode_raw(wavFile)
-            result = self.speechRec_music.get_hyp()
-        elif PERSONA_ONLY:
-            self.speechRec_persona.decode_raw(wavFile)
-            result = self.speechRec_persona.get_hyp()
-        else:
-            self.speechRec.decode_raw(wavFile)
-            result = self.speechRec.get_hyp()
+            if MUSIC:
+                rec = self.speechRec_music
+            elif PERSONA_ONLY:
+                rec = self.speechRec_persona
+            else:
+                rec = self.speechRec
 
-        print "==================="
-        print "JASPER: " + result[0]
-        print "==================="
+            rec.decode_raw(wavFile)
+            result = rec.get_hyp()
 
-        return result[0]
+            print "==================="
+            print "JASPER: " + result[0]
+            print "==================="
+
+            return result[0]
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
@@ -89,7 +96,6 @@ Excerpt from sample profile.yml:
         GOOGLE_SPEECH: $YOUR_KEY_HERE
 
 """
-
 
 class GoogleSTT(object):
 
@@ -147,7 +153,6 @@ Arguments:
 engine_type - one of "sphinx" or "google"
 kwargs - keyword arguments passed to the constructor of the STT engine
 """
-
 
 def newSTTEngine(engine_type, **kwargs):
     t = engine_type.lower()
