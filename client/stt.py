@@ -1,6 +1,6 @@
 import traceback
 import json
-import urllib2
+import requests
 
 """
 The default Speech-to-Text implementation which relies on PocketSphinx.
@@ -101,6 +101,7 @@ class GoogleSTT(object):
         api_key - the public api key which allows access to Google APIs
         """
         self.api_key = api_key
+        self.http = requests.Session()
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -118,16 +119,12 @@ class GoogleSTT(object):
         wav.close()
 
         try:
-            req = urllib2.Request(
-                url,
-                data=data,
-                headers={
-                    'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE})
-            response_url = urllib2.urlopen(req)
-            response_read = response_url.read()
-            response_read = response_read.decode('utf-8')
+            headers={ 'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
+            response = self.http.post(url, data=data, headers=headers)
+            response.encoding = 'utf-8'
+            response_read = response.text
             decoded = json.loads(response_read.split("\n")[1])
-            print response_read
+
             text = decoded['result'][0]['alternative'][0]['transcript']
             if text:
                 print "==================="
