@@ -119,7 +119,7 @@ class GoogleSTT(object):
         wav.close()
 
         try:
-            headers={ 'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
+            headers = {'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
             response = self.http.post(url, data=data, headers=headers)
             response.encoding = 'utf-8'
             response_read = response.text
