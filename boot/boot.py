@@ -14,6 +14,17 @@ import speaker as speak
 speaker = speak.newSpeaker()
 
 
+def testConnection():
+    try:
+        urllib2.urlopen("http://www.google.com").getcode()
+        print "CONNECTED TO INTERNET"
+
+    except urllib2.URLError:
+        print "COULD NOT CONNECT TO NETWORK"
+        speaker.say(
+            "Warning: I was unable to connect to a network. Parts of the system may not work correctly, depending on your setup.")
+
+
 def fail(message):
     traceback.print_exc()
     speaker.say(message)
@@ -21,20 +32,11 @@ def fail(message):
 
 def configure():
     try:
-        urllib2.urlopen("http://www.google.com").getcode()
-
-        print "CONNECTED TO INTERNET"
         print "COMPILING DICTIONARY"
         vocabcompiler.compile(
             "../client/sentences.txt", "../client/dictionary.dic", "../client/languagemodel.lm")
-
         print "STARTING CLIENT PROGRAM"
         os.system("$JASPER_HOME/jasper/client/start.sh &")
-
-    except urllib2.URLError:
-        print "COULD NOT CONNECT TO NETWORK"
-        fail(
-            "I could not connect to a network. Please read the documentation to configure your Raspberry Pi.")
 
     except OSError:
         print "BOOT FAILURE: OSERROR"
@@ -57,4 +59,5 @@ if __name__ == "__main__":
     print "COPYRIGHT 2013 SHUBHRO SAHA, CHARLIE MARSH"
     print "=========================================="
     speaker.say("Hello.... I am Jasper... Please wait one moment.")
+    testConnection()
     configure()
