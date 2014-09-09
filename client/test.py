@@ -1,4 +1,5 @@
 import os
+import sys
 
 if os.environ.get('JASPER_HOME') is None:
     os.environ['JASPER_HOME'] = '/home/pi'
@@ -12,6 +13,11 @@ import test_mic
 import g2p
 import brain
 
+DEFAULT_PROFILE = {
+                    'prefers_email': False,
+                    'location': 'travis',
+                    'phone_number': '012344321'
+                   }
 
 def activeInternet():
     try:
@@ -65,7 +71,7 @@ class TestG2P(unittest.TestCase):
 class TestModules(unittest.TestCase):
 
     def setUp(self):
-        self.profile = yaml.safe_load(open("profile.yml", "r"))
+        self.profile = DEFAULT_PROFILE
         self.send = False
 
     def runConversation(self, query, inputs, module):
@@ -162,7 +168,7 @@ class TestBrain(unittest.TestCase):
     @staticmethod
     def _emptyBrain():
         mic = test_mic.Mic([])
-        profile = yaml.safe_load(open("profile.yml", "r"))
+        profile = DEFAULT_PROFILE
         return brain.Brain(mic, profile)
 
     @patch.object(brain, 'logError')
@@ -210,4 +216,7 @@ if __name__ == '__main__':
     for test_case in test_cases:
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(test_case))
 
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+
+    if not result.wasSuccessful():
+        sys.exit("Tests failed")
