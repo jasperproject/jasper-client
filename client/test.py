@@ -14,7 +14,8 @@ import brain
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
-    'location': 'travis',
+    'location': '08544',
+    'timezone': 'US/Eastern',
     'phone_number': '012344321'
 }
 
@@ -203,7 +204,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Test suite for the Jasper client code.')
     parser.add_argument('--light', action='store_true',
-                        help="runs a subset of the tests (only requires Python dependencies)")
+                        help='runs a subset of the tests (only requires Python dependencies)')
     args = parser.parse_args()
 
     test_cases = [TestBrain, TestModules]
