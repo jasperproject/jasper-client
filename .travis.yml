@@ -1,0 +1,9 @@
+language: python
+
+env:
+    - ARCH=x86
+
+script:
+    - "pip install -r client/requirements.txt"
+    - "cd client && python test.py --light"
+    - "cd ../boot && python test.py"
