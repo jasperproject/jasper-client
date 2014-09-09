@@ -8,16 +8,16 @@ import unittest
 import argparse
 from mock import patch
 from urllib2 import URLError, urlopen
-import yaml
 import test_mic
 import g2p
 import brain
 
 DEFAULT_PROFILE = {
-                    'prefers_email': False,
-                    'location': 'travis',
-                    'phone_number': '012344321'
-                   }
+    'prefers_email': False,
+    'location': 'travis',
+    'phone_number': '012344321'
+}
+
 
 def activeInternet():
     try:
