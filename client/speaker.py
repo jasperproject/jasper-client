@@ -5,7 +5,7 @@ A Speaker handles audio output from Jasper to the user
 Speaker methods:
     say - output 'phrase' as speech
     play - play the audio in 'filename'
-    isAvailable - returns True if the platform supports this implementation
+    is_available - returns True if the platform supports this implementation
 """
 import os
 import re
@@ -32,7 +32,7 @@ class AbstractSpeaker(object):
     
     @classmethod
     @abstractmethod
-    def isAvailable(cls):
+    def is_available(cls):
         pass
 
     @abstractmethod
@@ -61,7 +61,7 @@ class AbstractMp3Speaker(AbstractSpeaker):
     Generic class that implements the 'play' method for mp3 files
     """
     @classmethod
-    def isAvailable(cls):
+    def is_available(cls):
         return True if 'mad' in sys.modules.keys() else False
 
     def play_mp3(cls, filename):
@@ -88,8 +88,8 @@ class eSpeakSpeaker(AbstractSpeaker):
     Requires espeak to be available
     """
     @classmethod
-    def isAvailable(cls):
-        return (super(cls, cls).isAvailable() and subprocess.call(['which','espeak']) == 0)
+    def is_available(cls):
+        return (super(cls, cls).is_available() and subprocess.call(['which','espeak']) == 0)
 
     def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
@@ -109,7 +109,7 @@ class saySpeaker(AbstractSpeaker):
     """
 
     @classmethod
-    def isAvailable(cls):
+    def is_available(cls):
         return (subprocess.call(['which','say']) == 0)
 
     def say(self, phrase):
@@ -126,8 +126,8 @@ class picoSpeaker(AbstractSpeaker):
     Requires pico2wave to be available
     """
     @classmethod
-    def isAvailable(cls):
-        return (super(cls, cls).isAvailable() and subprocess.call(['which','pico2wave']) == 0)
+    def is_available(cls):
+        return (super(cls, cls).is_available() and subprocess.call(['which','pico2wave']) == 0)
 
     @property
     def languages(self):
@@ -165,8 +165,8 @@ class googleSpeaker(AbstractMp3Speaker):
     Requires pymad and gTTS to be available
     """
     @classmethod
-    def isAvailable(cls):
-        return (super(cls, cls).isAvailable() and 'gtts' in sys.modules.keys())
+    def is_available(cls):
+        return (super(cls, cls).is_available() and 'gtts' in sys.modules.keys())
 
     @property
     def languages(self):
@@ -195,6 +195,6 @@ def newSpeaker():
     """
 
     for cls in [googleSpeaker, picoSpeaker, eSpeakSpeaker, saySpeaker]:
-        if cls.isAvailable():
+        if cls.is_available():
             return cls()
     raise ValueError("Platform is not supported")
