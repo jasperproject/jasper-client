@@ -1,5 +1,16 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
+
+import os
+import shutil
+
+# Change CWD to $JASPER_HOME/jasper/client
+os.chdir(os.path.join(os.getenv("JASPER_HOME"), "jasper", "client"))
+
+old_client = os.path.abspath(os.path.join(os.pardir, "old_client"))
+if os.path.exists(old_client):
+    shutil.rmtree(old_client)
+
 import yaml
 import sys
 import speaker
