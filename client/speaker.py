@@ -33,7 +33,7 @@ class AbstractSpeaker(object):
     @classmethod
     @abstractmethod
     def is_available(cls):
-        pass
+        return True
 
     @abstractmethod
     def say(self, phrase, *args):
@@ -62,7 +62,7 @@ class AbstractMp3Speaker(AbstractSpeaker):
     """
     @classmethod
     def is_available(cls):
-        return True if 'mad' in sys.modules.keys() else False
+        return (super(AbstractMp3Speaker, cls).is_available() and 'mad' in sys.modules.keys())
 
     def play_mp3(cls, filename):
         f = mad.MadFile(filename)
@@ -92,7 +92,7 @@ class eSpeakSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(cls, cls).is_available() and subprocess.call(['which','espeak']) == 0)
+        return (super(eSpeakSpeaker, cls).is_available() and subprocess.call(['which','espeak']) == 0)
 
     def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
@@ -115,7 +115,7 @@ class saySpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (subprocess.call(['which','say']) == 0)
+        return (super(saySpeaker, cls).is_available() and subprocess.call(['which','say']) == 0)
 
     def say(self, phrase):
         cmd = ['say', str(phrase)]
@@ -135,7 +135,7 @@ class picoSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(cls, cls).is_available() and subprocess.call(['which','pico2wave']) == 0)
+        return (super(picoSpeaker, cls).is_available() and subprocess.call(['which','pico2wave']) == 0)
 
     @property
     def languages(self):
@@ -177,7 +177,7 @@ class googleSpeaker(AbstractMp3Speaker):
 
     @classmethod
     def is_available(cls):
-        return (super(cls, cls).is_available() and 'gtts' in sys.modules.keys())
+        return (super(googleSpeaker, cls).is_available() and 'gtts' in sys.modules.keys())
 
     @property
     def languages(self):
@@ -209,3 +209,4 @@ def newSpeaker():
         if cls.is_available():
             return cls()
     raise ValueError("Platform is not supported")
+    
