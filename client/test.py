@@ -11,6 +11,7 @@ import argparse
 from mock import patch
 from urllib2 import URLError, urlopen
 import test_mic
+import vocabcompiler
 import g2p
 import brain
 from diagnose import Diagnostics
@@ -22,10 +23,38 @@ DEFAULT_PROFILE = {
     'phone_number': '012344321'
 }
 
-
 def activeInternet():
     return Diagnostics.check_network_connection()
 
+class UnorderedList(list):
+
+    def __eq__(self, other):
+        return sorted(self) == sorted(other)
+
+class TestVocabCompiler(unittest.TestCase):
+
+    def testWordExtraction(self):
+        sentences = "temp_sentences.txt"
+        dictionary = "temp_dictionary.dic"
+        languagemodel = "temp_languagemodel.lm"
+
+        words = [
+            'HACKER', 'LIFE', 'FACEBOOK', 'THIRD', 'NO', 'JOKE',
+            'NOTIFICATION', 'MEANING', 'TIME', 'TODAY', 'SECOND',
+            'BIRTHDAY', 'KNOCK KNOCK', 'INBOX', 'OF', 'NEWS', 'YES',
+            'TOMORROW', 'EMAIL', 'WEATHER', 'FIRST', 'MUSIC', 'SPOTIFY'
+        ]
+
+        with patch.object(g2p, 'translateWords') as translateWords:
+            with patch.object(vocabcompiler, 'text2lm') as text2lm:
+                vocabcompiler.compile(sentences, dictionary, languagemodel)
+
+                # 'words' is appended with ['MUSIC', 'SPOTIFY']
+                # so must be > 2 to have received WORDS from modules
+                translateWords.assert_called_once_with(UnorderedList(words))
+                self.assertTrue(text2lm.called)
+        os.remove(sentences)
+        os.remove(dictionary)
 
 class TestMic(unittest.TestCase):
 
@@ -208,6 +237,7 @@ if __name__ == '__main__':
 
     test_cases = [TestBrain, TestModules]
     if not args.light:
+        test_cases.append(TestVocabCompiler)
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
 
