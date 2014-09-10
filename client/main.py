@@ -2,10 +2,16 @@
 # -*- coding: utf-8-*-
 
 import os
+import sys
 import shutil
 
 # Change CWD to $JASPER_HOME/jasper/client
-os.chdir(os.path.join(os.getenv("JASPER_HOME"), "jasper", "client"))
+jasper_home = os.getenv("JASPER_HOME")
+if not jasper_home or not os.path.exists(jasper_home):
+    print("Error: $JASPER_HOME is not set.")
+    sys.exit(0)
+
+os.chdir(os.path.join(jasper_home, "jasper", "client"))
 
 old_client = os.path.abspath(os.path.join(os.pardir, "old_client"))
 if os.path.exists(old_client):
