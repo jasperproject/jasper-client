@@ -24,7 +24,7 @@ class eSpeakSpeaker:
         self.play("say.wav")
 
     def play(self, filename):
-        os.system("aplay -D hw:1,0 " + filename)
+        os.system("aplay " + filename)
 
 
 class saySpeaker:
