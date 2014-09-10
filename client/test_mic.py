@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8-*-
 """
 A drop-in replacement for the Mic class used during unit testing.
