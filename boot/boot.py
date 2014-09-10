@@ -1,9 +1,33 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import os
-import urllib2
 import sys
 
+# Set $JASPER_HOME
+jasper_home = os.getenv("JASPER_HOME")
+if not jasper_home or not os.path.exists(jasper_home):
+    if os.path.exists("/home/pi"):
+        jasper_home = "/home/pi"
+        os.environ["JASPER_HOME"] = jasper_home
+    else:
+        print("Error: $JASPER_HOME is not set.")
+        sys.exit(0)
+
+# Change CWD to $JASPER_HOME/jasper/boot
+os.chdir(os.path.join(os.getenv("JASPER_HOME"), "jasper", "boot"))
+
+# Set $LD_LIBRARY_PATH
+os.environ["LD_LIBRARY_PATH"] = "/usr/local/lib"
+
+# Set $PATH
+path = os.getenv("PATH")
+if path:
+    path = os.pathsep.join([path, "/usr/local/lib/"])
+else:
+    path = "/usr/local/lib/"
+os.environ["PATH"] = path
+
+import urllib2
 import vocabcompiler
 import traceback
 
@@ -12,7 +36,6 @@ sys.path.append(lib_path)
 
 import speaker as speak
 speaker = speak.newSpeaker()
-
 
 def testConnection():
     try:
