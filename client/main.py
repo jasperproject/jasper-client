@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8-*-
 import yaml
 import sys
 import speaker

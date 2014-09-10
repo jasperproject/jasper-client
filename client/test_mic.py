@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 """
 A drop-in replacement for the Mic class used during unit testing.
 Designed to take pre-arranged inputs as an argument and store any

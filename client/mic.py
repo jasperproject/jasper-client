@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 """
     The Mic class handles all interactions with the microphone and speaker.
 """

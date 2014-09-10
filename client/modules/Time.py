@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import datetime
 import re
 from app_utils import getTimezone

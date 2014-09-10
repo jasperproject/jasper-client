@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 from notifier import Notifier
 from musicmode import *
 from brain import Brain

@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import feedparser
 import app_utils
 import re

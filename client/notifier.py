@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import Queue
 from modules import Gmail
 from apscheduler.scheduler import Scheduler

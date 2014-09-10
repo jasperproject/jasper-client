@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 """
 A drop-in replacement for the Mic class that allows for all I/O to occur
 over the terminal. Useful for debugging. Unlike with the typical Mic

@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import datetime
 import re
 from facebook import *

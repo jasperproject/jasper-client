@@ -1,3 +1,4 @@
+# -*- coding: utf-8-*-
 import imaplib
 import email
 import re
