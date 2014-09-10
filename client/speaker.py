@@ -87,6 +87,9 @@ class eSpeakSpeaker(AbstractSpeaker):
     Uses the eSpeak speech synthesizer included in the Jasper disk image
     Requires espeak to be available
     """
+
+    SLUG = "espeak-tts"
+
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and subprocess.call(['which','espeak']) == 0)
@@ -108,6 +111,8 @@ class saySpeaker(AbstractSpeaker):
     Uses the OS X built-in 'say' command
     """
 
+    SLUG = "osx-tts"
+
     @classmethod
     def is_available(cls):
         return (subprocess.call(['which','say']) == 0)
@@ -125,6 +130,9 @@ class picoSpeaker(AbstractSpeaker):
     Uses the svox-pico-tts speech synthesizer
     Requires pico2wave to be available
     """
+
+    SLUG = "pico-tts"
+
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and subprocess.call(['which','pico2wave']) == 0)
@@ -164,6 +172,9 @@ class googleSpeaker(AbstractMp3Speaker):
     Uses the Google TTS online translator
     Requires pymad and gTTS to be available
     """
+
+    SLUG = "google-tts"
+
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and 'gtts' in sys.modules.keys())
