@@ -234,11 +234,14 @@ if __name__ == '__main__':
         description='Test suite for the Jasper client code.')
     parser.add_argument('--light', action='store_true',
                         help='runs a subset of the tests (only requires Python dependencies)')
+    parser.add_argument('--vocabcompiler', action='store_true',
+                        help='runs the vocabcompiler test (independently of the --light argument)')
     args = parser.parse_args()
 
     test_cases = [TestBrain, TestModules]
-    if not args.light:
+    if args.vocabcompiler:
         test_cases.append(TestVocabCompiler)
+    if not args.light:
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
 
