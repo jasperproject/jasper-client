@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8-*-
 """
     Iterates over all the WORDS variables in the modules and creates a dictionary for the client.
