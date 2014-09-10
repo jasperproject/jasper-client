@@ -28,12 +28,12 @@ else:
 os.environ["PATH"] = path
 
 import urllib2
-import vocabcompiler
 import traceback
 
 lib_path = os.path.abspath('../client')
 sys.path.append(lib_path)
 
+import vocabcompiler
 import speaker as speak
 speaker = speak.newSpeaker()
 
