@@ -197,6 +197,8 @@ class googleSpeaker(AbstractMp3Speaker):
         self.play_mp3(tmpfile)
         os.remove(tmpfile)
 
+TTS_ENGINES = [googleSpeaker, picoSpeaker, eSpeakSpeaker, saySpeaker]
+
 def newSpeaker():
     """
     Returns:
@@ -206,8 +208,15 @@ def newSpeaker():
         ValueError if no speaker implementation is supported on this platform
     """
 
-    for cls in [googleSpeaker, picoSpeaker, eSpeakSpeaker, saySpeaker]:
-        if cls.is_available():
-            return cls()
-    raise ValueError("Platform is not supported")
-    
+    tts_engine = 'espeak-tts'
+
+    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == tts_engine, TTS_ENGINES)
+    if len(selected_engines) == 0:
+        raise ValueError("No TTS engine found for slug '%s'" % tts_engine)
+    else:
+        if len(selected_engines) > 1:
+            print("WARNING: Multiple TTS engines found for slug '%s'. This is most certainly a bug." % tts_engine)
+        engine = selected_engines[0]
+        if not engine.is_available():
+            raise ValueError("TTS engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % tts_engine)
+        return engine()
