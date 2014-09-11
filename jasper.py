@@ -1,20 +1,9 @@
 #!/usr/bin/env python2
-
 import os
 import sys
-import urllib2
 import traceback
 import shutil
 import yaml
-
-from diagnose import Diagnostics
-from client import vocabcompiler, stt
-from client import speaker as speak
-from client.conversation import Conversation
-if len(sys.argv) > 1 and "--local" in sys.argv[1:]:
-    from client.local_mic import Mic
-else:
-    from client.mic import Mic
 
 # Set $JASPER_HOME
 jasper_home = os.getenv("JASPER_HOME")
@@ -26,8 +15,17 @@ if not jasper_home or not os.path.exists(jasper_home):
         print("Error: $JASPER_HOME is not set.")
         sys.exit(0)
 
+from client.diagnose import Diagnostics
+from client import vocabcompiler, stt
+from client import speaker as speak
+from client.conversation import Conversation
+if len(sys.argv) > 1 and "--local" in sys.argv[1:]:
+    from client.local_mic import Mic
+else:
+    from client.mic import Mic
+
 # Change CWD to $JASPER_HOME/jasper/client
-client_path = os.path.join(os.getenv("JASPER_HOME"), "jasper" , "client")
+client_path = os.path.join(os.getenv("JASPER_HOME"), "jasper", "client")
 os.chdir(client_path)
 # Add $JASPER_HOME/jasper/client to sys.path
 sys.path.append(client_path)
@@ -45,6 +43,7 @@ os.environ["PATH"] = path
 
 speaker = speak.newSpeaker()
 
+
 def testConnection():
     if Diagnostics.check_network_connection():
         print "CONNECTED TO INTERNET"
@@ -53,10 +52,12 @@ def testConnection():
         speaker.say(
             "Warning: I was unable to connect to a network. Parts of the system may not work correctly, depending on your setup.")
 
+
 def fail(message):
     traceback.print_exc()
     speaker.say(message)
     sys.exit(1)
+
 
 def configure():
     try:
@@ -117,5 +118,4 @@ if __name__ == "__main__":
     mic.say("How can I be of service%s?" % addendum)
 
     conversation = Conversation("JASPER", mic, profile)
-
     conversation.handleForever()
