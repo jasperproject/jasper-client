@@ -42,11 +42,11 @@ class Brain(object):
         module, a priority of 0 is assumed.
         """
 
-        module_locations = [os.path.join(os.getenv('JASPER_HOME'), 'client', 'modules')]
+        module_locations = [os.path.join(os.path.dirname(__file__), 'modules')]
         module_names = [name for loader, name, ispkg in pkgutil.iter_modules(module_locations)]
         modules = []
         for name in module_names:
-            mod = importlib.import_module("client.modules.%s" % name)
+            mod = importlib.import_module("modules.%s" % name)
             if hasattr(mod, 'WORDS'):                
                 modules.append(mod)
         modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod,'PRIORITY') else 0, reverse=True)
