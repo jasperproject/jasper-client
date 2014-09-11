@@ -2,6 +2,10 @@
 
 import os
 import sys
+import urllib2
+import traceback
+import shutil
+import yaml
 
 # Set $JASPER_HOME
 jasper_home = os.getenv("JASPER_HOME")
@@ -26,9 +30,6 @@ if path:
 else:
     path = "/usr/local/lib/"
 os.environ["PATH"] = path
-
-import urllib2
-import traceback
 
 from client import vocabcompiler
 from client import speaker as speak
@@ -71,13 +72,10 @@ def configure():
         fail(
             "There was a problem starting Jasper. Please read the documentation to configure your Raspberry Pi.")
 
-import shutil
-
 old_client = os.path.abspath(os.path.join(os.pardir, "old_client"))
 if os.path.exists(old_client):
     shutil.rmtree(old_client)
 
-import yaml
 from client import stt
 from client.conversation import Conversation
 
