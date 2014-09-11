@@ -1,6 +1,9 @@
 # -*- coding: utf-8-*-
 import logging
-from os import listdir
+import os
+import sys
+import pkgutil
+import importlib
 
 
 def logError():
@@ -27,42 +30,27 @@ class Brain(object):
         profile -- contains information related to the user (e.g., phone number)
         """
 
-        def get_modules():
-            """
-            Dynamically loads all the modules in the modules folder and sorts
-            them by the PRIORITY key. If no PRIORITY is defined for a given
-            module, a priority of 0 is assumed.
-            """
-
-            folder = 'modules'
-
-            def get_module_names():
-                module_names = [m.replace('.py', '')
-                                for m in listdir(folder) if m.endswith('.py')]
-                module_names = map(lambda s: folder + '.' + s, module_names)
-                return module_names
-
-            def import_module(name):
-                mod = __import__(name)
-                components = name.split('.')
-                for comp in components[1:]:
-                    mod = getattr(mod, comp)
-                return mod
-
-            def get_module_priority(m):
-                try:
-                    return m.PRIORITY
-                except:
-                    return 0
-
-            modules = map(import_module, get_module_names())
-            modules = filter(lambda m: hasattr(m, 'WORDS'), modules)
-            modules.sort(key=get_module_priority, reverse=True)
-            return modules
-
         self.mic = mic
         self.profile = profile
-        self.modules = get_modules()
+        self.modules = self.get_modules()
+
+    @classmethod
+    def get_modules(cls):
+        """
+        Dynamically loads all the modules in the modules folder and sorts
+        them by the PRIORITY key. If no PRIORITY is defined for a given
+        module, a priority of 0 is assumed.
+        """
+
+        module_locations = [os.path.join(os.getenv('JASPER_HOME'), 'client', 'modules')]
+        module_names = [name for loader, name, ispkg in pkgutil.iter_modules(module_locations)]
+        modules = []
+        for name in module_names:
+            mod = importlib.import_module("client.modules.%s" % name)
+            if hasattr(mod, 'WORDS'):                
+                modules.append(mod)
+        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod,'PRIORITY') else 0, reverse=True)
+        return modules
 
     def query(self, text):
         """
