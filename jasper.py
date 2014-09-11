@@ -48,7 +48,7 @@ def testConnection():
 def fail(message):
     traceback.print_exc()
     speaker.say(message)
-    #sys.exit(1)
+    sys.exit(1)
 
 def configure():
     try:
