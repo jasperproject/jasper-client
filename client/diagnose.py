@@ -5,7 +5,9 @@ import socket
 import os
 from subprocess import check_output, call
 
+
 class Diagnostics:
+
     """
     Set of diagnostics to be run for determining the health of the
     host running Jasper
@@ -25,15 +27,15 @@ class Diagnostics:
             host = socket.gethostbyname("www.google.com")
             # connect to the host -- tells us if the host is actually
             # reachable
-            s = socket.create_connection((host, 80), 2)
-        except Exception as e:
+            socket.create_connection((host, 80), 2)
+        except Exception:
             return False
         else:
             return True
 
     @classmethod
     def check_phonetisaurus_dictionary_file(cls):
-         return os.path.isfile(os.path.join(cls.jasper_modules_path(), "phonetisaurus/g014b2b.fst"))
+        return os.path.isfile(os.path.join(cls.jasper_modules_path(), "phonetisaurus/g014b2b.fst"))
 
     @classmethod
     def check_phonetisaurus_program(cls):
@@ -41,13 +43,16 @@ class Diagnostics:
 
     @classmethod
     def info_git_revision(cls):
-        return check_output(['git','rev-parse','HEAD'])
+        return check_output(['git', 'rev-parse', 'HEAD'])
+
 
 class DiagnosticRunner:
+
     """
     Performs a series of checks against the system, printing the results to the
     console and also saving them to diagnostic.log
     """
+
     def __init__(self, diagnostics):
         self.diagnostics = diagnostics
 
@@ -66,17 +71,16 @@ class DiagnosticRunner:
         else:
             self.log("%d checks failed\n" % self.failed_checks)
 
-
     def select_methods(self, prefix):
         def is_match(method_name):
-            return callable(getattr(self.diagnostics, method_name)) and re.match(r"\A" + prefix +"_", method_name)
+            return callable(getattr(self.diagnostics, method_name)) and re.match(r"\A" + prefix + "_", method_name)
 
         return [method_name for method_name in dir(self.diagnostics) if is_match(method_name)]
 
     def initialize_log(self):
         self.output = open('diagnostic.log', 'w')
         self.log("Starting jasper diagnostic\n")
-        self.log(time.strftime("%c")+"\n")
+        self.log(time.strftime("%c") + "\n")
 
     def log(self, msg):
         print msg,
@@ -102,4 +106,3 @@ class DiagnosticRunner:
 
 if __name__ == '__main__':
     DiagnosticRunner(Diagnostics).run()
-
