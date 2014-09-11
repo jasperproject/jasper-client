@@ -2,9 +2,7 @@
 
 import os
 import sys
-print __package__
-print __file__
-print sys.path
+
 # Set $JASPER_HOME
 jasper_home = os.getenv("JASPER_HOME")
 if not jasper_home or not os.path.exists(jasper_home):
