@@ -1,7 +1,6 @@
 # -*- coding: utf-8-*-
 import logging
 import os
-import sys
 import pkgutil
 import importlib
 
@@ -47,9 +46,9 @@ class Brain(object):
         modules = []
         for name in module_names:
             mod = importlib.import_module("modules.%s" % name)
-            if hasattr(mod, 'WORDS'):                
+            if hasattr(mod, 'WORDS'):
                 modules.append(mod)
-        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod,'PRIORITY') else 0, reverse=True)
+        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY') else 0, reverse=True)
         return modules
 
     def query(self, text):
