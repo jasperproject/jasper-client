@@ -13,6 +13,7 @@ from urllib2 import URLError, urlopen
 import test_mic
 import g2p
 import brain
+from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
@@ -23,11 +24,7 @@ DEFAULT_PROFILE = {
 
 
 def activeInternet():
-    try:
-        urlopen('http://www.google.com', timeout=1)
-        return True
-    except URLError:
-        return False
+    return Diagnostics.check_network_connection()
 
 
 class TestMic(unittest.TestCase):

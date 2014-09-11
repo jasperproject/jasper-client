@@ -35,16 +35,15 @@ import traceback
 lib_path = os.path.abspath('../client')
 sys.path.append(lib_path)
 
+from diagnose import Diagnostics
 import speaker as speak
 speaker = speak.newSpeaker()
 
 
 def testConnection():
-    try:
-        urllib2.urlopen("http://www.google.com").getcode()
+    if Diagnostics.check_network_connection():
         print "CONNECTED TO INTERNET"
-
-    except urllib2.URLError:
+    else:
         print "COULD NOT CONNECT TO NETWORK"
         speaker.say(
             "Warning: I was unable to connect to a network. Parts of the system may not work correctly, depending on your setup.")
