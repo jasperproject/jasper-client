@@ -7,6 +7,14 @@ import traceback
 import shutil
 import yaml
 
+from client import vocabcompiler, stt
+from client import speaker as speak
+from client.conversation import Conversation
+if len(sys.argv) > 1 and "--local" in sys.argv[1:]:
+    from client.local_mic import Mic
+else:
+    from client.mic import Mic
+
 # Set $JASPER_HOME
 jasper_home = os.getenv("JASPER_HOME")
 if not jasper_home or not os.path.exists(jasper_home):
@@ -34,8 +42,6 @@ else:
     path = "/usr/local/lib/"
 os.environ["PATH"] = path
 
-from client import vocabcompiler
-from client import speaker as speak
 speaker = speak.newSpeaker()
 
 def testConnection():
@@ -78,17 +84,6 @@ def configure():
 old_client = os.path.abspath(os.path.join(os.pardir, "old_client"))
 if os.path.exists(old_client):
     shutil.rmtree(old_client)
-
-from client import stt
-from client.conversation import Conversation
-
-def isLocal():
-    return len(sys.argv) > 1 and sys.argv[1] == "--local"
-
-if isLocal():
-    from client.local_mic import Mic
-else:
-    from client.mic import Mic
 
 if __name__ == "__main__":
 
