@@ -8,6 +8,7 @@ Speaker methods:
     is_available - returns True if the platform supports this implementation
 """
 import os
+import platform
 import re
 import sys
 import json
