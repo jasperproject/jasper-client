@@ -18,7 +18,10 @@ if not jasper_home or not os.path.exists(jasper_home):
         sys.exit(0)
 
 # Change CWD to $JASPER_HOME/jasper/client
-os.chdir(os.path.join(os.getenv("JASPER_HOME"), "jasper" , "client"))
+client_path = os.path.join(os.getenv("JASPER_HOME"), "jasper" , "client")
+os.chdir(client_path)
+# Add $JASPER_HOME/jasper/client to sys.path
+sys.path.append(client_path)
 
 # Set $LD_LIBRARY_PATH
 os.environ["LD_LIBRARY_PATH"] = "/usr/local/lib"
