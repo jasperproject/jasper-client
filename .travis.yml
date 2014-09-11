@@ -5,4 +5,4 @@ env:
 
 script:
     - "pip install -r client/requirements.txt"
-    - "cd client && python test.py --light --vocabcompiler"
+    - "cd client && python test.py --light"
