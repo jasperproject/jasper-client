@@ -1,9 +1,9 @@
 # -*- coding: utf-8-*-
 import os
+import tempfile
 import subprocess
 import re
 
-TEMP_FILENAME = "g2ptemp"
 PHONE_MATCH = re.compile(r'<s> (.*) </s>')
 PHONETISAURUS_PATH = os.environ['JASPER_HOME'] + "/phonetisaurus"
 
@@ -25,12 +25,12 @@ def translateWord(word):
 def translateWords(words):
     full_text = '\n'.join(words)
 
-    f = open(TEMP_FILENAME, "wb")
-    f.write(full_text)
-    f.flush()
+    with tempfile.NamedTemporaryFile(suffix='.g2p', delete=False) as f:
+        temp_filename = f.name
+        f.write(full_text)
 
-    output = translateFile(TEMP_FILENAME)
-    os.remove(TEMP_FILENAME)
+    output = translateFile(temp_filename)
+    os.remove(temp_filename)
 
     return output
 
