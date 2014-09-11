@@ -208,8 +208,22 @@ def newSpeaker():
         ValueError if no speaker implementation is supported on this platform
     """
 
-    tts_engine = 'espeak-tts'
+    tts_engine = None
 
+    # Try to get tts_engine from config
+    if os.path.exists('profile.yml'):
+        with open('profile.yml', 'r') as f:
+            profile = yaml.safe_load(f)
+            if 'tts_engine' in profile:
+                tts_engine = profile['tts_engine']
+    
+    # Default values if config file does not exist or option not set
+    if not tts_engine:
+        if platform.system() == 'darwin':
+            tts_engine = 'osx-tts'
+        else:
+            tts_engine = 'espeak-tts'
+    
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == tts_engine, TTS_ENGINES)
     if len(selected_engines) == 0:
         raise ValueError("No TTS engine found for slug '%s'" % tts_engine)
