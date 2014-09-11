@@ -43,9 +43,8 @@ def translateFile(input_filename, output_filename=None):
     if output_filename:
         out = '\n'.join(out)
 
-        f = open(output_filename, "wb")
-        f.write(out)
-        f.close()
+        with open(output_filename, "wb") as f:
+            f.write(out)
 
         return None
 
