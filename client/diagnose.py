@@ -5,7 +5,10 @@ import socket
 import os
 import jasperpath
 import subprocess
+import logging
 from distutils.spawn import find_executable
+from pip.req import parse_requirements
+from pip.commands.show import search_packages_info
 
 class Diagnostics:
 
@@ -53,10 +56,12 @@ class Diagnostics:
 
     @classmethod
     def check_all_pip_requirements_installed(cls):
-        try:
-            cmd = ['pip', 'install', '-r', 'requirements.txt', '--no-install', '--no-download']
-            reqs = subprocess.check_output(cmd)
-        except subprocess.CalledProcessError:
+        requirements = list(parse_requirements('requirements.txt'))
+        packages = [ req.name for req in requirements ]
+        installed_packages = [ pkg['name'] for pkg in list(search_packages_info(packages))]
+        missing_packages = [ pkg for pkg in packages if pkg not in installed_packages ]
+        if missing_packages:
+            log("Missing packages: "+', '.join(missing_packages))
             return False
         else:
             return True
@@ -77,6 +82,7 @@ class DiagnosticRunner:
         self.diagnostics = diagnostics
 
     def run(self):
+        initialize_log()
         self.initialize_log()
         self.perform_checks()
 
@@ -87,9 +93,9 @@ class DiagnosticRunner:
         for info in self.select_methods('info'):
             self.get_info(info)
         if self.failed_checks == 0:
-            self.log("All checks passed\n")
+            log("All checks passed")
         else:
-            self.log("%d checks failed\n" % self.failed_checks)
+            log("%d checks failed" % self.failed_checks)
 
     def select_methods(self, prefix):
         def is_match(method_name):
@@ -98,30 +104,25 @@ class DiagnosticRunner:
         return [method_name for method_name in dir(self.diagnostics) if is_match(method_name)]
 
     def initialize_log(self):
-        self.output = open('diagnostic.log', 'w')
-        self.log("Starting jasper diagnostic\n")
-        self.log(time.strftime("%c") + "\n")
-
-    def log(self, msg):
-        print msg,
-        self.output.write(msg)
+        log("Starting jasper diagnostic")
+        log(time.strftime("%c"))
 
     def get_info(self, info_name):
         message = info_name.replace("info_", "").replace("_", " ")
         info_method = getattr(self.diagnostics, info_name)
         info = info_method()
-        self.log("%s: %s" % (message, info))
+        log("%s: %s" % (message, info))
 
     def do_check(self, check_name):
         message = check_name.replace("check_", "").replace("_", " ")
         check = getattr(self.diagnostics, check_name)
-        self.log("Checking %s... " % message)
         if check():
-            self.log("OK")
+            result = "OK"
         else:
             self.failed_checks += 1
-            self.log("FAILED")
-        self.log("\n")
+            result = "FAILED"
+
+        log("Checking %s... %s" % (message, result))
 
 
 if __name__ == '__main__':
