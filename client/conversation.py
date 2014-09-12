@@ -46,14 +46,12 @@ class Conversation(object):
             for notif in notifications:
                 print notif
 
-            try:
-                threshold, transcribed = self.mic.passiveListen(self.persona)
-            except:
+            threshold, transcribed = self.mic.passiveListen(self.persona)
+            if not transcribed or not threshold:
                 continue
 
-            if threshold:
-                input = self.mic.activeListen(threshold)
-                if input:
-                    self.delegateInput(input)
-                else:
-                    self.mic.say("Pardon?")
+            input = self.mic.activeListen(threshold)
+            if input:
+                self.delegateInput(input)
+            else:
+                self.mic.say("Pardon?")
