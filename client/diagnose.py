@@ -3,8 +3,9 @@ import time
 import re
 import socket
 import os
-from subprocess import check_output, call
 import jasperpath
+import subprocess
+from distutils.spawn import find_executable
 
 class Diagnostics:
 
@@ -36,11 +37,33 @@ class Diagnostics:
 
     @classmethod
     def check_phonetisaurus_program(cls):
-        return call(['which', 'phonetisaurus-g2p']) == 0
+        return cls.do_check_program('phonetisaurus-g2p')
+
+    @classmethod
+    def check_espeak_program(cls):
+        return cls.do_check_program('espeak')
+
+    @classmethod
+    def check_say_program(cls):
+        return cls.do_check_program('say')
+
+    @classmethod
+    def do_check_program(cls, program):
+        return find_executable(program) is not None
+
+    @classmethod
+    def check_all_pip_requirements_installed(cls):
+        try:
+            cmd = ['pip', 'install', '-r', 'requirements.txt', '--no-install', '--no-download']
+            reqs = subprocess.check_output(cmd)
+        except subprocess.CalledProcessError:
+            return False
+        else:
+            return True
 
     @classmethod
     def info_git_revision(cls):
-        return check_output(['git', 'rev-parse', 'HEAD'])
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 
 
 class DiagnosticRunner:
