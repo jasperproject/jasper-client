@@ -138,7 +138,7 @@ class Mic:
         # no use continuing if no flag raised
         if not didDetect:
             print "No disturbance detected"
-            return
+            return (None, None)
 
         # cutoff any recording before this disturbance was detected
         frames = frames[-20:]
