@@ -4,6 +4,7 @@ import sys
 import traceback
 import shutil
 import yaml
+import argparse
 
 # Set $JASPER_HOME
 jasper_home = os.getenv("JASPER_HOME")
@@ -19,7 +20,13 @@ from client.diagnose import Diagnostics
 from client import vocabcompiler, stt
 from client import speaker as speak
 from client.conversation import Conversation
-if len(sys.argv) > 1 and "--local" in sys.argv[1:]:
+
+parser = argparse.ArgumentParser(description='Test suite for the Jasper client code.')
+parser.add_argument('--local', action='store_true', help='Use text input instead of a real microphone')
+parser.add_argument('--no-network-check', action='store_true', help='Disable the network connection check')
+args = parser.parse_args()
+
+if args.local:
     from client.local_mic import Mic
 else:
     from client.mic import Mic
@@ -92,8 +99,10 @@ if __name__ == "__main__":
     print " Copyright 2013 Shubhro Saha & Charlie Marsh               "
     print "==========================================================="
 
+
     speaker.say("Hello.... I am Jasper... Please wait one moment.")
-    testConnection()
+    if not args.no_network_check:
+        testConnection()
     configure()
 
     profile = yaml.safe_load(open("profile.yml", "r"))
