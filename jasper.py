@@ -72,8 +72,8 @@ class Jasper(object):
         try:
             stt_engine_type = self.config['stt_engine']
         except KeyError:
-            logger.warning("stt_engine not specified in profile, defaulting to 'sphinx'")
             stt_engine_type = "sphinx"
+            logger.warning("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
 
         # Compile dictionary
         sentences, dictionary, languagemodel = [os.path.abspath(os.path.join(client_path, filename)) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
@@ -83,10 +83,8 @@ class Jasper(object):
         self.mic = Mic(speak.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     def run(self):
-        addendum = ""
-        if 'first_name' in self.config:
-            addendum = ", %s" % self.config["first_name"]
-        self.mic.say("How can I be of service%s?" % addendum)
+        salutation = "How can I be of service, %s?" % self.config["first_name"] if 'first_name' in self.config else "How can I be of service?"
+        self.mic.say(salutation)
 
         conversation = Conversation("JASPER", self.mic, self.config)
         conversation.handleForever()
