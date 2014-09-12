@@ -232,7 +232,7 @@ class Mic:
         write_frames.writeframes(''.join(frames))
         write_frames.close()
 
-        return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC)
+        return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC=MUSIC)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking
