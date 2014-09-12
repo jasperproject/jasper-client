@@ -1,8 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
+import os
 import traceback
 import json
 import requests
+import yaml
 
 """
 The default Speech-to-Text implementation which relies on PocketSphinx.
@@ -31,13 +33,24 @@ class PocketSphinxSTT(object):
         except:
             import pocketsphinx as ps
 
-        hmdir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+        hmm_dir = None
+
+        # Try to get hmm_dir from config
+        profile_path = os.path.join(os.path.dirname(__file__),'profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'pocketsphinx' in profile and 'hmm_dir' in profile['pocketsphinx']:
+                    hmm_dir = profile['pocketsphinx']['hmm_dir']
+
+        if not hmm_dir:
+            hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=hmdir, lm=lmd_music, dict=dictd_music)
+            self.speechRec_music = ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music)
         self.speechRec_persona = ps.Decoder(
-            hmm=hmdir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmdir, lm=lmd, dict=dictd)
+            hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona)
+        self.speechRec = ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
