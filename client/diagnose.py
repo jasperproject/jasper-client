@@ -6,9 +6,12 @@ import os
 import jasperpath
 import subprocess
 import logging
+import sys
 from distutils.spawn import find_executable
 from pip.req import parse_requirements
 from pip.commands.show import search_packages_info
+
+logger = logging.getLogger(__name__)
 
 class Diagnostics:
 
@@ -61,7 +64,7 @@ class Diagnostics:
         installed_packages = [ pkg['name'] for pkg in list(search_packages_info(packages))]
         missing_packages = [ pkg for pkg in packages if pkg not in installed_packages ]
         if missing_packages:
-            log("Missing packages: "+', '.join(missing_packages))
+            logger.info("Missing packages: "+', '.join(missing_packages))
             return False
         else:
             return True
@@ -82,7 +85,6 @@ class DiagnosticRunner:
         self.diagnostics = diagnostics
 
     def run(self):
-        initialize_log()
         self.initialize_log()
         self.perform_checks()
 
@@ -93,9 +95,9 @@ class DiagnosticRunner:
         for info in self.select_methods('info'):
             self.get_info(info)
         if self.failed_checks == 0:
-            log("All checks passed")
+            logger.info("All checks passed")
         else:
-            log("%d checks failed" % self.failed_checks)
+            logger.info("%d checks failed" % self.failed_checks)
 
     def select_methods(self, prefix):
         def is_match(method_name):
@@ -104,14 +106,13 @@ class DiagnosticRunner:
         return [method_name for method_name in dir(self.diagnostics) if is_match(method_name)]
 
     def initialize_log(self):
-        log("Starting jasper diagnostic")
-        log(time.strftime("%c"))
+        logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
 
     def get_info(self, info_name):
         message = info_name.replace("info_", "").replace("_", " ")
         info_method = getattr(self.diagnostics, info_name)
         info = info_method()
-        log("%s: %s" % (message, info))
+        logger.info("%s: %s" % (message, info))
 
     def do_check(self, check_name):
         message = check_name.replace("check_", "").replace("_", " ")
@@ -122,8 +123,12 @@ class DiagnosticRunner:
             self.failed_checks += 1
             result = "FAILED"
 
-        log("Checking %s... %s" % (message, result))
+        logger.info("Checking %s... %s" % (message, result))
 
 
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     DiagnosticRunner(Diagnostics).run()
+
+
