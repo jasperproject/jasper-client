@@ -11,7 +11,6 @@ import os
 import platform
 import re
 import sys
-import json
 import tempfile
 import subprocess
 from abc import ABCMeta, abstractmethod
