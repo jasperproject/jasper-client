@@ -11,14 +11,8 @@ import yaml
 import argparse
 
 # Set $JASPER_HOME
-jasper_home = os.getenv("JASPER_HOME")
-if not jasper_home or not os.path.exists(jasper_home):
-    if os.path.exists("/home/pi"):
-        jasper_home = "/home/pi"
-        os.environ["JASPER_HOME"] = jasper_home
-    else:
-        print("Error: $JASPER_HOME is not set.")
-        sys.exit(0)
+if not os.getenv('JASPER_HOME'):
+    os.environ["JASPER_HOME"]  = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from client.diagnose import Diagnostics
 from client import vocabcompiler, stt
