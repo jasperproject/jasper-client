@@ -161,7 +161,7 @@ class picoSpeaker(AbstractSpeaker):
         cmd = ['pico2wave', '--wave', fname]
         if language:
             if language not in self.languages:
-                raise ValueError("Language '%s' not supported by '%s'", language, cmd[0])
+                raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
             cmd.extend(['-l',language])
         cmd.append(phrase)
 
@@ -190,7 +190,7 @@ class googleSpeaker(AbstractMp3Speaker):
 
     def say(self, phrase, language='en'):
         if language not in self.languages:
-            raise ValueError("Language '%s' not supported by '%s'", language, cmd[0])
+            raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
         tts = gtts.gTTS(text=phrase, lang=language)
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
