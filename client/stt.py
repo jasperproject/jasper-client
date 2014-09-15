@@ -24,6 +24,10 @@ class AbstractSTTEngine(object):
     __metaclass__ = ABCMeta
     
     @classmethod
+    def get_config(cls):
+        return {}
+
+    @classmethod
     @abstractmethod
     def is_available(cls):
         return True
