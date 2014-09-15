@@ -254,4 +254,4 @@ def newSTTEngine(stt_engine, **kwargs):
         engine = selected_engines[0]
         if not engine.is_available():
             raise ValueError("STT engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % stt_engine)
-        return engine(engine.get_config())
+        return engine(**engine.get_config())
