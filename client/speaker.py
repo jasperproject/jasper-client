@@ -15,6 +15,7 @@ import tempfile
 import subprocess
 from abc import ABCMeta, abstractmethod
 
+import yaml
 import pyaudio
 import wave
 try:
