@@ -9,6 +9,7 @@ import audioop
 import pyaudio
 import alteration
 import jasperpath
+from stt import TranscriptionMode
 
 class Mic:
 
@@ -162,7 +163,7 @@ class Mic:
         write_frames.close()
 
         # check if PERSONA was said
-        transcribed = self.passive_stt_engine.transcribe(AUDIO_FILE, PERSONA_ONLY=True)
+        transcribed = self.passive_stt_engine.transcribe(AUDIO_FILE, mode=TranscriptionMode.KEYWORD)
 
         if PERSONA in transcribed:
             return (THRESHOLD, PERSONA)
@@ -232,7 +233,9 @@ class Mic:
         write_frames.writeframes(''.join(frames))
         write_frames.close()
 
-        return self.active_stt_engine.transcribe(AUDIO_FILE, MUSIC=MUSIC)
+        mode = TranscriptionMode.MUSIC if MUSIC else TranscriptionMode.NORMAL
+
+        return self.active_stt_engine.transcribe(AUDIO_FILE, mode=mode)
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking

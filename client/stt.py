@@ -13,6 +13,9 @@ import yaml
 The default Speech-to-Text implementation which relies on PocketSphinx.
 """
 
+class TranscriptionMode:
+    NORMAL, KEYWORD, MUSIC = range(3)
+
 class AbstractSTTEngine(object):
     """
     Generic parent class for all STT engines
@@ -57,23 +60,23 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
         hmm_dir = self._get_hmm_dir()
 
+        self._logfiles = {}
         with tempfile.NamedTemporaryFile(prefix='psdecoder_music_', suffix='.log', delete=False) as f:
-            self.logfile_music = f.name
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_persona_', suffix='.log', delete=False) as f:
-            self.logfile_persona = f.name
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_default_', suffix='.log', delete=False) as f:
-            self.logfile_default = f.name
+            self._logfiles[TranscriptionMode.MUSIC] = f.name
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_keyword_', suffix='.log', delete=False) as f:
+            self._logfiles[TranscriptionMode.KEYWORD] = f.name
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_normal_', suffix='.log', delete=False) as f:
+            self._logfiles[TranscriptionMode.NORMAL] = f.name
 
+        self._decoders = {}
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music, logfn=self.logfile_music)
-        self.speechRec_persona = ps.Decoder(
-            hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona, logfn=self.logfile_persona)
-        self.speechRec = ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd, logfn=self.logfile_default)
+            self._decoders[TranscriptionMode.MUSIC] = ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music, logfn=self._logfiles[TranscriptionMode.MUSIC])
+        self._decoders[TranscriptionMode.KEYWORD]  = ps.Decoder(hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona, logfn=self._logfiles[TranscriptionMode.KEYWORD])
+        self._decoders[TranscriptionMode.NORMAL] = ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd, logfn=self._logfiles[TranscriptionMode.NORMAL])
 
     def __del__(self):
-        os.remove(self.logfile_music)
-        os.remove(self.logfile_persona)
-        os.remove(self.logfile_default)
+        for filename in self._logfiles.values():
+            os.remove(filename)
 
     @classmethod
     def _get_hmm_dir(cls): #FIXME: Replace this as soon as we have a config module
@@ -92,7 +95,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
         return hmm_dir
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+    def transcribe(self, audio_file_path, mode=TranscriptionMode.NORMAL):
         """
         Performs STT, transcribing an audio file and returning the result.
 
@@ -105,26 +108,18 @@ class PocketSphinxSTT(AbstractSTTEngine):
         wavFile = file(audio_file_path, 'rb')
         wavFile.seek(44)
 
-        if MUSIC:
-            self.speechRec_music.decode_raw(wavFile)
-            result = self.speechRec_music.get_hyp()
-            with open(self.logfile_music, 'r+') as f:
+        decoder = self._decoders[TranscriptionMode.NORMAL]
+        decoder.decode_raw(wavFile)
+        result = decoder.get_hyp()
+        with open(self._logfiles[mode], 'r+') as f:
+                if mode == TranscriptionMode.KEYWORD:
+                    modename = "[KEYWORD]"
+                elif mode == TranscriptionMode.MUSIC:
+                    modename = "[MUSIC]"
+                else:
+                    modename = "[NORMAL]"
                 for line in f:
-                    self._logger.debug("speechRec_music %s", line.strip())
-                f.truncate()
-        elif PERSONA_ONLY:
-            self.speechRec_persona.decode_raw(wavFile)
-            result = self.speechRec_persona.get_hyp()
-            with open(self.logfile_persona, 'r+') as f:
-                for line in f:
-                    self._logger.debug("speechRec_persona %s", line.strip())
-                f.truncate()
-        else:
-            self.speechRec.decode_raw(wavFile)
-            result = self.speechRec.get_hyp()
-            with open(self.logfile_default, 'r+') as f:
-                for line in f:
-                    self._logger.debug("speechRec_default %s", line.strip())
+                    self._logger.debug("%s %s", modename, line.strip())
                 f.truncate()
 
         print "==================="
@@ -175,7 +170,7 @@ class GoogleSTT(AbstractSTTEngine):
         self.api_key = api_key
         self.http = requests.Session()
 
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+    def transcribe(self, audio_fp, mode=TranscriptionMode.NORMAL):
         """
         Performs STT via the Google Speech API, transcribing an audio file and returning an English
         string.
