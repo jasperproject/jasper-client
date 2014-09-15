@@ -28,7 +28,7 @@ class ConfigPopulator(object):
     def __init__(self, config):
         self.config = config
 
-    def prompt(self, variable, name, description, sanitize_func, checkdepends_func):
+    def prompt(self, variable, name, description=None, sanitize_func=None, checkdepends_func=None):
         if checkdepends_func is not None and not checkdepends_func(self):
             return
         if description:
