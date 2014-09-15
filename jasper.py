@@ -5,7 +5,7 @@ import traceback
 import shutil
 import logging
 logging.basicConfig()
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 import yaml
 import argparse
