@@ -241,7 +241,7 @@ if __name__ == '__main__':
     for engine in AbstractSpeaker.__subclasses__():
         if hasattr(engine, 'SLUG'):
             instance = engine()
-            if instance.is_available:
+            if instance.is_available():
                 engines.append(instance)
 
     for engine in engines:
