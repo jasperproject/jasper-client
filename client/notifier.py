@@ -20,9 +20,10 @@ class Notifier(object):
     def __init__(self, profile):
         self.q = Queue.Queue()
         self.profile = profile
-        self.notifiers = [
-            self.NotificationClient(self.handleEmailNotifications, None),
-        ]
+        self.notifiers = []
+
+        if 'gmail_address' in profile and 'gmail_password' in profile:
+            self.notifiers.append(self.NotificationClient(self.handleEmailNotifications, None))
 
         sched = Scheduler()
         sched.start()
