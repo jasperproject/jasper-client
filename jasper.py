@@ -25,7 +25,7 @@ from client import vocabcompiler, stt
 from client import speaker as speak
 from client.conversation import Conversation
 
-parser = argparse.ArgumentParser(description='Test suite for the Jasper client code.')
+parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
 parser.add_argument('--local', action='store_true', help='Use text input instead of a real microphone')
 parser.add_argument('--no-network-check', action='store_true', help='Disable the network connection check')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
