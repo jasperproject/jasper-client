@@ -4,7 +4,8 @@
 """
 
 import os
-from wave import open as open_audio
+import tempfile
+import wave
 import audioop
 import pyaudio
 import alteration
@@ -81,7 +82,6 @@ class Mic:
         """
 
         THRESHOLD_MULTIPLIER = 1.8
-        AUDIO_FILE = "passive.wav"
         RATE = 16000
         CHUNK = 1024
 
@@ -155,15 +155,17 @@ class Mic:
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
-        write_frames.setnchannels(1)
-        write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        write_frames.setframerate(RATE)
-        write_frames.writeframes(''.join(frames))
-        write_frames.close()
-
-        # check if PERSONA was said
-        transcribed = self.passive_stt_engine.transcribe(AUDIO_FILE, mode=TranscriptionMode.KEYWORD)
+        
+        with tempfile.NamedTemporaryFile(mode='w+b') as f:
+            wav_fp = wave.open(f, 'wb')
+            wav_fp.setnchannels(1)
+            wav_fp.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            wav_fp.setframerate(RATE)
+            wav_fp.writeframes(''.join(frames))
+            wav_fp.close()
+            f.seek(0)
+            # check if PERSONA was said
+            transcribed = self.passive_stt_engine.transcribe(f, mode=TranscriptionMode.KEYWORD)
 
         if PERSONA in transcribed:
             return (THRESHOLD, PERSONA)
@@ -175,17 +177,9 @@ class Mic:
             Records until a second of silence or times out after 12 seconds
         """
 
-        AUDIO_FILE = "active.wav"
         RATE = 16000
         CHUNK = 1024
         LISTEN_TIME = 12
-
-        # user can request pre-recorded sound
-        if not LISTEN:
-            if not os.path.exists(AUDIO_FILE):
-                return None
-
-            return self.active_stt_engine.transcribe(AUDIO_FILE)
 
         # check if no threshold provided
         if THRESHOLD == None:
@@ -226,16 +220,18 @@ class Mic:
         stream.stop_stream()
         stream.close()
         audio.terminate()
-        write_frames = open_audio(AUDIO_FILE, 'wb')
-        write_frames.setnchannels(1)
-        write_frames.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        write_frames.setframerate(RATE)
-        write_frames.writeframes(''.join(frames))
-        write_frames.close()
 
-        mode = TranscriptionMode.MUSIC if MUSIC else TranscriptionMode.NORMAL
-
-        return self.active_stt_engine.transcribe(AUDIO_FILE, mode=mode)
+        with tempfile.SpooledTemporaryFile(mode='w+b') as f:
+            wav_fp = wave.open(f, 'wb')
+            wav_fp.setnchannels(1)
+            wav_fp.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            wav_fp.setframerate(RATE)
+            wav_fp.writeframes(''.join(frames))
+            wav_fp.close()
+            f.seek(0)
+            mode = TranscriptionMode.MUSIC if MUSIC else TranscriptionMode.NORMAL
+            transcribed = self.active_stt_engine.transcribe(f, mode=mode)
+        return transcribed
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking

@@ -33,7 +33,7 @@ class AbstractSTTEngine(object):
         return True
 
     @abstractmethod
-    def transcribe(self, audio_file_path, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
         pass
 
 class PocketSphinxSTT(AbstractSTTEngine):
@@ -107,7 +107,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
                         config['dictd_music'] = profile['pocketsphinx']['dictd_music']
         return config
 
-    def transcribe(self, audio_file_path, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
         """
         Performs STT, transcribing an audio file and returning the result.
 
@@ -116,12 +116,17 @@ class PocketSphinxSTT(AbstractSTTEngine):
         PERSONA_ONLY -- if True, uses the 'Persona' language model and dictionary
         MUSIC -- if True, uses the 'Music' language model and dictionary
         """
+        decoder = self._decoders[mode]
 
-        wavFile = file(audio_file_path, 'rb')
-        wavFile.seek(44)
+        fp.seek(44)
 
-        decoder = self._decoders[TranscriptionMode.NORMAL]
-        decoder.decode_raw(wavFile)
+        # FIXME: Can't use the Decoder.decode_raw() here, because
+        # pocketsphinx segfaults with tempfile.SpooledTemporaryFile()
+        data = fp.read()
+        decoder.start_utt()
+        decoder.process_raw(data, False, True)
+        decoder.end_utt()
+        
         result = decoder.get_hyp()
         with open(self._logfiles[mode], 'r+') as f:
                 if mode == TranscriptionMode.KEYWORD:
@@ -197,7 +202,7 @@ class GoogleSTT(AbstractSTTEngine):
                     config['api_key'] = profile['keys']['GOOGLE_SPEECH']
         return config
 
-    def transcribe(self, audio_fp, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
         """
         Performs STT via the Google Speech API, transcribing an audio file and returning an English
         string.
@@ -205,11 +210,11 @@ class GoogleSTT(AbstractSTTEngine):
         Arguments:
         audio_file_path -- the path to the .wav file to be transcribed
         """
+
         url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
             self.api_key, "en-us")
 
-        with open(audio_file_path, 'rb') as f:
-            data = f.read()
+        data = fp.read()
 
         try:
             headers = {'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
