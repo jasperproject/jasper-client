@@ -186,9 +186,8 @@ class GoogleSTT(AbstractSTTEngine):
         url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
             self.api_key, "en-us")
 
-        wav = open(audio_file_path, 'rb')
-        data = wav.read()
-        wav.close()
+        with open(audio_file_path, 'rb') as f:
+            data = f.read()
 
         try:
             headers = {'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
