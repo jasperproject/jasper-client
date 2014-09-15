@@ -2,6 +2,7 @@
 # -*- coding: utf-8-*-
 import os
 import traceback
+import wave
 import json
 import tempfile
 import logging
@@ -177,7 +178,6 @@ Excerpt from sample profile.yml:
 class GoogleSTT(AbstractSTTEngine):
 
     SLUG = 'google'
-    RATE = 16000
 
     def __init__(self, api_key=None): #FIXME: get init args from config
         """
@@ -211,13 +211,17 @@ class GoogleSTT(AbstractSTTEngine):
         audio_file_path -- the path to the .wav file to be transcribed
         """
 
+        wav = wave.open(fp, 'rb')
+        frame_rate = wav.getframerate()
+        wav.close()
+
         url = "https://www.google.com/speech-api/v2/recognize?output=json&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2" % (
             self.api_key, "en-us")
 
         data = fp.read()
 
         try:
-            headers = {'Content-type': 'audio/l16; rate=%s' % GoogleSTT.RATE}
+            headers = {'Content-type': 'audio/l16; rate=%s' % frame_rate}
             response = self.http.post(url, data=data, headers=headers)
             response.encoding = 'utf-8'
             response_read = response.text
