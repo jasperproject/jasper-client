@@ -235,3 +235,15 @@ def newSpeaker():
         if not engine.is_available():
             raise ValueError("TTS engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % tts_engine)
         return engine()
+
+if __name__ == '__main__':
+    engines = []
+    for engine in AbstractSpeaker.__subclasses__():
+        if hasattr(engine, 'SLUG'):
+            instance = engine()
+            if instance.is_available:
+                engines.append(instance)
+
+    for engine in engines:
+        print engine.SLUG
+        engine.say("This is a test.")
