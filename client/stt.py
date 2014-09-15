@@ -21,7 +21,6 @@ class AbstractSTTEngine(object):
     __metaclass__ = ABCMeta
     
     @classmethod
-    @abstractmethod
     def is_available(cls):
         return True
 
@@ -31,9 +30,11 @@ class AbstractSTTEngine(object):
 
 class PocketSphinxSTT(AbstractSTTEngine):
 
+    SLUG = 'sphinx'
+
     def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
                  lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
-                 lmd_music=None, dictd_music=None, **kwargs):
+                 lmd_music=None, dictd_music=None, **kwargs): #FIXME: get init args from config
         """
         Initiates the pocketsphinx instance.
 
@@ -152,9 +153,10 @@ Excerpt from sample profile.yml:
 
 class GoogleSTT(AbstractSTTEngine):
 
+    SLUG = 'google'
     RATE = 16000
 
-    def __init__(self, api_key, **kwargs):
+    def __init__(self, api_key=None, **kwargs): #FIXME: get init args from config
         """
         Arguments:
         api_key - the public api key which allows access to Google APIs
@@ -203,13 +205,17 @@ Arguments:
 engine_type - one of "sphinx" or "google"
 kwargs - keyword arguments passed to the constructor of the STT engine
 """
+def get_engines():
+    return [stt_engine for stt_engine in AbstractSTTEngine.__subclasses__() if hasattr(stt_engine, 'SLUG') and stt_engine.SLUG]
 
-
-def newSTTEngine(engine_type, **kwargs):
-    t = engine_type.lower()
-    if t == "sphinx":
-        return PocketSphinxSTT(**kwargs)
-    elif t == "google":
-        return GoogleSTT(**kwargs)
+def newSTTEngine(stt_engine, **kwargs):
+    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == stt_engine, get_engines())
+    if len(selected_engines) == 0:
+        raise ValueError("No STT engine found for slug '%s'" % stt_engine)
     else:
-        raise ValueError("Unsupported STT engine type: " + engine_type)
+        if len(selected_engines) > 1:
+            print("WARNING: Multiple STT engines found for slug '%s'. This is most certainly a bug." % stt_engine)
+        engine = selected_engines[0]
+        if not engine.is_available():
+            raise ValueError("STT engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % stt_engine)
+        return engine(**kwargs)
