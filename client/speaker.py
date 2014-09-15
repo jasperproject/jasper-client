@@ -117,7 +117,7 @@ class saySpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(saySpeaker, cls).is_available() and subprocess.call(['which','say']) == 0)
+        return (platform.system() == 'darwin')
 
     def say(self, phrase):
         cmd = ['say', str(phrase)]
