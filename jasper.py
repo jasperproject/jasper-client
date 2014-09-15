@@ -39,17 +39,6 @@ os.chdir(client_path)
 # Add $JASPER_HOME/jasper/client to sys.path
 sys.path.append(client_path)
 
-# Set $LD_LIBRARY_PATH
-os.environ["LD_LIBRARY_PATH"] = "/usr/local/lib"
-
-# Set $PATH
-path = os.getenv("PATH")
-if path:
-    path = os.pathsep.join([path, "/usr/local/lib/"])
-else:
-    path = "/usr/local/lib/"
-os.environ["PATH"] = path
-
 class Jasper(object):
     def __init__(self):
         # Read config
