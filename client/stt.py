@@ -21,6 +21,7 @@ class AbstractSTTEngine(object):
     __metaclass__ = ABCMeta
     
     @classmethod
+    @abstractmethod
     def is_available(cls):
         return True
 
@@ -54,18 +55,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
         except:
             import pocketsphinx as ps
 
-        hmm_dir = None
-
-        # Try to get hmm_dir from config
-        profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
-        if os.path.exists(profile_path):
-            with open(profile_path, 'r') as f:
-                profile = yaml.safe_load(f)
-                if 'pocketsphinx' in profile and 'hmm_dir' in profile['pocketsphinx']:
-                    hmm_dir = profile['pocketsphinx']['hmm_dir']
-
-        if not hmm_dir:
-            hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+        hmm_dir = self._get_hmm_dir()
 
         with tempfile.NamedTemporaryFile(prefix='psdecoder_music_', suffix='.log', delete=False) as f:
             self.logfile_music = f.name
@@ -84,6 +74,23 @@ class PocketSphinxSTT(AbstractSTTEngine):
         os.remove(self.logfile_music)
         os.remove(self.logfile_persona)
         os.remove(self.logfile_default)
+
+    @classmethod
+    def _get_hmm_dir(cls): #FIXME: Replace this as soon as we have a config module
+        hmm_dir = None
+
+        # Try to get hmm_dir from config
+        profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'pocketsphinx' in profile and 'hmm_dir' in profile['pocketsphinx']:
+                    hmm_dir = profile['pocketsphinx']['hmm_dir']
+
+        if not hmm_dir:
+            hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
+
+        return hmm_dir
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -125,6 +132,10 @@ class PocketSphinxSTT(AbstractSTTEngine):
         print "==================="
 
         return result[0]
+
+    @classmethod
+    def is_available(cls):
+        return (pkgutil.get_loader('pocketsphinx') is not None and os.path.exits(cls._get_hmm_dir()))
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
@@ -194,6 +205,10 @@ class GoogleSTT(AbstractSTTEngine):
             return text
         except Exception:
             traceback.print_exc()
+
+    @classmethod
+    def is_available(cls):
+        return True
 
 """
 Returns a Speech-To-Text engine.
