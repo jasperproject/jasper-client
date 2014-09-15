@@ -5,6 +5,7 @@ import traceback
 import json
 import tempfile
 import logging
+from abc import ABCMeta, abstractmethod
 import requests
 import yaml
 
@@ -12,8 +13,23 @@ import yaml
 The default Speech-to-Text implementation which relies on PocketSphinx.
 """
 
+class AbstractSTTEngine(object):
+    """
+    Generic parent class for all STT engines
+    """
 
-class PocketSphinxSTT(object):
+    __metaclass__ = ABCMeta
+    
+    @classmethod
+    @abstractmethod
+    def is_available(cls):
+        return True
+
+    @abstractmethod
+    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+        pass
+
+class PocketSphinxSTT(AbstractSTTEngine):
 
     def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
                  lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
@@ -134,7 +150,7 @@ Excerpt from sample profile.yml:
 """
 
 
-class GoogleSTT(object):
+class GoogleSTT(AbstractSTTEngine):
 
     RATE = 16000
 
