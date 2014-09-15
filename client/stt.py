@@ -29,7 +29,7 @@ class AbstractSTTEngine(object):
         return True
 
     @abstractmethod
-    def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
+    def transcribe(self, audio_file_path, mode=TranscriptionMode.NORMAL):
         pass
 
 class PocketSphinxSTT(AbstractSTTEngine):
