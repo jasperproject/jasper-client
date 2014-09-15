@@ -38,7 +38,8 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
     def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
                  lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
-                 lmd_music=None, dictd_music=None, **kwargs): #FIXME: get init args from config
+                 lmd_music=None, dictd_music=None,
+                 hmm_dir="/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
         """
         Initiates the pocketsphinx instance.
 
@@ -57,8 +58,6 @@ class PocketSphinxSTT(AbstractSTTEngine):
             import pocketsphinx as ps
         except:
             import pocketsphinx as ps
-
-        hmm_dir = self._get_hmm_dir()
 
         self._logfiles = {}
         with tempfile.NamedTemporaryFile(prefix='psdecoder_music_', suffix='.log', delete=False) as f:
@@ -79,21 +78,30 @@ class PocketSphinxSTT(AbstractSTTEngine):
             os.remove(filename)
 
     @classmethod
-    def _get_hmm_dir(cls): #FIXME: Replace this as soon as we have a config module
-        hmm_dir = None
-
+    def get_config(cls): #FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
         # Try to get hmm_dir from config
         profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
         if os.path.exists(profile_path):
             with open(profile_path, 'r') as f:
                 profile = yaml.safe_load(f)
-                if 'pocketsphinx' in profile and 'hmm_dir' in profile['pocketsphinx']:
-                    hmm_dir = profile['pocketsphinx']['hmm_dir']
-
-        if not hmm_dir:
-            hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
-
-        return hmm_dir
+                if 'pocketsphinx' in profile:
+                    if 'hmm_dir' in profile['pocketsphinx']:
+                        config['hmm_dir'] = profile['pocketsphinx']['hmm_dir']
+                    if 'lmd' in profile['pocketsphinx']:
+                        config['lmd'] = profile['pocketsphinx']['lmd']
+                    if 'dictd' in profile['pocketsphinx']:
+                        config['dictd'] = profile['pocketsphinx']['dictd']
+                    if 'lmd_persona' in profile['pocketsphinx']:
+                        config['lmd_persona'] = profile['pocketsphinx']['lmd_persona']
+                    if 'dictd_persona' in profile['pocketsphinx']:
+                        config['dictd_persona'] = profile['pocketsphinx']['dictd_persona']
+                    if 'lmd_music' in profile['pocketsphinx']:
+                        config['lmd'] = profile['pocketsphinx']['lmd_music']
+                    if 'dictd_music' in profile['pocketsphinx']:
+                        config['dictd_music'] = profile['pocketsphinx']['dictd_music']
+        return config
 
     def transcribe(self, audio_file_path, mode=TranscriptionMode.NORMAL):
         """
@@ -162,13 +170,28 @@ class GoogleSTT(AbstractSTTEngine):
     SLUG = 'google'
     RATE = 16000
 
-    def __init__(self, api_key=None, **kwargs): #FIXME: get init args from config
+    def __init__(self, api_key=None): #FIXME: get init args from config
         """
         Arguments:
         api_key - the public api key which allows access to Google APIs
         """
+        if not api_key:
+            raise ValueError("No Google API Key given")
         self.api_key = api_key
         self.http = requests.Session()
+
+    @classmethod
+    def get_config(cls): #FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'keys' in profile and 'GOOGLE_SPEECH' in profile['keys']:
+                    config['api_key'] = profile['keys']['GOOGLE_SPEECH']
+        return config
 
     def transcribe(self, audio_fp, mode=TranscriptionMode.NORMAL):
         """
@@ -227,4 +250,4 @@ def newSTTEngine(stt_engine, **kwargs):
         engine = selected_engines[0]
         if not engine.is_available():
             raise ValueError("STT engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % stt_engine)
-        return engine(**kwargs)
+        return engine(engine.get_config())
