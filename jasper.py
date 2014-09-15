@@ -85,7 +85,7 @@ if __name__ == "__main__":
     try:
         app = Jasper()
     except IOError:
-        logger.exception("Can't read config file.")
+        logger.exception("Can't read profile file.")
         sys.exit(1)
     except OSError:
         logger.exception("Language model or associated files missing.")
