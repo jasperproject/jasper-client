@@ -4,14 +4,8 @@
 """
 
 import os
-import sys
-import glob
-
-mod_path = os.path.abspath('modules/')
-
-sys.path.append(mod_path)
-
 import g2p
+from brain import Brain
 
 
 def text2lm(in_filename, out_filename):
@@ -35,21 +29,14 @@ def compile(sentences, dictionary, languagemodel):
         Gets the words and creates the dictionary
     """
 
-    m = [os.path.basename(f)[:-3]
-         for f in glob.glob(os.path.dirname("../client/modules/") + "/*.py")]
+    modules = Brain.get_modules()
 
     words = []
-    for module_name in m:
-        try:
-            exec("import %s" % module_name)
-            eval("words.extend(%s.WORDS)" % module_name)
-        except:
-            pass  # module probably doesn't have the property
-
-    words = list(set(words))
-
+    for module in modules:
+        words.extend(module.WORDS)
     # for spotify module
     words.extend(["MUSIC", "SPOTIFY"])
+    words = list(set(words))
 
     # create the dictionary
     pronounced = g2p.translateWords(words)
