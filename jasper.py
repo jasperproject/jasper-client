@@ -66,7 +66,10 @@ class Jasper(object):
         self.mic = Mic(speak.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     def run(self):
-        salutation = "How can I be of service, %s?" % self.config["first_name"] if 'first_name' in self.config else "How can I be of service?"
+        if 'first_name' in self.config:
+            salutation = "How can I be of service, %s?" % self.config["first_name"]
+        else:
+            salutation = "How can I be of service?"
         self.mic.say(salutation)
 
         conversation = Conversation("JASPER", self.mic, self.config)
