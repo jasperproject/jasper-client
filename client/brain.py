@@ -3,6 +3,7 @@ import logging
 import os
 import pkgutil
 import importlib
+import jasperpath
 
 
 def logError():
@@ -41,7 +42,7 @@ class Brain(object):
         module, a priority of 0 is assumed.
         """
 
-        module_locations = [os.path.join(os.path.dirname(__file__), 'modules')]
+        module_locations = [jasperpath.PLUGIN_PATH]
         module_names = [name for loader, name, ispkg in pkgutil.iter_modules(module_locations)]
         modules = []
         for name in module_names:
