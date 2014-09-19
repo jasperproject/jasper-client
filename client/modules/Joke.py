@@ -1,12 +1,14 @@
 # -*- coding: utf-8-*-
+import os
 import random
 import re
+import jasperpath
 
 WORDS = ["JOKE", "KNOCK KNOCK"]
 
 
-def getRandomJoke(filename="../static/text/JOKES.txt"):
-    jokeFile = open(filename, "r")
+def getRandomJoke(jokeFilename):
+    jokeFile = open(jokeFilename, "r")
     jokes = []
     start = ""
     end = ""
@@ -39,7 +41,8 @@ def handle(text, mic, profile):
         mic -- used to interact with the user (for both input and output)
         profile -- contains information related to the user (e.g., phone number)
     """
-    joke = getRandomJoke()
+    jokeFilename = os.path.join(jasperpath.DATA_PATH, "text/JOKES.txt")
+    joke = getRandomJoke(jokeFilename)
 
     mic.say("Knock knock")
 

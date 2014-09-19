@@ -9,11 +9,11 @@ if os.environ.get('JASPER_HOME') is None:
 import unittest
 import argparse
 from mock import patch
-from urllib2 import URLError, urlopen
 import test_mic
 import vocabcompiler
 import g2p
 import brain
+import jasperpath
 from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
@@ -59,8 +59,8 @@ class TestVocabCompiler(unittest.TestCase):
 class TestMic(unittest.TestCase):
 
     def setUp(self):
-        self.jasper_clip = "../static/audio/jasper.wav"
-        self.time_clip = "../static/audio/time.wav"
+        self.jasper_clip = os.path.join(jasperpath.DATA_PATH, "audio/jasper.wav")
+        self.time_clip = os.path.join(jasperpath.DATA_PATH, "audio/time.wav")
 
         from stt import PocketSphinxSTT
         self.stt = PocketSphinxSTT()
@@ -134,7 +134,7 @@ class TestModules(unittest.TestCase):
         inputs = ["Who's there?", "Random response"]
         outputs = self.runConversation(query, inputs, Joke)
         self.assertEqual(len(outputs), 3)
-        allJokes = open("../static/text/JOKES.txt", "r").read()
+        allJokes = open(os.path.join(jasperpath.DATA_PATH, "text/JOKES.txt")).read()
         self.assertTrue(outputs[2] in allJokes)
 
     def testTime(self):
