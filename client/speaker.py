@@ -40,22 +40,11 @@ class AbstractSpeaker(object):
     def say(self, phrase, *args):
         pass
 
-    def play(self, filename, chunksize=1024):
-        f = wave.open(filename, 'rb')
-        p = pyaudio.PyAudio()
-        stream = p.open(format=p.get_format_from_width(f.getsampwidth()),
-                        channels=f.getnchannels(),
-                        rate=f.getframerate(),
-                        output=True)
-
-        data = f.readframes(chunksize)
-        while data:
-            stream.write(data)
-            data = f.readframes(chunksize)
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+    def play(self, filename):
+        # FIXME: Use platform-independent audio-output here
+        # See issue jasperproject/jasper-client#188
+        cmd = ['aplay', str(filename)]
+        subprocess.call(cmd)
 
 class AbstractMp3Speaker(AbstractSpeaker):
     """
