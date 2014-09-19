@@ -54,23 +54,19 @@ class AbstractMp3Speaker(AbstractSpeaker):
     def is_available(cls):
         return (super(AbstractMp3Speaker, cls).is_available() and 'mad' in sys.modules.keys())
 
-    def play_mp3(cls, filename):
-        f = mad.MadFile(filename)
-        p = pyaudio.PyAudio()
-        # open stream
-        stream = p.open(format=p.get_format_from_width(pyaudio.paInt32),
-                        channels=2,
-                        rate=f.samplerate(),
-                        output=True)
-        
-        data = f.read()
-        while data:
-            stream.write(data)
-            data = f.read()
-
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+    def play_mp3(self, filename):
+        mf = mad.MadFile(filename)
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            wav = wave.open(f, mode='wb')
+            wav.setframerate(mf.samplerate())
+            wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
+            wav.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt32))
+            frame = mf.read()
+            while frame is not None:
+                wav.writeframes(frame)
+                frame = mf.read()
+            wav.close()
+            self.play(f.name)
 
 class eSpeakSpeaker(AbstractSpeaker):
     """
