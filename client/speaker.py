@@ -221,14 +221,32 @@ def newSpeaker():
             raise ValueError("TTS engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % tts_engine)
         return engine()
 
-if __name__ == '__main__':
-    engines = []
-    for engine in AbstractSpeaker.__subclasses__():
-        if hasattr(engine, 'SLUG'):
-            instance = engine()
-            if instance.is_available():
-                engines.append(instance)
+def get_engines():
+    def get_subclasses(cls):
+        subclasses = set()
+        for subclass in cls.__subclasses__():
+            subclasses.add(subclass)
+            subclasses.update(get_subclasses(subclass))
+        return subclasses
+    return [tts_engine for tts_engine in list(get_subclasses(AbstractSpeaker)) if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
 
-    for engine in engines:
-        print engine.SLUG
-        engine.say("This is a test.")
+if __name__ == '__main__':
+    engines = get_engines()
+    available_engines = []
+    for engine in get_engines():
+        if engine.is_available():
+            available_engines.append(engine)
+    print("Available TTS engines:")
+    for i, engine in enumerate(available_engines, start=1):
+        print("%d. %s" % (i, engine.SLUG))
+    
+    print("")
+    print("Disabled TTS engines:")
+    for i, engine in enumerate(list(set(engines).difference(set(available_engines))), start=1):
+        print("%d. %s" % (i, engine.SLUG))
+
+    print("")
+    for i, engine in enumerate(available_engines, start=1):
+        print("%d. Testing engine '%s'..." % (i, engine.SLUG))
+        engine().say("This is a test.")
+    print("Done.")
