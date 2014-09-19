@@ -13,10 +13,14 @@ import re
 import sys
 import tempfile
 import subprocess
+import pipes
+import logging
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 
 import yaml
+import argparse
+
 import pyaudio
 import wave
 try:
@@ -29,13 +33,15 @@ class AbstractSpeaker(object):
     """
     Generic parent class for all speakers
     """
-
     __metaclass__ = ABCMeta
     
     @classmethod
     @abstractmethod
     def is_available(cls):
         return True
+
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
 
     @abstractmethod
     def say(self, phrase, *args):
@@ -45,7 +51,13 @@ class AbstractSpeaker(object):
         # FIXME: Use platform-independent audio-output here
         # See issue jasperproject/jasper-client#188
         cmd = ['aplay', str(filename)]
-        subprocess.call(cmd)
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
 
 class AbstractMp3Speaker(AbstractSpeaker):
     """
@@ -82,6 +94,7 @@ class eSpeakSpeaker(AbstractSpeaker):
         return (super(eSpeakSpeaker, cls).is_available() and find_executable('espeak') is not None)
 
     def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
+        self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
         cmd = ['espeak', '-v', voice,
@@ -90,7 +103,13 @@ class eSpeakSpeaker(AbstractSpeaker):
                          '-w', fname,
                          phrase]
         cmd = [str(x) for x in cmd]
-        subprocess.call(cmd)
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
         self.play(fname)
         os.remove(fname)
 
@@ -106,12 +125,25 @@ class saySpeaker(AbstractSpeaker):
         return (platform.system() == 'darwin' and find_executable('say') is not None and find_executable('afplay') is not None)
 
     def say(self, phrase):
+        self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         cmd = ['say', str(phrase)]
-        subprocess.call(cmd)
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
 
     def play(self, filename):
         cmd = ['afplay', str(filename)]
-        subprocess.call(cmd)
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
 
 class picoSpeaker(AbstractSpeaker):
     """
@@ -142,6 +174,7 @@ class picoSpeaker(AbstractSpeaker):
         return langs
 
     def say(self, phrase, language="en-US"):
+        self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
         cmd = ['pico2wave', '--wave', fname]
@@ -150,8 +183,13 @@ class picoSpeaker(AbstractSpeaker):
                 raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
             cmd.extend(['-l',language])
         cmd.append(phrase)
-
-        subprocess.call(cmd)
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
         self.play(fname)
         os.remove(fname)
 
@@ -175,6 +213,7 @@ class googleSpeaker(AbstractMp3Speaker):
         return langs
 
     def say(self, phrase, language='en'):
+        self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         if language not in self.languages:
             raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
         tts = gtts.gTTS(text=phrase, lang=language)
@@ -232,6 +271,15 @@ def get_engines():
     return [tts_engine for tts_engine in list(get_subclasses(AbstractSpeaker)) if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Jasper TTS module')
+    parser.add_argument('--debug', action='store_true', help='Show debug messages')
+    args = parser.parse_args()
+
+    logging.basicConfig()
+    if args.debug:
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+    
     engines = get_engines()
     available_engines = []
     for engine in get_engines():
