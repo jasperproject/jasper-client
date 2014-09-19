@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8-*-
 import os
 
@@ -11,8 +10,10 @@ PLUGIN_PATH = os.path.join(LIB_PATH, "modules")
 
 CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG', '~/.jasper'))
 
+
 def config(*fname):
     return os.path.join(CONFIG_PATH, *fname)
+
 
 def data(*fname):
     return os.path.join(DATA_PATH, *fname)
