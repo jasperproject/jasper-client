@@ -3,23 +3,32 @@ import os
 import sys
 import traceback
 import shutil
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+
 import yaml
+import argparse
 
 # Set $JASPER_HOME
-jasper_home = os.getenv("JASPER_HOME")
-if not jasper_home or not os.path.exists(jasper_home):
-    if os.path.exists("/home/pi"):
-        jasper_home = "/home/pi"
-        os.environ["JASPER_HOME"] = jasper_home
-    else:
-        print("Error: $JASPER_HOME is not set.")
-        sys.exit(0)
+if not os.getenv('JASPER_HOME'):
+    os.environ["JASPER_HOME"]  = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from client.diagnose import Diagnostics
 from client import vocabcompiler, stt
 from client import speaker as speak
 from client.conversation import Conversation
-if len(sys.argv) > 1 and "--local" in sys.argv[1:]:
+
+parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
+parser.add_argument('--local', action='store_true', help='Use text input instead of a real microphone')
+parser.add_argument('--no-network-check', action='store_true', help='Disable the network connection check')
+parser.add_argument('--debug', action='store_true', help='Show debug messages')
+args = parser.parse_args()
+
+if args.debug:
+    logger.setLevel(logging.DEBUG)
+
+if args.local:
     from client.local_mic import Mic
 else:
     from client.mic import Mic
@@ -30,60 +39,41 @@ os.chdir(client_path)
 # Add $JASPER_HOME/jasper/client to sys.path
 sys.path.append(client_path)
 
-# Set $LD_LIBRARY_PATH
-os.environ["LD_LIBRARY_PATH"] = "/usr/local/lib"
+class Jasper(object):
+    def __init__(self):
+        # Read config
+        config_file = os.path.abspath(os.path.join(client_path, 'profile.yml'))
+        logger.debug("Trying to read config file: '%s'", config_file)
+        with open(config_file, "r") as f:
+            self.config = yaml.safe_load(f)
 
-# Set $PATH
-path = os.getenv("PATH")
-if path:
-    path = os.pathsep.join([path, "/usr/local/lib/"])
-else:
-    path = "/usr/local/lib/"
-os.environ["PATH"] = path
+        try:
+            api_key = self.config['keys']['GOOGLE_SPEECH']
+        except KeyError:
+            api_key = None
 
-speaker = speak.newSpeaker()
+        try:
+            stt_engine_type = self.config['stt_engine']
+        except KeyError:
+            stt_engine_type = "sphinx"
+            logger.warning("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
 
+        # Compile dictionary
+        sentences, dictionary, languagemodel = [os.path.abspath(os.path.join(client_path, filename)) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
+        vocabcompiler.compile(sentences, dictionary, languagemodel)
 
-def testConnection():
-    if Diagnostics.check_network_connection():
-        print "CONNECTED TO INTERNET"
-    else:
-        print "COULD NOT CONNECT TO NETWORK"
-        speaker.say(
-            "Warning: I was unable to connect to a network. Parts of the system may not work correctly, depending on your setup.")
+        # Initialize Mic
+        self.mic = Mic(speak.newSpeaker(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
+    def run(self):
+        if 'first_name' in self.config:
+            salutation = "How can I be of service, %s?" % self.config["first_name"]
+        else:
+            salutation = "How can I be of service?"
+        self.mic.say(salutation)
 
-def fail(message):
-    traceback.print_exc()
-    speaker.say(message)
-    sys.exit(1)
-
-
-def configure():
-    try:
-        print "COMPILING DICTIONARY"
-        vocabcompiler.compile(
-            "sentences.txt", "dictionary.dic", "languagemodel.lm")
-        print "STARTING CLIENT PROGRAM"
-
-    except OSError:
-        print "BOOT FAILURE: OSERROR"
-        fail(
-            "There was a problem starting Jasper. You may be missing the language model and associated files. Please read the documentation to configure your Raspberry Pi.")
-
-    except IOError:
-        print "BOOT FAILURE: IOERROR"
-        fail(
-            "There was a problem starting Jasper. You may have set permissions incorrectly on some part of the filesystem. Please read the documentation to configure your Raspberry Pi.")
-
-    except:
-        print "BOOT FAILURE"
-        fail(
-            "There was a problem starting Jasper. Please read the documentation to configure your Raspberry Pi.")
-
-old_client = os.path.abspath(os.path.join(os.pardir, "old_client"))
-if os.path.exists(old_client):
-    shutil.rmtree(old_client)
+        conversation = Conversation("JASPER", self.mic, self.config)
+        conversation.handleForever()
 
 if __name__ == "__main__":
 
@@ -92,30 +82,19 @@ if __name__ == "__main__":
     print " Copyright 2013 Shubhro Saha & Charlie Marsh               "
     print "==========================================================="
 
-    speaker.say("Hello.... I am Jasper... Please wait one moment.")
-    testConnection()
-    configure()
-
-    profile = yaml.safe_load(open("profile.yml", "r"))
+    if not args.no_network_check and not Diagnostics.check_network_connection():
+        logger.warning("Network not connected. This may prevent Jasper from running properly.")
 
     try:
-        api_key = profile['keys']['GOOGLE_SPEECH']
-    except KeyError:
-        api_key = None
-
-    try:
-        stt_engine_type = profile['stt_engine']
-    except KeyError:
-        print "stt_engine not specified in profile, defaulting to PocketSphinx"
-        stt_engine_type = "sphinx"
-
-    mic = Mic(speaker, stt.PocketSphinxSTT(),
-              stt.newSTTEngine(stt_engine_type, api_key=api_key))
-
-    addendum = ""
-    if 'first_name' in profile:
-        addendum = ", %s" % profile["first_name"]
-    mic.say("How can I be of service%s?" % addendum)
-
-    conversation = Conversation("JASPER", mic, profile)
-    conversation.handleForever()
+        app = Jasper()
+    except IOError:
+        logger.exception("Can't read profile file.")
+        sys.exit(1)
+    except OSError:
+        logger.exception("Language model or associated files missing.")
+        sys.exit(1)
+    except Exception():
+        logger.exception("Unknown error occured")
+        sys.exit(1)
+    
+    app.run()
