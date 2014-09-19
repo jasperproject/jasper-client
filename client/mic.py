@@ -8,7 +8,7 @@ from wave import open as open_audio
 import audioop
 import pyaudio
 import alteration
-
+import jasperpath
 
 class Mic:
 
@@ -190,7 +190,7 @@ class Mic:
         if THRESHOLD == None:
             THRESHOLD = self.fetchThreshold()
 
-        self.speaker.play("../static/audio/beep_hi.wav")
+        self.speaker.play(jasperpath.data('audio', 'beep_hi.wav'))
 
         # prepare recording stream
         audio = pyaudio.PyAudio()
@@ -219,7 +219,7 @@ class Mic:
             if average < THRESHOLD * 0.8:
                 break
 
-        self.speaker.play("../static/audio/beep_lo.wav")
+        self.speaker.play(jasperpath.data('audio', 'beep_lo.wav'))
 
         # save the audio data
         stream.stop_stream()
