@@ -2,14 +2,11 @@
 # -*- coding: utf-8-*-
 import os
 import sys
-
-if os.environ.get('JASPER_HOME') is None:
-    os.environ['JASPER_HOME'] = '/home/pi'
-
 import unittest
 import argparse
 from mock import patch
 from urllib2 import URLError, urlopen
+
 import test_mic
 import vocabcompiler
 import g2p
