@@ -4,7 +4,7 @@ import re
 import socket
 import os
 from subprocess import check_output, call
-
+import jasperpath
 
 class Diagnostics:
 
@@ -15,9 +15,6 @@ class Diagnostics:
     To add new checks, add a boolean returning method with a name that starts
     with `check_`
     """
-    @classmethod
-    def jasper_modules_path(cls):
-        return os.path.abspath('../../')
 
     @classmethod
     def check_network_connection(cls):
@@ -35,7 +32,7 @@ class Diagnostics:
 
     @classmethod
     def check_phonetisaurus_dictionary_file(cls):
-        return os.path.isfile(os.path.join(cls.jasper_modules_path(), "phonetisaurus/g014b2b.fst"))
+        return os.path.isfile(os.path.join(jasperpath.APP_PATH, "..", "phonetisaurus/g014b2b.fst"))
 
     @classmethod
     def check_phonetisaurus_program(cls):
