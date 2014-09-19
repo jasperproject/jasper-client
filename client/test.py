@@ -233,6 +233,9 @@ if __name__ == '__main__':
                         help='runs a subset of the tests (only requires Python dependencies)')
     args = parser.parse_args()
 
+    # Change CWD to jasperpath.LIB_PATH
+    os.chdir(jasperpath.LIB_PATH)
+
     test_cases = [TestBrain, TestModules, TestVocabCompiler]
     if not args.light:
         test_cases.append(TestG2P)
