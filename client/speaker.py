@@ -14,6 +14,7 @@ import sys
 import tempfile
 import subprocess
 from abc import ABCMeta, abstractmethod
+from distutils.spawn import find_executable
 
 import yaml
 import pyaudio
@@ -78,7 +79,7 @@ class eSpeakSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(eSpeakSpeaker, cls).is_available() and subprocess.call(['which','espeak']) == 0)
+        return (super(eSpeakSpeaker, cls).is_available() and find_executable('espeak') is not None)
 
     def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
@@ -102,7 +103,7 @@ class saySpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (platform.system() == 'darwin')
+        return (platform.system() == 'darwin' and find_executable('say') is not None and find_executable('afplay') is not None)
 
     def say(self, phrase):
         cmd = ['say', str(phrase)]
@@ -122,7 +123,7 @@ class picoSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(picoSpeaker, cls).is_available() and subprocess.call(['which','pico2wave']) == 0)
+        return (super(picoSpeaker, cls).is_available() and find_executable('pico2wave') is not None)
 
     @property
     def languages(self):
