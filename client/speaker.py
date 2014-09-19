@@ -128,7 +128,7 @@ class picoSpeaker(AbstractSpeaker):
     @property
     def languages(self):
         cmd = ['pico2wave', '-l', 'NULL',
-                            '-w', '/dev/null',
+                            '-w', os.devnull,
                             'NULL']
         with tempfile.SpooledTemporaryFile() as f:
             subprocess.call(cmd, stderr=f)
