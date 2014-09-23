@@ -3,8 +3,15 @@ import time
 import re
 import socket
 import os
-from subprocess import check_output, call
 import jasperpath
+import subprocess
+import logging
+import sys
+from distutils.spawn import find_executable
+from pip.req import parse_requirements
+import pip.util
+
+logger = logging.getLogger(__name__)
 
 class Diagnostics:
 
@@ -36,11 +43,36 @@ class Diagnostics:
 
     @classmethod
     def check_phonetisaurus_program(cls):
-        return call(['which', 'phonetisaurus-g2p']) == 0
+        return cls.do_check_program('phonetisaurus-g2p')
+
+    @classmethod
+    def check_espeak_program(cls):
+        return cls.do_check_program('espeak')
+
+    @classmethod
+    def check_say_program(cls):
+        return cls.do_check_program('say')
+
+    @classmethod
+    def do_check_program(cls, program):
+        return find_executable(program) is not None
+
+    @classmethod
+    def check_all_pip_requirements_installed(cls):
+        distributions = pip.util.get_installed_distributions()
+        requirements_lines = [line.strip() for line in open('requirements.txt').readlines()]
+        requirements = [ name.split('==')[0] for name in list(filter(None, requirements_lines))]
+        installed_packages = [ pkg.project_name for pkg in list(distributions)]
+        missing_packages = [ pkg for pkg in requirements if pkg not in installed_packages ]
+        if missing_packages:
+            logger.info("Missing packages: "+', '.join(missing_packages))
+            return False
+        else:
+            return True
 
     @classmethod
     def info_git_revision(cls):
-        return check_output(['git', 'rev-parse', 'HEAD'])
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 
 
 class DiagnosticRunner:
@@ -64,9 +96,9 @@ class DiagnosticRunner:
         for info in self.select_methods('info'):
             self.get_info(info)
         if self.failed_checks == 0:
-            self.log("All checks passed\n")
+            logger.info("All checks passed")
         else:
-            self.log("%d checks failed\n" % self.failed_checks)
+            logger.info("%d checks failed" % self.failed_checks)
 
     def select_methods(self, prefix):
         def is_match(method_name):
@@ -75,31 +107,29 @@ class DiagnosticRunner:
         return [method_name for method_name in dir(self.diagnostics) if is_match(method_name)]
 
     def initialize_log(self):
-        self.output = open('diagnostic.log', 'w')
-        self.log("Starting jasper diagnostic\n")
-        self.log(time.strftime("%c") + "\n")
-
-    def log(self, msg):
-        print msg,
-        self.output.write(msg)
+        logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
 
     def get_info(self, info_name):
         message = info_name.replace("info_", "").replace("_", " ")
         info_method = getattr(self.diagnostics, info_name)
         info = info_method()
-        self.log("%s: %s" % (message, info))
+        logger.info("%s: %s" % (message, info))
 
     def do_check(self, check_name):
         message = check_name.replace("check_", "").replace("_", " ")
         check = getattr(self.diagnostics, check_name)
-        self.log("Checking %s... " % message)
         if check():
-            self.log("OK")
+            result = "OK"
         else:
             self.failed_checks += 1
-            self.log("FAILED")
-        self.log("\n")
+            result = "FAILED"
+
+        logger.info("Checking %s... %s" % (message, result))
 
 
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     DiagnosticRunner(Diagnostics).run()
+
+
