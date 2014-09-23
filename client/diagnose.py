@@ -9,7 +9,7 @@ import logging
 import sys
 from distutils.spawn import find_executable
 from pip.req import parse_requirements
-from pip.commands.show import search_packages_info
+import pip.util
 
 logger = logging.getLogger(__name__)
 
@@ -59,10 +59,11 @@ class Diagnostics:
 
     @classmethod
     def check_all_pip_requirements_installed(cls):
-        requirements = list(parse_requirements('requirements.txt'))
-        packages = [ req.name for req in requirements ]
-        installed_packages = [ pkg['name'] for pkg in list(search_packages_info(packages))]
-        missing_packages = [ pkg for pkg in packages if pkg not in installed_packages ]
+        distributions = pip.util.get_installed_distributions()
+        requirements_lines = [line.strip() for line in open('requirements.txt').readlines()]
+        requirements = [ name.split('==')[0] for name in list(filter(None, requirements_lines))]
+        installed_packages = [ pkg.project_name for pkg in list(distributions)]
+        missing_packages = [ pkg for pkg in requirements if pkg not in installed_packages ]
         if missing_packages:
             logger.info("Missing packages: "+', '.join(missing_packages))
             return False
