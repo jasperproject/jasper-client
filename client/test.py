@@ -2,18 +2,16 @@
 # -*- coding: utf-8-*-
 import os
 import sys
-
-if os.environ.get('JASPER_HOME') is None:
-    os.environ['JASPER_HOME'] = '/home/pi'
-
 import unittest
 import argparse
 from mock import patch
 from urllib2 import URLError, urlopen
+
 import test_mic
 import vocabcompiler
 import g2p
 import brain
+import jasperpath
 from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
@@ -59,8 +57,8 @@ class TestVocabCompiler(unittest.TestCase):
 class TestMic(unittest.TestCase):
 
     def setUp(self):
-        self.jasper_clip = "../static/audio/jasper.wav"
-        self.time_clip = "../static/audio/time.wav"
+        self.jasper_clip = jasperpath.data('audio', 'jasper.wav')
+        self.time_clip = jasperpath.data('audio', 'time.wav')
 
         from stt import PocketSphinxSTT
         self.stt = PocketSphinxSTT()
@@ -134,7 +132,7 @@ class TestModules(unittest.TestCase):
         inputs = ["Who's there?", "Random response"]
         outputs = self.runConversation(query, inputs, Joke)
         self.assertEqual(len(outputs), 3)
-        allJokes = open("../static/text/JOKES.txt", "r").read()
+        allJokes = open(jasperpath.data('text','JOKES.txt'), 'r').read()
         self.assertTrue(outputs[2] in allJokes)
 
     def testTime(self):
@@ -234,6 +232,9 @@ if __name__ == '__main__':
     parser.add_argument('--light', action='store_true',
                         help='runs a subset of the tests (only requires Python dependencies)')
     args = parser.parse_args()
+
+    # Change CWD to jasperpath.LIB_PATH
+    os.chdir(jasperpath.LIB_PATH)
 
     test_cases = [TestBrain, TestModules, TestVocabCompiler]
     if not args.light:

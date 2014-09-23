@@ -5,6 +5,8 @@ import subprocess
 import re
 import yaml
 
+import jasperpath
+
 PHONE_MATCH = re.compile(r'<s> (.*) </s>')
 
 FST_MODEL = None
@@ -18,7 +20,7 @@ if os.path.exists(profile_path):
             FST_MODEL = profile['pocketsphinx']['fst_model']
 
 if not FST_MODEL:
-    FST_MODEL = os.environ['JASPER_HOME'] + "/phonetisaurus/g014b2b.fst"
+    FST_MODEL = os.path.join(jasperpath.APP_PATH, os.pardir, 'phonetisaurus', 'g014b2b.fst')
 
 
 def parseLine(line):

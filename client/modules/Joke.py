@@ -1,11 +1,12 @@
 # -*- coding: utf-8-*-
 import random
 import re
+import jasperpath
 
 WORDS = ["JOKE", "KNOCK KNOCK"]
 
 
-def getRandomJoke(filename="../static/text/JOKES.txt"):
+def getRandomJoke(filename=jasperpath.data('text','JOKES.txt')):
     jokeFile = open(filename, "r")
     jokes = []
     start = ""
