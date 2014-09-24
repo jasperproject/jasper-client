@@ -282,8 +282,6 @@ class googleSpeaker(AbstractMp3Speaker):
         self.play_mp3(tmpfile)
         os.remove(tmpfile)
 
-TTS_ENGINES = [googleSpeaker, picoSpeaker, eSpeakSpeaker, saySpeaker]
-
 def newSpeaker():
     """
     Returns:
@@ -309,7 +307,7 @@ def newSpeaker():
         else:
             tts_engine = 'espeak-tts'
     
-    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == tts_engine, TTS_ENGINES)
+    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == tts_engine, get_engines())
     if len(selected_engines) == 0:
         raise ValueError("No TTS engine found for slug '%s'" % tts_engine)
     else:
