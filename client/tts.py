@@ -29,7 +29,7 @@ try:
 except ImportError:
     pass
 
-class AbstractSpeaker(object):
+class AbstractTTSEngine(object):
     """
     Generic parent class for all speakers
     """
@@ -59,13 +59,13 @@ class AbstractSpeaker(object):
             if output:
                 self._logger.debug("Output was: '%s'", output)
 
-class AbstractMp3Speaker(AbstractSpeaker):
+class AbstractMp3TTSEngine(AbstractTTSEngine):
     """
     Generic class that implements the 'play' method for mp3 files
     """
     @classmethod
     def is_available(cls):
-        return (super(AbstractMp3Speaker, cls).is_available() and 'mad' in sys.modules.keys())
+        return (super(AbstractMp3TTSEngine, cls).is_available() and 'mad' in sys.modules.keys())
 
     def play_mp3(self, filename):
         mf = mad.MadFile(filename)
@@ -81,7 +81,7 @@ class AbstractMp3Speaker(AbstractSpeaker):
             wav.close()
             self.play(f.name)
 
-class DummySpeaker(AbstractSpeaker):
+class DummyTTS(AbstractTTSEngine):
     """
     Dummy TTS engine that logs phrases with INFO level instead of synthesizing
     speech.
@@ -100,7 +100,7 @@ class DummySpeaker(AbstractSpeaker):
         self._logger.debug("Playback of file '%s' requested")
         pass
 
-class eSpeakSpeaker(AbstractSpeaker):
+class EspeakTTS(AbstractTTSEngine):
     """
     Uses the eSpeak speech synthesizer included in the Jasper disk image
     Requires espeak to be available
@@ -116,7 +116,7 @@ class eSpeakSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(eSpeakSpeaker, cls).is_available() and find_executable('espeak') is not None)
+        return (super(cls, cls).is_available() and find_executable('espeak') is not None)
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
@@ -138,7 +138,7 @@ class eSpeakSpeaker(AbstractSpeaker):
         self.play(fname)
         os.remove(fname)
 
-class festivalSpeaker(AbstractSpeaker):
+class FestivalTTS(AbstractTTSEngine):
     """
     Uses the festival speech synthesizer
     Requires festival (text2wave) to be available
@@ -148,7 +148,7 @@ class festivalSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        if super(festivalSpeaker, cls).is_available() and find_executable('text2wave') is not None and find_executable('festival') is not None:
+        if super(cls, cls).is_available() and find_executable('text2wave') is not None and find_executable('festival') is not None:
             logger = logging.getLogger(__name__)
             cmd = ['festival', '--pipe']
             with tempfile.SpooledTemporaryFile() as out_f:
@@ -178,7 +178,7 @@ class festivalSpeaker(AbstractSpeaker):
                         self._logger.debug("Output was: '%s'", output)
             self.play(out_f.name)
 
-class saySpeaker(AbstractSpeaker):
+class MacOSXTTS(AbstractTTSEngine):
     """
     Uses the OS X built-in 'say' command
     """
@@ -210,7 +210,7 @@ class saySpeaker(AbstractSpeaker):
             if output:
                 self._logger.debug("Output was: '%s'", output)
 
-class picoSpeaker(AbstractSpeaker):
+class PicoTTS(AbstractTTSEngine):
     """
     Uses the svox-pico-tts speech synthesizer
     Requires pico2wave to be available
@@ -224,7 +224,7 @@ class picoSpeaker(AbstractSpeaker):
 
     @classmethod
     def is_available(cls):
-        return (super(picoSpeaker, cls).is_available() and find_executable('pico2wave') is not None)
+        return (super(cls, cls).is_available() and find_executable('pico2wave') is not None)
 
     @property
     def languages(self):
@@ -261,7 +261,7 @@ class picoSpeaker(AbstractSpeaker):
         self.play(fname)
         os.remove(fname)
 
-class googleSpeaker(AbstractMp3Speaker):
+class GoogleTTS(AbstractMp3TTSEngine):
     """
     Uses the Google TTS online translator
     Requires pymad and gTTS to be available
@@ -275,7 +275,7 @@ class googleSpeaker(AbstractMp3Speaker):
 
     @classmethod
     def is_available(cls):
-        return (super(googleSpeaker, cls).is_available() and 'gtts' in sys.modules.keys())
+        return (super(cls, cls).is_available() and 'gtts' in sys.modules.keys())
 
     @property
     def languages(self):
@@ -328,7 +328,7 @@ def get_engines():
             subclasses.add(subclass)
             subclasses.update(get_subclasses(subclass))
         return subclasses
-    return [tts_engine for tts_engine in list(get_subclasses(AbstractSpeaker)) if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
+    return [tts_engine for tts_engine in list(get_subclasses(AbstractTTSEngine)) if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Jasper TTS module')

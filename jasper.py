@@ -11,8 +11,7 @@ import yaml
 import argparse
 
 from client.diagnose import Diagnostics
-from client import vocabcompiler, stt, jasperpath
-from client import speaker as speak
+from client import vocabcompiler, tts, stt, jasperpath
 from client.conversation import Conversation
 
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
@@ -56,16 +55,16 @@ class Jasper(object):
         try:
             tts_engine_slug = self.config['tts_engine']
         except KeyError:
-            tts_engine_slug = speak.get_default_engine_slug()
+            tts_engine_slug = tts.get_default_engine_slug()
             logger.warning("tts_engine not specified in profile, defaulting to '%s'", tts_engine_slug)
-        tts_engine = speak.get_engine_by_slug(tts_engine_slug)
+        tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
         # Compile dictionary
         sentences, dictionary, languagemodel = [os.path.abspath(os.path.join(jasperpath.LIB_PATH, filename)) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
         vocabcompiler.compile(sentences, dictionary, languagemodel)
 
         # Initialize Mic
-        self.mic = Mic(tts_engine(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
+        self.mic = Mic(tts_engine_class(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     def run(self):
         if 'first_name' in self.config:
