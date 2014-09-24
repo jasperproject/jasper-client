@@ -38,7 +38,7 @@ class AbstractSpeaker(object):
     @classmethod
     @abstractmethod
     def is_available(cls):
-        return True
+        return (find_executable('aplay') is not None)
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
