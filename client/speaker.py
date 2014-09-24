@@ -21,7 +21,7 @@ class eSpeakSpeaker:
         return os.system("which espeak") == 0
 
     def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        os.system("espeak " + json.dumps(phrase) + OPTIONS)
+        os.system("espeak " + json.dumps(phrase, False, False) + OPTIONS)
         self.play("say.wav")
 
     def play(self, filename):
