@@ -168,6 +168,28 @@ class AbstractVocabulary(object):
         pass
 
 
+class DummyVocabulary(AbstractVocabulary):
+
+    PATH_PREFIX = 'dummy-vocabulary'
+
+    @property
+    def is_compiled(self):
+        """
+        Checks if the vocabulary is compiled by checking if the revision
+        file is readable.
+
+        Returns:
+            True if this vocabulary has been compiled, else False
+        """
+        return super(self.__class__, self).is_compiled
+
+    def _compile_vocabulary(self, phrases):
+        """
+        Does nothing (because this is a dummy class for testing purposes).
+        """
+        pass
+
+
 class PocketsphinxVocabulary(AbstractVocabulary):
 
     PATH_PREFIX = 'pocketsphinx-vocabulary'
