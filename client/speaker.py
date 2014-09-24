@@ -282,7 +282,10 @@ class googleSpeaker(AbstractMp3Speaker):
         self.play_mp3(tmpfile)
         os.remove(tmpfile)
 
-def newSpeaker():
+def get_default_engine_slug():
+    return 'osx-tts' if platform.system() == 'darwin' else 'espeak-tts'
+
+def get_engine_by_slug(slug=None):
     """
     Returns:
         A speaker implementation available on the current platform
@@ -290,33 +293,20 @@ def newSpeaker():
     Raises:
         ValueError if no speaker implementation is supported on this platform
     """
-
-    tts_engine = None
-
-    # Try to get tts_engine from config
-    if os.path.exists('profile.yml'):
-        with open('profile.yml', 'r') as f:
-            profile = yaml.safe_load(f)
-            if 'tts_engine' in profile:
-                tts_engine = profile['tts_engine']
     
-    # Default values if config file does not exist or option not set
-    if not tts_engine:
-        if platform.system() == 'darwin':
-            tts_engine = 'osx-tts'
-        else:
-            tts_engine = 'espeak-tts'
-    
-    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == tts_engine, get_engines())
+    if not slug or type(slug) is not str:
+        raise TypeError("Invalid slug '%s'", slug)
+
+    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == slug, get_engines())
     if len(selected_engines) == 0:
-        raise ValueError("No TTS engine found for slug '%s'" % tts_engine)
+        raise ValueError("No TTS engine found for slug '%s'" % slug)
     else:
         if len(selected_engines) > 1:
-            print("WARNING: Multiple TTS engines found for slug '%s'. This is most certainly a bug." % tts_engine)
+            print("WARNING: Multiple TTS engines found for slug '%s'. This is most certainly a bug." % slug)
         engine = selected_engines[0]
         if not engine.is_available():
-            raise ValueError("TTS engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % tts_engine)
-        return engine()
+            raise ValueError("TTS engine '%s' is not available (due to missing dependencies, missing dependencies, etc.)" % slug)
+        return engine
 
 def get_engines():
     def get_subclasses(cls):
