@@ -4,6 +4,8 @@ import os
 import sys
 import unittest
 import logging
+import tempfile
+import shutil
 import argparse
 from mock import patch, Mock
 
@@ -32,31 +34,31 @@ class UnorderedList(list):
 
 class TestVocabCompiler(unittest.TestCase):
 
-    def testWordExtraction(self):
-        sentences = "temp_sentences.txt"
-        dictionary = "temp_dictionary.dic"
-        languagemodel = "temp_languagemodel.lm"
-
-        words = []
+    def testPhraseExtraction(self):
+        expected_phrases = ['MOCK']
 
         mock_module = Mock()
-        mock_module.WORDS = [
-            'MOCK'
-        ]
+        mock_module.WORDS = ['MOCK']
 
-        words.extend(mock_module.WORDS)
+        with patch.object(brain.Brain, 'get_modules',
+                          classmethod(lambda cls: [mock_module])):
+            extracted_phrases = vocabcompiler.get_all_phrases()
+        self.assertEqual(expected_phrases, extracted_phrases)
 
-        with patch.object(g2p, 'translateWords') as translateWords:
-            with patch.object(vocabcompiler, 'text2lm') as text2lm:
-                with patch.object(brain.Brain, 'get_modules',
-                                  classmethod(lambda cls: [mock_module])):
-                    vocabcompiler.compile(sentences, dictionary, languagemodel)
+    def testVocabulary(self):
+        phrases = ['THIS IS A TEST']
 
-                    translateWords.assert_called_once_with(
-                        UnorderedList(words))
-                    self.assertTrue(text2lm.called)
-        os.remove(sentences)
-        os.remove(dictionary)
+        tempdir = tempfile.mkdtemp()
+
+        vocab = vocabcompiler.DummyVocabulary(path=tempdir)
+        self.assertIsNone(vocab.compiled_revision)
+        self.assertFalse(vocab.is_compiled)
+        vocab.compile(phrases)
+        self.assertIsNotNone(vocab.compiled_revision)
+        self.assertTrue(vocab.is_compiled)
+        self.assertTrue(vocab.matches_phrases(phrases))
+
+        shutil.rmtree(tempdir)
 
 
 class TestMic(unittest.TestCase):
