@@ -33,10 +33,10 @@ class Brain(object):
         """
 
         module_locations = [jasperpath.PLUGIN_PATH]
-        module_names = [name for loader, name, ispkg in pkgutil.iter_modules(module_locations)]
+        module_names = [name for loader, name, ispkg in pkgutil.walk_packages(module_locations, prefix='modules.')]
         modules = []
         for name in module_names:
-            mod = importlib.import_module("modules.%s" % name)
+            mod = importlib.import_module(name)
             if hasattr(mod, 'WORDS'):
                 modules.append(mod)
         modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY') else 0, reverse=True)
