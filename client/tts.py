@@ -68,7 +68,7 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
 
     def play_mp3(self, filename):
         mf = mad.MadFile(filename)
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix='.wav') as f:
             wav = wave.open(f, mode='wb')
             wav.setframerate(mf.samplerate())
             wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
