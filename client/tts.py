@@ -21,7 +21,6 @@ from distutils.spawn import find_executable
 import yaml
 import argparse
 
-import pyaudio
 import wave
 try:
     import mad
@@ -73,7 +72,7 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
             wav = wave.open(f, mode='wb')
             wav.setframerate(mf.samplerate())
             wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
-            wav.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt32))
+            wav.setsampwidth(4L) # width of 32 bit audio
             frame = mf.read()
             while frame is not None:
                 wav.writeframes(frame)
