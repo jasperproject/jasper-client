@@ -40,7 +40,7 @@ class AbstractSpeaker(object):
     def is_available(cls):
         return (find_executable('aplay') is not None)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._logger = logging.getLogger(__name__)
 
     @abstractmethod
@@ -108,17 +108,23 @@ class eSpeakSpeaker(AbstractSpeaker):
 
     SLUG = "espeak-tts"
 
+    def __init__(self, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
+        super(self.__class__, self).__init__()
+        self.voice = voice
+        self.pitch_adjustment = pitch_adjustment
+        self.words_per_minute = words_per_minute
+
     @classmethod
     def is_available(cls):
         return (super(eSpeakSpeaker, cls).is_available() and find_executable('espeak') is not None)
 
-    def say(self, phrase, voice='default+m3', pitch_adjustment=40, words_per_minute=160):
+    def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
-        cmd = ['espeak', '-v', voice,
-                         '-p', pitch_adjustment,
-                         '-s', words_per_minute,
+        cmd = ['espeak', '-v', self.voice,
+                         '-p', self.pitch_adjustment,
+                         '-s', self.words_per_minute,
                          '-w', fname,
                          phrase]
         cmd = [str(x) for x in cmd]
@@ -212,6 +218,10 @@ class picoSpeaker(AbstractSpeaker):
 
     SLUG = "pico-tts"
 
+    def __init__(self, language="en-US"):
+        super(self.__class__, self).__init__()
+        self.language = language
+
     @classmethod
     def is_available(cls):
         return (super(picoSpeaker, cls).is_available() and find_executable('pico2wave') is not None)
@@ -232,15 +242,14 @@ class picoSpeaker(AbstractSpeaker):
         langs = matchobj.group(1).split()
         return langs
 
-    def say(self, phrase, language="en-US"):
+    def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
         cmd = ['pico2wave', '--wave', fname]
-        if language:
-            if language not in self.languages:
-                raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
-            cmd.extend(['-l',language])
+        if self.language not in self.languages:
+                raise ValueError("Language '%s' not supported by '%s'", self.language, self.SLUG)
+        cmd.extend(['-l', self.language])
         cmd.append(phrase)
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
         with tempfile.TemporaryFile() as f:
@@ -260,6 +269,10 @@ class googleSpeaker(AbstractMp3Speaker):
 
     SLUG = "google-tts"
 
+    def __init__(self, language='en'):
+        super(self.__class__, self).__init__()
+        self.language = language
+
     @classmethod
     def is_available(cls):
         return (super(googleSpeaker, cls).is_available() and 'gtts' in sys.modules.keys())
@@ -271,11 +284,11 @@ class googleSpeaker(AbstractMp3Speaker):
                  'sr', 'sk', 'es', 'sw', 'sv', 'ta', 'th', 'tr', 'vi', 'cy']
         return langs
 
-    def say(self, phrase, language='en'):
+    def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
-        if language not in self.languages:
-            raise ValueError("Language '%s' not supported by '%s'", language, self.SLUG)
-        tts = gtts.gTTS(text=phrase, lang=language)
+        if self.language not in self.languages:
+            raise ValueError("Language '%s' not supported by '%s'", self.language, self.SLUG)
+        tts = gtts.gTTS(text=phrase, lang=self.language)
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         tts.save(tmpfile)
