@@ -81,6 +81,25 @@ class AbstractMp3Speaker(AbstractSpeaker):
             wav.close()
             self.play(f.name)
 
+class DummySpeaker(AbstractSpeaker):
+    """
+    Dummy TTS engine that logs phrases with INFO level instead of synthesizing
+    speech.
+    """
+
+    SLUG = "dummy-tts"
+
+    @classmethod
+    def is_available(cls):
+        return True
+
+    def say(self, phrase):
+        self._logger.info(phrase)
+    
+    def play(self, filename):
+        self._logger.debug("Playback of file '%s' requested")
+        pass
+
 class eSpeakSpeaker(AbstractSpeaker):
     """
     Uses the eSpeak speech synthesizer included in the Jasper disk image
