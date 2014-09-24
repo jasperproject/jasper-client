@@ -198,15 +198,15 @@ class TestBrain(unittest.TestCase):
         profile = DEFAULT_PROFILE
         return brain.Brain(mic, profile)
 
-    @patch.object(brain, 'logError')
-    def testLog(self, logError):
+    def testLog(self):
         """Does Brain correctly log errors when raised by modules?"""
         my_brain = TestBrain._emptyBrain()
         unclear = my_brain.modules[-1]
         with patch.object(unclear, 'handle') as mocked_handle:
-            mocked_handle.side_effect = KeyError('foo')
-            my_brain.query("zzz gibberish zzz")
-            logError.assert_called_with()
+            with patch.object(my_brain._logger, 'error') as mocked_loggingcall:
+                mocked_handle.side_effect = KeyError('foo')
+                my_brain.query("zzz gibberish zzz")
+                self.assertTrue(mocked_loggingcall.called)
 
     def testSortByPriority(self):
         """Does Brain sort modules by priority?"""

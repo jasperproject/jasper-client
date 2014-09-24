@@ -5,17 +5,6 @@ import pkgutil
 import importlib
 import jasperpath
 
-
-def logError():
-    logger = logging.getLogger('jasper')
-    fh = logging.FileHandler('jasper.log')
-    fh.setLevel(logging.WARNING)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.error('Failed to execute module', exc_info=True)
-
-
 class Brain(object):
 
     def __init__(self, mic, profile):
@@ -33,6 +22,7 @@ class Brain(object):
         self.mic = mic
         self.profile = profile
         self.modules = self.get_modules()
+        self._logger = logging.getLogger(__name__)
 
     @classmethod
     def get_modules(cls):
@@ -67,7 +57,7 @@ class Brain(object):
                     module.handle(text, self.mic, self.profile)
                     break
                 except:
-                    logError()
+                    self._logger.error('Failed to execute module', exc_info=True)
                     self.mic.say(
                         "I'm sorry. I had some trouble with that operation. Please try again later.")
                     break
