@@ -7,7 +7,6 @@ import os
 from mic import Mic
 import g2p
 from music import *
-import speaker
 import stt
 
 
@@ -42,7 +41,7 @@ class MusicMode:
 
         # create a new mic with the new music models
         self.mic = Mic(
-            speaker.newSpeaker(),
+            mic.speaker,
             stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic"),
             stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic")
         )
