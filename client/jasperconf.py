@@ -94,6 +94,14 @@ class AbstractConfig(object):
         return self.set(path, value=value)
 
     @abstractmethod
+    def to_dict(self):
+        """
+        Converts config into a dict like the one returned by yaml.safe_load()
+        Used for backwards compatibility with existing client modules.
+        """
+        pass
+
+    @abstractmethod
     def save(self, output_file=""):
         """
         Writes the current configuration to 'output_file' if given, otherwise writes it to the current config file
@@ -148,6 +156,9 @@ class YamlConfig(AbstractConfig):
             conf[path[-1]] = value
         if self.autosave:
             self.save()
+
+    def to_dict(self):
+        return dict(self._defaults.items() + self._config.items())
 
     def save(self, output_file=""):
         if not output_file:
