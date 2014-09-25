@@ -25,6 +25,7 @@ doh = conf.plugin_get(PLUGIN_NAME, ['example','baz'])
 """
 import os
 import copy
+import logging
 from abc import ABCMeta, abstractmethod
 
 import jasperpath
@@ -47,6 +48,7 @@ class AbstractConfig(object):
             load_defaults: If config value not present, try to return default value from DEFAULTS_FILE (default: True)
             autosave: If True, automatically save config file during calls of AbstractConfig.set(). (default: False)
         """
+        self._logger = logging.getLogger(__name__)
         self._config_file = fname if fname else self.STANDARD_CONFIG_FILE
         self.autosave = autosave
         self.load_defaults = load_defaults
@@ -148,10 +150,13 @@ class YamlConfig(AbstractConfig):
             with open(fname,'r') as f:
                 content = yaml.safe_load(f)
         except IOError:
+            self._logger.warning("Unable to open file '%s', using empty config.", fname, exc_info=True)
             content = {}
         else:
             if content is None:
+                self._logger.warning("File '%s' seems to be empty, using empty config.", fname)
                 content = {}
+        self._logger.debug("File '%s' loaded and parsed.", fname)
         return content
 
     def _get_value(self, conf, path):
@@ -167,6 +172,7 @@ DEFAULT_CONFIG_TYPE = YamlConfig
 # Used for backward compatibility
 old_config_file = os.path.join(jasperpath.LIB_PATH, os.extsep.join(['profile', YamlConfig.FILE_EXT]))
 if os.path.exists(old_config_file) and not os.path.exists(YamlConfig.STANDARD_CONFIG_FILE):
+    logging.getLogger(__name__).warning("Using deprecated profile location: '%s'", old_config_file)
     YamlConfig.STANDARD_CONFIG_FILE = old_config_file
 
 # Singleton
