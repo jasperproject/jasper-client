@@ -15,7 +15,9 @@ import brain
 try:
     import cmuclmtk
 except:
-    logging.getLogger(__name__).error("Error importing CMUCLMTK module. PocketsphinxVocabulary will not work correctly.", exc_info=True)
+    logging.getLogger(__name__).error("Error importing CMUCLMTK module. " +
+                                      "PocketsphinxVocabulary will not work " +
+                                      "correctly.", exc_info=True)
 
 
 class AbstractVocabulary(object):
@@ -132,6 +134,8 @@ class AbstractVocabulary(object):
             return revision
 
         if not os.path.exists(self.path):
+            self._logger.debug("Vocabulary dir '%s' does not exist, " +
+                               "creating...", self.path)
             try:
                 os.makedirs(self.path)
             except OSError:
@@ -146,8 +150,8 @@ class AbstractVocabulary(object):
                                self.revision_file, exc_info=True)
             raise
         else:
+            self._logger.info('Starting compilation...')
             try:
-                self._logger.debug('Starting compilation...')
                 self._compile_vocabulary(phrases)
             except Exception as e:
                 self._logger.error("Fatal compilation Error occured, " +
@@ -157,6 +161,8 @@ class AbstractVocabulary(object):
                 except OSError:
                     pass
                 raise e
+            else:
+                self._logger.info('Compilation done.')
         return revision
 
     @abstractmethod
@@ -252,7 +258,9 @@ class PocketsphinxVocabulary(AbstractVocabulary):
             phrases -- a list of phrases that this vocabulary will contain
         """
         text = " ".join([("<s> %s </s>" % phrase) for phrase in phrases])
+        self._logger.debug('Compiling languagemodel...')
         vocabulary = self._compile_languagemodel(text, self.languagemodel_file)
+        self._logger.debug('Starting dictionary...')
         self._compile_dictionary(vocabulary, self.dictionary_file)
 
     def _compile_languagemodel(self, text, output_file):
@@ -271,19 +279,22 @@ class PocketsphinxVocabulary(AbstractVocabulary):
             vocab_file = f.name
 
         # Create vocab file from text
+        self._logger.debug("Creating vocab file: '%s'", vocab_file)
         cmuclmtk.text2vocab(text, vocab_file)
 
         # Create language model from text
+        self._logger.debug("Creating languagemodel file: '%s'", output_file)
         cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
 
         # Get words from vocab file
+        self._logger.debug("Getting words from vocab file and removing it " +
+                           "afterwards...")
         words = []
         with open(vocab_file, 'r') as f:
             for line in f:
                 line = line.strip()
                 if not line.startswith('#') and line not in ('<s>', '</s>'):
                     words.append(line)
-
         os.remove(vocab_file)
 
         return words
@@ -298,10 +309,12 @@ class PocketsphinxVocabulary(AbstractVocabulary):
                            be written to
         """
         # create the dictionary
+        self._logger.debug("Getting phonemes for %d words...", len(words))
         pronounced = g2p.translateWords(words)
         zipped = zip(words, pronounced)
         lines = ["%s %s" % (x, y) for x, y in zipped]
 
+        self._logger.debug("Creating dict file: '%s'", output_file)
         with open(output_file, "w") as f:
             for line in lines:
                 f.write("%s\n" % line)
