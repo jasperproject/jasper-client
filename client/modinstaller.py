@@ -5,6 +5,7 @@ import urllib2
 import json
 import subprocess
 import jasperpath
+import pip
 
 class ModuleInstaller():
     MODULES_URL = 'http://jaspermoduleshub.herokuapp.com'
@@ -64,7 +65,7 @@ class ModuleInstaller():
     def install_requirements(self):
         reqs_file = os.path.join(self.module_path, 'requirements.txt')
         if os.path.isfile(reqs_file):
-            subprocess.call(['pip', 'install', '-r', reqs_file])
+            pip.main(['install', '-r', reqs_file])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Jasper modules installer')
