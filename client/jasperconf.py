@@ -27,7 +27,7 @@ import os
 import copy
 from abc import ABCMeta, abstractmethod
 
-#import jasperpath
+import jasperpath
 import yaml
 
 class AbstractConfig(object):
@@ -125,11 +125,8 @@ class AbstractConfig(object):
 
 class YamlConfig(AbstractConfig):
     FILE_EXT = "yml"
-    DEFAULTS_FILE = os.path.join(os.path.dirname(__file__), os.pardir, "static", os.extsep.join(['profile_defaults', FILE_EXT]))
-    STANDARD_CONFIG_FILE = os.path.join(os.path.expanduser("~/.jasper-client"), os.extsep.join(['profile', FILE_EXT]))
-    # TODO: Use these two instead (if jasperpath module has been accepted)
-    #  DEFAULTS_FILE = jasperpath.data(os.extsep.join(['profile_defaults', FILE_EXT]))
-    #  STANDARD_CONFIG_FILE = jasperpath.config(os.extsep.join(['profile', FILE_EXT]))
+    DEFAULTS_FILE = jasperpath.data(os.extsep.join(['profile_defaults', FILE_EXT]))
+    STANDARD_CONFIG_FILE = jasperpath.config(os.extsep.join(['profile', FILE_EXT]))
 
     def load(self, fname):
         self._config = self._load_yaml(fname)
@@ -186,6 +183,11 @@ class YamlConfig(AbstractConfig):
         return copy.copy(conf)
 
 DEFAULT_CONFIG_TYPE = YamlConfig
+
+# Used for backward compatibility
+old_config_file = os.path.join(jasperpath.LIB_PATH, os.extsep.join(['profile', YamlConfig.FILE_EXT]))
+if os.path.exists(old_config_file) and not os.path.exists(YamlConfig.STANDARD_CONFIG_FILE):
+    YamlConfig.STANDARD_CONFIG_FILE = old_config_file
 
 # Singleton
 Config = DEFAULT_CONFIG_TYPE()
