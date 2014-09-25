@@ -3,6 +3,8 @@
 import os
 import traceback
 import json
+import tempfile
+import logging
 import requests
 import yaml
 
@@ -27,6 +29,8 @@ class PocketSphinxSTT(object):
         dictd_persona -- filename of the 'Persona' dictionary (.dic)
         """
 
+        self._logger = logging.getLogger(__name__)
+
         # quirky bug where first import doesn't work
         try:
             import pocketsphinx as ps
@@ -46,11 +50,23 @@ class PocketSphinxSTT(object):
         if not hmm_dir:
             hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"
 
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_music_', suffix='.log', delete=False) as f:
+            self.logfile_music = f.name
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_persona_', suffix='.log', delete=False) as f:
+            self.logfile_persona = f.name
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_default_', suffix='.log', delete=False) as f:
+            self.logfile_default = f.name
+
         if lmd_music and dictd_music:
-            self.speechRec_music = ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music)
+            self.speechRec_music = ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music, logfn=self.logfile_music)
         self.speechRec_persona = ps.Decoder(
-            hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona)
-        self.speechRec = ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd)
+            hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona, logfn=self.logfile_persona)
+        self.speechRec = ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd, logfn=self.logfile_default)
+
+    def __del__(self):
+        os.remove(self.logfile_music)
+        os.remove(self.logfile_persona)
+        os.remove(self.logfile_default)
 
     def transcribe(self, audio_file_path, PERSONA_ONLY=False, MUSIC=False):
         """
@@ -68,12 +84,24 @@ class PocketSphinxSTT(object):
         if MUSIC:
             self.speechRec_music.decode_raw(wavFile)
             result = self.speechRec_music.get_hyp()
+            with open(self.logfile_music, 'r+') as f:
+                for line in f:
+                    self._logger.debug("speechRec_music %s", line.strip())
+                f.truncate()
         elif PERSONA_ONLY:
             self.speechRec_persona.decode_raw(wavFile)
             result = self.speechRec_persona.get_hyp()
+            with open(self.logfile_persona, 'r+') as f:
+                for line in f:
+                    self._logger.debug("speechRec_persona %s", line.strip())
+                f.truncate()
         else:
             self.speechRec.decode_raw(wavFile)
             result = self.speechRec.get_hyp()
+            with open(self.logfile_default, 'r+') as f:
+                for line in f:
+                    self._logger.debug("speechRec_default %s", line.strip())
+                f.truncate()
 
         print "==================="
         print "JASPER: " + result[0]
