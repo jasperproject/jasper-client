@@ -4,8 +4,6 @@ import sys
 import traceback
 import shutil
 import logging
-logging.basicConfig()
-logger = logging.getLogger()
 
 import yaml
 import argparse
@@ -21,9 +19,6 @@ parser.add_argument('--no-network-check', action='store_true', help='Disable the
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
 args = parser.parse_args()
 
-if args.debug:
-    logger.setLevel(logging.DEBUG)
-
 if args.local:
     from client.local_mic import Mic
 else:
@@ -36,9 +31,10 @@ sys.path.append(jasperpath.LIB_PATH)
 
 class Jasper(object):
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
         # Read config
         config_file = os.path.abspath(os.path.join(jasperpath.LIB_PATH, 'profile.yml'))
-        logger.debug("Trying to read config file: '%s'", config_file)
+        self._logger.debug("Trying to read config file: '%s'", config_file)
         with open(config_file, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -51,7 +47,7 @@ class Jasper(object):
             stt_engine_type = self.config['stt_engine']
         except KeyError:
             stt_engine_type = "sphinx"
-            logger.warning("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
+            self._logger.warning("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
 
         # Compile dictionary
         sentences, dictionary, languagemodel = [os.path.abspath(os.path.join(jasperpath.LIB_PATH, filename)) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
@@ -76,6 +72,12 @@ if __name__ == "__main__":
     print " JASPER The Talking Computer                               "
     print " Copyright 2013 Shubhro Saha & Charlie Marsh               "
     print "==========================================================="
+
+    logging.basicConfig()
+    logger = logging.getLogger()
+    
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     if not args.no_network_check and not Diagnostics.check_network_connection():
         logger.warning("Network not connected. This may prevent Jasper from running properly.")
