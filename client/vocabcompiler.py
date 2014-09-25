@@ -10,9 +10,12 @@ import logging
 import hashlib
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-import cmuclmtk
 import g2p
 import brain
+try:
+    import cmuclmtk
+except:
+    logging.getLogger(__name__).error("Error importing CMUCLMTK module. PocketsphinxVocabulary will not work correctly.", exc_info=True)
 
 
 class AbstractVocabulary(object):
