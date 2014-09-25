@@ -4,7 +4,7 @@ import os
 import sys
 import unittest
 import argparse
-from mock import patch
+from mock import patch, Mock
 from urllib2 import URLError, urlopen
 
 import test_mic
@@ -37,20 +37,23 @@ class TestVocabCompiler(unittest.TestCase):
         languagemodel = "temp_languagemodel.lm"
 
         words = [
-            'HACKER', 'LIFE', 'FACEBOOK', 'THIRD', 'NO', 'JOKE',
-            'NOTIFICATION', 'MEANING', 'TIME', 'TODAY', 'SECOND',
-            'BIRTHDAY', 'KNOCK KNOCK', 'INBOX', 'OF', 'NEWS', 'YES',
-            'TOMORROW', 'EMAIL', 'WEATHER', 'FIRST', 'MUSIC', 'SPOTIFY'
+            'MUSIC', 'SPOTIFY'
         ]
+
+        mock_module = Mock()
+        mock_module.WORDS = [
+            'MOCK'
+        ]
+
+        words.extend(mock_module.WORDS)
 
         with patch.object(g2p, 'translateWords') as translateWords:
             with patch.object(vocabcompiler, 'text2lm') as text2lm:
-                vocabcompiler.compile(sentences, dictionary, languagemodel)
+                with patch.object(brain.Brain, 'get_modules', classmethod(lambda cls: [mock_module])) as modules:
+                    vocabcompiler.compile(sentences, dictionary, languagemodel)
 
-                # 'words' is appended with ['MUSIC', 'SPOTIFY']
-                # so must be > 2 to have received WORDS from modules
-                translateWords.assert_called_once_with(UnorderedList(words))
-                self.assertTrue(text2lm.called)
+                    translateWords.assert_called_once_with(UnorderedList(words))
+                    self.assertTrue(text2lm.called)
         os.remove(sentences)
         os.remove(dictionary)
 
