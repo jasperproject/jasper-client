@@ -73,26 +73,6 @@ class AbstractConfig(object):
         """ 
         pass
 
-    def plugin_get(self, plugin, path):
-        """
-        Same as AbstractConfig.get(), except that this is used for plugins (in client/modules folder). First parameter 'plugin' is the name of the plugin.
-        Does not need to be overridden.
-        """
-        plugin_path = self.sanitize_path(path)
-        path = ["plugins", plugin]
-        path.extend(plugin_path)
-        return self.get(path)
-
-    def plugin_set(self, plugin, path, value=None):
-        """
-        Same as AbstractConfig.set(), except that this is used for plugins (in client/modules folder). First parameter 'plugin' is the name of the plugin.
-        Does not need to be overridden.
-        """
-        plugin_path = self.sanitize_path(path)
-        path = ["plugins", plugin]
-        path.extend(plugin_path)
-        return self.set(path, value=value)
-
     @abstractmethod
     def to_dict(self):
         """
