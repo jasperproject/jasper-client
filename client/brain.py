@@ -32,13 +32,22 @@ class Brain(object):
         module, a priority of 0 is assumed.
         """
 
+        logger = logging.getLogger(__name__)
         module_locations = [jasperpath.PLUGIN_PATH]
+        logger.debug("Looking for modules in: %s", ', '.join(["'%s'" % location for location in module_locations]))
         module_names = [name for loader, name, ispkg in pkgutil.walk_packages(module_locations, prefix='modules.')]
         modules = []
         for name in module_names:
-            mod = importlib.import_module(name)
-            if hasattr(mod, 'WORDS'):
-                modules.append(mod)
+            try:
+                mod = importlib.import_module(name)
+            except:
+                logger.warning("Skipped module '%s' due to an error.", name, exc_info=True)
+            else:
+                if hasattr(mod, 'WORDS'):
+                    logger.debug("Found module '%s' with words: %r", name, mod.WORDS)
+                    modules.append(mod)
+                else:
+                    logger.warning("Skipped module '%s' because it misses the WORDS constant.", name)
         modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY') else 0, reverse=True)
         return modules
 
