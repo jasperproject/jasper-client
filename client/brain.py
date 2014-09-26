@@ -61,13 +61,15 @@ class Brain(object):
         """
         for module in self.modules:
             for text in texts:
-
                 if module.isValid(text):
+                    self._logger.debug("'%s' is a valid phrase for module '%s'", text, module.__name__)
                     try:
                         module.handle(text, self.mic, self.profile)
-                        return
                     except:
                         self._logger.error('Failed to execute module', exc_info=True)
-                        self.mic.say(
-                            "I'm sorry. I had some trouble with that operation. Please try again later.")
+                        self.mic.say("I'm sorry. I had some trouble with that operation. Please try again later.")
+                    else:
+                        self._logger.debug("Handling of phrase '%s' by module '%s' completed", text, module.__name__)
+                    finally:
                         return
+        self._logger.debug("No module was able to handle any of these phrases: %r", texts)
