@@ -26,12 +26,6 @@ DEFAULT_PROFILE = {
 }
 
 
-class UnorderedList(list):
-
-    def __eq__(self, other):
-        return sorted(self) == sorted(other)
-
-
 class TestVocabCompiler(unittest.TestCase):
 
     def testPhraseExtraction(self):
