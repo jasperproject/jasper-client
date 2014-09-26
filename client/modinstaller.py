@@ -12,58 +12,58 @@ class ModuleInstaller():
     def __init__(self, module):
         self.module = module
         self.PROCESS_FILE = {
-                'file': self.download_single_file,
-                'git': self.download_git
+                'file': self._download_single_file,
+                'git': self._download_git
                 }
 
 
     def install(self):
-        if self.module_exists():
-            self.get_module_metadata()
-            self.module_path = os.path.join(jasperpath.PLUGIN_PATH, self.module)
-            self.download_module_files()
-            self.install_requirements()
+        if self._module_exists():
+            self._get_module_metadata()
+            self._module_path = os.path.join(jasperpath.PLUGIN_PATH, self.module)
+            self._download_module_files()
+            self._install_requirements()
             print "Installed module: %s" % self.module
 
-    def create_module_folder(self):
-        if not os.path.exists(self.module_path):
-            os.makedirs(self.module_path)
-        open(os.path.join(self.module_path, '__init__.py'), 'a').close()
+    def _create_module_folder(self):
+        if not os.path.exists(self._module_path):
+            os.makedirs(self._module_path)
+        open(os.path.join(self._module_path, '__init__.py'), 'a').close()
 
-    def module_exists(self):
+    def _module_exists(self):
         try:
-            urllib2.urlopen(self.module_url())
+            urllib2.urlopen(self._module_url())
         except urllib2.HTTPError:
             print "Sorry, that module could not be found"
             return False
         else:
             return True
 
-    def module_url(self):
+    def _module_url(self):
         return self.MODULES_URL+'/plugins/%s.json' % self.module
 
-    def get_module_metadata(self):
-        response = urllib2.urlopen(self.module_url())
-        self.module_json = json.loads(response.read())
+    def _get_module_metadata(self):
+        response = urllib2.urlopen(self._module_url())
+        self._module_json = json.loads(response.read())
 
-    def download_module_files(self):
-        self.PROCESS_FILE[self.module_json['last_version']['file_type']]()
+    def _download_module_files(self):
+        self.PROCESS_FILE[self._module_json['last_version']['file_type']]()
 
-    def download_single_file(self):
-        self.create_module_folder()
-        self.download_file('.py')
+    def _download_single_file(self):
+        self._create_module_folder()
+        self._download_file('.py')
 
-    def download_git(self):
-        subprocess.call(['git', 'clone', self.module_json['last_version']['file'], self.module_path])
+    def _download_git(self):
+        subprocess.call(['git', 'clone', self._module_json['last_version']['file'], self._module_path])
 
-    def download_file(self, extension):
-        module_code = urllib2.urlopen(self.module_json['last_version']['file']).read()
-        module_file = os.path.join(self.module_path, self.module + extension)
+    def _download_file(self, extension):
+        module_code = urllib2.urlopen(self._module_json['last_version']['file']).read()
+        module_file = os.path.join(self._module_path, self.module + extension)
         with open(module_file, 'w') as file:
             file.write(module_code)
 
-    def install_requirements(self):
-        reqs_file = os.path.join(self.module_path, 'requirements.txt')
+    def _install_requirements(self):
+        reqs_file = os.path.join(self._module_path, 'requirements.txt')
         if os.path.isfile(reqs_file):
             pip.main(['install', '-r', reqs_file])
 
