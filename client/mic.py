@@ -142,6 +142,9 @@ class Mic:
         # no use continuing if no flag raised
         if not didDetect:
             print "No disturbance detected"
+            stream.stop_stream()
+            stream.close()
+            audio.terminate()
             return (None, None)
 
         # cutoff any recording before this disturbance was detected
