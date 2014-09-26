@@ -14,7 +14,7 @@ import g2p
 import brain
 try:
     import cmuclmtk
-except:
+except ImportError:
     logging.getLogger(__name__).error("Error importing CMUCLMTK module. " +
                                       "PocketsphinxVocabulary will not work " +
                                       "correctly.", exc_info=True)
