@@ -21,9 +21,6 @@ DEFAULT_PROFILE = {
     'phone_number': '012344321'
 }
 
-def activeInternet():
-    return Diagnostics.check_network_connection()
-
 class UnorderedList(list):
 
     def __eq__(self, other):
@@ -145,7 +142,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Time)
 
-    @unittest.skipIf(not activeInternet(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
     def testGmail(self):
         key = 'gmail_password'
         if not key in self.profile or not self.profile[key]:
@@ -157,7 +154,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Gmail)
 
-    @unittest.skipIf(not activeInternet(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
     def testHN(self):
         from modules import HN
 
@@ -169,7 +166,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, HN)
         self.assertTrue("front-page articles" in outputs[1])
 
-    @unittest.skipIf(not activeInternet(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
     def testNews(self):
         from modules import News
 
@@ -181,7 +178,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, News)
         self.assertTrue("top headlines" in outputs[1])
 
-    @unittest.skipIf(not activeInternet(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
     def testWeather(self):
         from modules import Weather
 
