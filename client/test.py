@@ -53,8 +53,9 @@ class TestVocabCompiler(unittest.TestCase):
         vocab = vocabcompiler.DummyVocabulary(path=tempdir)
         self.assertIsNone(vocab.compiled_revision)
         self.assertFalse(vocab.is_compiled)
+        self.assertFalse(vocab.matches_phrases(phrases))
         vocab.compile(phrases)
-        self.assertIsNotNone(vocab.compiled_revision)
+        self.assertIsInstance(vocab.compiled_revision, str)
         self.assertTrue(vocab.is_compiled)
         self.assertTrue(vocab.matches_phrases(phrases))
 
