@@ -107,7 +107,7 @@ class PocketSphinxSTT(object):
         print "JASPER: " + result[0]
         print "==================="
 
-        return result[0]
+        return [result[0]]
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
@@ -166,14 +166,18 @@ class GoogleSTT(object):
             response = self.http.post(url, data=data, headers=headers)
             response.encoding = 'utf-8'
             response_read = response.text
-            decoded = json.loads(response_read.split("\n")[1])
 
-            text = decoded['result'][0]['alternative'][0]['transcript']
-            if text:
-                print "==================="
-                print "JASPER: " + text
-                print "==================="
-            return text
+            response_parts = response_read.strip().split("\n")
+            decoded = json.loads(response_parts[-1])
+            if decoded['result']:
+                texts = [alt['transcript'] for alt in decoded['result'][0]['alternative']]
+                if texts:
+                    print "==================="
+                    print "JASPER: " + ', '.join(texts)
+                    print "==================="
+                return texts
+            else:
+                return []
         except Exception:
             traceback.print_exc()
 

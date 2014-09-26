@@ -14,28 +14,29 @@ class Conversation(object):
         self.brain = Brain(mic, profile)
         self.notifier = Notifier(profile)
 
-    def delegateInput(self, text):
+    def delegateInput(self, texts):
         """A wrapper for querying brain."""
 
         # check if input is meant to start the music module
-        if any(x in text.upper() for x in ["SPOTIFY", "MUSIC"]):
-            # check if mpd client is running
-            try:
-                client = MPDClient()
-                client.timeout = None
-                client.idletimeout = None
-                client.connect("localhost", 6600)
-            except:
-                self.mic.say(
-                    "I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
+        for text in texts:
+            if any(x in text.upper() for x in ["SPOTIFY", "MUSIC"]):
+                # check if mpd client is running
+                try:
+                    client = MPDClient()
+                    client.timeout = None
+                    client.idletimeout = None
+                    client.connect("localhost", 6600)
+                except:
+                    self.mic.say(
+                        "I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
+                    return
+
+                self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
+                music_mode = MusicMode(self.persona, self.mic)
+                music_mode.handleForever()
                 return
 
-            self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
-            music_mode = MusicMode(self.persona, self.mic)
-            music_mode.handleForever()
-            return
-
-        self.brain.query(text)
+        self.brain.query(texts)
 
     def handleForever(self):
         """Delegates user input to the handling function when activated."""
@@ -50,7 +51,7 @@ class Conversation(object):
             if not transcribed or not threshold:
                 continue
 
-            input = self.mic.activeListen(threshold)
+            input = self.mic.activeListenToAllOptions(threshold)
             if input:
                 self.delegateInput(input)
             else:

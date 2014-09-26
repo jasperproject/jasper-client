@@ -172,6 +172,19 @@ class Mic:
     def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
         """
             Records until a second of silence or times out after 12 seconds
+
+            Returns the first matching string or None
+        """
+
+        options = self.activeListenToAllOptions(THRESHOLD, LISTEN, MUSIC)
+        if options:
+            return options[0]
+
+    def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
+        """
+            Records until a second of silence or times out after 12 seconds
+
+            Returns a list of the matching options or None
         """
 
         AUDIO_FILE = "active.wav"

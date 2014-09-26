@@ -51,7 +51,7 @@ class Brain(object):
         modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY') else 0, reverse=True)
         return modules
 
-    def query(self, text):
+    def query(self, texts):
         """
         Passes user input to the appropriate module, testing it against
         each candidate module's isValid function.
@@ -60,13 +60,14 @@ class Brain(object):
         text -- user input, typically speech, to be parsed by a module
         """
         for module in self.modules:
-            if module.isValid(text):
+            for text in texts:
 
-                try:
-                    module.handle(text, self.mic, self.profile)
-                    break
-                except:
-                    self._logger.error('Failed to execute module', exc_info=True)
-                    self.mic.say(
-                        "I'm sorry. I had some trouble with that operation. Please try again later.")
-                    break
+                if module.isValid(text):
+                    try:
+                        module.handle(text, self.mic, self.profile)
+                        return
+                    except:
+                        self._logger.error('Failed to execute module', exc_info=True)
+                        self.mic.say(
+                            "I'm sorry. I had some trouble with that operation. Please try again later.")
+                        return
