@@ -49,7 +49,7 @@ class AbstractTTSEngine(object):
     def play(self, filename):
         # FIXME: Use platform-independent audio-output here
         # See issue jasperproject/jasper-client#188
-        cmd = ['aplay', str(filename)]
+        cmd = ['aplay', '-D', 'hw:1,0', str(filename)]
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg) for arg in cmd]))
         with tempfile.TemporaryFile() as f:
             subprocess.call(cmd, stdout=f, stderr=f)
