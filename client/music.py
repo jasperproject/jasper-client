@@ -17,14 +17,14 @@ def reconnect(func, *default_args, **default_kwargs):
 
         # sometimes not enough to just connect
         try:
-            func(self, *default_args, **default_kwargs)
+            return func(self, *default_args, **default_kwargs)
         except:
             self.client = MPDClient()
             self.client.timeout = None
             self.client.idletimeout = None
             self.client.connect("localhost", 6600)
 
-            func(self, *default_args, **default_kwargs)
+            return func(self, *default_args, **default_kwargs)
 
     return wrap
 
@@ -103,7 +103,7 @@ class Music:
 
         self.client.play()
 
-    #@reconnect -- this makes the function return None for some reason!
+    @reconnect
     def current_song(self):
         item = self.client.playlistinfo(int(self.client.status()["song"]))[0]
         result = "%s by %s" % (item["title"], item["artist"])
