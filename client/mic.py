@@ -68,6 +68,10 @@ class Mic:
             lastN.append(self.getScore(data))
             average = sum(lastN) / len(lastN)
 
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+
         # this will be the benchmark to cause a disturbance over!
         THRESHOLD = average * THRESHOLD_MULTIPLIER
 
