@@ -1,11 +1,11 @@
 # -*- coding: utf-8-*-
-import os
 import re
 import logging
 import difflib
 import mpd
-import g2p
 import stt
+import vocabcompiler
+import jasperpath
 from mic import Mic
 
 # Standard module stuff
@@ -73,34 +73,22 @@ class MusicMode(object):
         self.music = mpdwrapper
 
         # index spotify playlists into new dictionary and language models
-        original = ["STOP", "CLOSE", "PLAY", "PAUSE", "NEXT", "PREVIOUS",
-                    "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME",
-                    "PLAYLIST"] + self.music.get_soup_playlist()
-        pronounced = g2p.translateWords(original)
-        zipped = zip(original, pronounced)
-        lines = ["%s %s" % (x, y) for x, y in zipped]
+        phrases = ["STOP", "CLOSE", "PLAY", "PAUSE", "NEXT", "PREVIOUS",
+                   "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME",
+                   "PLAYLIST"]
+        phrases.extend(self.music.get_soup_playlist())
 
-        with open("dictionary_spotify.dic", "w") as f:
-            f.write("\n".join(lines) + "\n")
-
-        with open("sentences_spotify.txt", "w") as f:
-            f.write("\n".join(original) + "\n")
-            f.write("<s> \n </s> \n")
-            f.close()
-
-        # make language model
-        os.system("text2idngram -vocab sentences_spotify.txt < " +
-                  "sentences_spotify.txt -idngram spotify.idngram")
-        os.system("idngram2lm -idngram spotify.idngram -vocab " +
-                  "sentences_spotify.txt -arpa languagemodel_spotify.lm")
+        vocabulary_music = vocabcompiler.PocketsphinxVocabulary(
+            name='music', path=jasperpath.config('vocabularies'))
+        vocabulary_music.compile(phrases)
 
         # create a new mic with the new music models
-        self.mic = Mic(
-            mic.speaker,
-            mic.passive_stt_engine,
-            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm",
-                                dictd_music="dictionary_spotify.dic")
-        )
+        config = stt.PocketSphinxSTT.get_config()
+
+        self.mic = Mic(mic.speaker,
+                       mic.passive_stt_engine,
+                       stt.PocketSphinxSTT(vocabulary_music=vocabulary_music,
+                                           **config))
 
     def delegateInput(self, input):
 

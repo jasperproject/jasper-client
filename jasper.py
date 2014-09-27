@@ -8,7 +8,7 @@ import logging
 import yaml
 import argparse
 
-from client import vocabcompiler, tts, stt, jasperpath, diagnose
+from client import tts, stt, jasperpath, diagnose
 
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
@@ -99,14 +99,9 @@ class Jasper(object):
                            "to '%s'", tts_engine_slug)
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
-        # Compile dictionary
-        sentences = jasperpath.config("sentences.txt")
-        dictionary = jasperpath.config("dictionary.dic")
-        languagemodel = jasperpath.config("languagemodel.lm")
-        vocabcompiler.compile(sentences, dictionary, languagemodel)
-
         # Initialize Mic
-        self.mic = Mic(tts_engine_class(), stt.PocketSphinxSTT(),
+        self.mic = Mic(tts_engine_class(),
+                       stt.PocketSphinxSTT(**stt.PocketSphinxSTT.get_config()),
                        stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     def run(self):
