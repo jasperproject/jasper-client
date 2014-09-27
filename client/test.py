@@ -12,6 +12,7 @@ import vocabcompiler
 import g2p
 import brain
 import jasperpath
+import tts
 from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
@@ -189,6 +190,11 @@ class TestModules(unittest.TestCase):
             "can't see that far ahead" in outputs[0]
             or "Tomorrow" in outputs[0])
 
+class TestTTS(unittest.TestCase):
+    def testTTS(self):
+        tts_engine = tts.get_engine_by_slug('dummy-tts')
+        tts_instance = tts_engine()
+        tts_instance.say('This is a test.')
 
 class TestBrain(unittest.TestCase):
 
@@ -236,7 +242,7 @@ if __name__ == '__main__':
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
 
-    test_cases = [TestBrain, TestModules, TestVocabCompiler]
+    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS]
     if not args.light:
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
