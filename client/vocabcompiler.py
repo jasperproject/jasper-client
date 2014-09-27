@@ -12,6 +12,8 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 
 import g2p
 import brain
+import jasperpath
+
 try:
     import cmuclmtk
 except ImportError:
@@ -331,6 +333,24 @@ def get_phrases_from_module(module):
         The list of phrases in this module.
     """
     return module.WORDS if hasattr(module, 'WORDS') else []
+
+
+def get_keyword_phrases():
+    """
+    Gets the keyword phrases from the keywords file in the jasper data dir.
+
+    Returns:
+        A list of keyword phrases.
+    """
+    phrases = []
+
+    with open(jasperpath.data('keyword_phrases'), mode="r") as f:
+        for line in f:
+            phrase = line.strip()
+            if phrase:
+                phrases.append(phrase)
+
+    return phrases
 
 
 def get_all_phrases():
