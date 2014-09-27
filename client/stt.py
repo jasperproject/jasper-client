@@ -5,6 +5,7 @@ import traceback
 import wave
 import json
 import tempfile
+import pkgutil
 import logging
 from abc import ABCMeta, abstractmethod
 import requests
@@ -148,7 +149,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
     @classmethod
     def is_available(cls):
-        return (pkgutil.get_loader('pocketsphinx') is not None and os.path.exits(cls._get_hmm_dir()))
+        return (pkgutil.get_loader('pocketsphinx') is not None)
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
