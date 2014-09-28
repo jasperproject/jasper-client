@@ -10,10 +10,10 @@ import logging
 import hashlib
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-import g2p
 import brain
 import jasperpath
 
+from g2p import PhonetisaurusG2P
 try:
     import cmuclmtk
 except ImportError:
@@ -312,14 +312,18 @@ class PocketsphinxVocabulary(AbstractVocabulary):
         """
         # create the dictionary
         self._logger.debug("Getting phonemes for %d words...", len(words))
-        pronounced = g2p.translateWords(words)
-        zipped = zip(words, pronounced)
-        lines = ["%s %s" % (x, y) for x, y in zipped]
+        g2pconverter = PhonetisaurusG2P(**PhonetisaurusG2P.get_config())
+        phonemes = g2pconverter.translate(words)
 
         self._logger.debug("Creating dict file: '%s'", output_file)
         with open(output_file, "w") as f:
-            for line in lines:
-                f.write("%s\n" % line)
+            for word, pronounciations in phonemes.items():
+                for i, pronounciation in enumerate(pronounciations, start=1):
+                    if i == 1:
+                        line = "%s\t%s\n" % (word, pronounciation)
+                    else:
+                        line = "%s(%d)\t%s\n" % (word, i, pronounciation)
+                    f.write(line)                
 
 
 def get_phrases_from_module(module):
