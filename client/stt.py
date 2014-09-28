@@ -42,8 +42,8 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
     SLUG = 'sphinx'
 
-    def __init__(self, lmd="languagemodel.lm", dictd="dictionary.dic",
-                 lmd_persona="languagemodel_persona.lm", dictd_persona="dictionary_persona.dic",
+    def __init__(self, lmd=jasperpath.config("languagemodel.lm"), dictd=jasperpath.config("dictionary.dic"),
+                 lmd_persona=jasperpath.data("languagemodel_persona.lm"), dictd_persona=jasperpath.data("dictionary_persona.dic"),
                  lmd_music=None, dictd_music=None,
                  hmm_dir="/usr/local/share/pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
         """

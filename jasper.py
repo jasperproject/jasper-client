@@ -34,11 +34,41 @@ os.chdir(jasperpath.LIB_PATH)
 class Jasper(object):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
+        
+        # Create config dir if it does not exist yet
+        if not os.path.exists(jasperpath.CONFIG_PATH):
+            try:
+                os.makedirs(jasperpath.CONFIG_PATH)
+            except OSError:
+                self._logger.error("Could not create config dir: '%s'", jasperpath.CONFIG_PATH, exc_info=True)
+                raise
+
+        # Check if config dir is writable
+        if not os.access(jasperpath.CONFIG_PATH, os.W_OK):
+            self._logger.critical("Config dir %s is not writable. Jasper won't work correctly.")
+
+        # FIXME: For backwards compatibility, move old config file to newly created config dir
+        old_configfile = os.path.join(jasperpath.LIB_PATH, 'profile.yml')
+        new_configfile = jasperpath.config('profile.yml')
+        if os.path.exists(old_configfile):
+            if os.path.exists(new_configfile):
+                self._logger.warning("Deprecated profile file found: '%s'. Please remove it.", old_configfile)
+            else:
+                self._logger.warning("Deprecated profile file found: '%s'. Trying to copy it to new location '%s'.", old_configfile, new_configfile)
+                try:
+                    shutil.copy2(old_configfile, new_configfile)
+                except shutil.Error:
+                    self._logger.error("Unable to copy config file. Please copy it manually.", exc_info=True)
+                    raise
+
         # Read config
-        config_file = os.path.abspath(os.path.join(jasperpath.LIB_PATH, 'profile.yml'))
-        self._logger.debug("Trying to read config file: '%s'", config_file)
-        with open(config_file, "r") as f:
-            self.config = yaml.safe_load(f)
+        self._logger.debug("Trying to read config file: '%s'", new_configfile)
+        try:
+            with open(new_configfile, "r") as f:
+                self.config = yaml.safe_load(f)
+        except OSError:
+            self._logger.error("Can't open config file: '%s'", new_configfile)
+            raise
 
         try:
             api_key = self.config['keys']['GOOGLE_SPEECH']
@@ -59,7 +89,7 @@ class Jasper(object):
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
         # Compile dictionary
-        sentences, dictionary, languagemodel = [os.path.abspath(os.path.join(jasperpath.LIB_PATH, filename)) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
+        sentences, dictionary, languagemodel = [jasperpath.config(filename) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
         vocabcompiler.compile(sentences, dictionary, languagemodel)
 
         # Initialize Mic
@@ -93,14 +123,8 @@ if __name__ == "__main__":
 
     try:
         app = Jasper()
-    except IOError:
-        logger.exception("Can't read profile file.")
-        sys.exit(1)
-    except OSError:
-        logger.exception("Language model or associated files missing.")
-        sys.exit(1)
-    except Exception():
-        logger.exception("Unknown error occured")
+    except Exception:
+        logger.exception("Error occured!", exc_info=True)
         sys.exit(1)
     
     app.run()
