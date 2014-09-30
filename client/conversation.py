@@ -35,6 +35,7 @@ class Conversation(object):
                         "I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
                     return
 
+                self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
                 self._logger.debug("Starting music mode")
                 music_mode = MusicMode(self.persona, self.mic)
                 music_mode.handleForever()
