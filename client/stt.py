@@ -10,6 +10,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 import requests
 import yaml
+import jasperpath
 
 """
 The default Speech-to-Text implementation which relies on PocketSphinx.
