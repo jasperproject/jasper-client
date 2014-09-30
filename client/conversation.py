@@ -1,10 +1,7 @@
 # -*- coding: utf-8-*-
 import logging
 from notifier import Notifier
-from musicmode import *
 from brain import Brain
-from mpd import MPDClient
-
 
 class Conversation(object):
 
@@ -15,34 +12,6 @@ class Conversation(object):
         self.profile = profile
         self.brain = Brain(mic, profile)
         self.notifier = Notifier(profile)
-
-    def delegateInput(self, texts):
-        """A wrapper for querying brain."""
-
-        # check if input is meant to start the music module
-        for text in texts:
-            if any(x in text.upper() for x in ["SPOTIFY", "MUSIC"]):
-                self._logger.debug("Preparing to start music module")
-                # check if mpd client is running
-                try:
-                    client = MPDClient()
-                    client.timeout = None
-                    client.idletimeout = None
-                    client.connect("localhost", 6600)
-                except:
-                    self._logger.critical("Can't connect to mpd client, cannot start music mode.", exc_info=True)
-                    self.mic.say(
-                        "I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
-                    return
-
-                self.mic.say("Please give me a moment, I'm loading your Spotify playlists.")
-                self._logger.debug("Starting music mode")
-                music_mode = MusicMode(self.persona, self.mic)
-                music_mode.handleForever()
-                self._logger.debug("Exiting music mode")
-                return
-
-        self.brain.query(texts)
 
     def handleForever(self):
         """Delegates user input to the handling function when activated."""
@@ -67,6 +36,6 @@ class Conversation(object):
             self._logger.debug("Stopped to listen actively with threshold: %r", threshold)
             
             if input:
-                self.delegateInput(input)
+                self.brain.query(input)
             else:
                 self.mic.say("Pardon?")
