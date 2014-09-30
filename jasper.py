@@ -28,9 +28,6 @@ if args.local:
 else:
     from client.mic import Mic
 
-# Change CWD to jasperpath.LIB_PATH
-os.chdir(jasperpath.LIB_PATH)
-
 class Jasper(object):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
