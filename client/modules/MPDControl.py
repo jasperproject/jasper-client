@@ -62,6 +62,7 @@ def isValid(text):
 class MusicMode(object):
 
     def __init__(self, PERSONA, mic, mpdwrapper):
+        self._logger = logging.getLogger(__name__)
         self.persona = PERSONA
         # self.mic - we're actually going to ignore the mic they passed in
         self.music = mpdwrapper
@@ -175,26 +176,25 @@ class MusicMode(object):
 
         while True:
 
-            try:
-                threshold, transcribed = self.mic.passiveListen(self.persona)
-            except:
+            threshold, transcribed = self.mic.passiveListen(self.persona)
+
+            if not transcribed or not threshold:
+                self._logger.info("Nothing has been said or transcribed.")
                 continue
 
-            if threshold:
+            self.music.pause()
 
-                self.music.pause()
+            input = self.mic.activeListen(MUSIC=True)
 
-                input = self.mic.activeListen(MUSIC=True)
+            if "close" in input.lower():
+                self.mic.say("Closing Spotify")
+                return
 
-                if "close" in input.lower():
-                    self.mic.say("Closing Spotify")
-                    return
-
-                if input:
-                    self.delegateInput(input)
-                else:
-                    self.mic.say("Pardon?")
-                    self.music.play()
+            if input:
+                self.delegateInput(input)
+            else:
+                self.mic.say("Pardon?")
+                self.music.play()
 
 def reconnect(func, *default_args, **default_kwargs):
     """
