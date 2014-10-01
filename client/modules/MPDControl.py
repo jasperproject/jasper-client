@@ -230,15 +230,6 @@ class Song(object):
         self.album = album
 
 class MPDWrapper(object):
-
-    client = None
-    songs = []  # may have duplicates
-    playlists = []
-
-    # capitalized strings
-    song_titles = []
-    song_artists = []
-
     def __init__(self, server="localhost", port=6600):
         """
             Prepare the client and music variables
@@ -259,6 +250,11 @@ class MPDWrapper(object):
         self.client.clear()
         for playlist in self.playlists:
             self.client.load(playlist)
+
+        self.songs = []  # may have duplicates
+        # capitalized strings
+        self.song_titles = []
+        self.song_artists = []
 
         soup = self.client.playlist()
         for i in range(0, len(soup) / 10):
