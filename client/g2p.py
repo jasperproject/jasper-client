@@ -25,9 +25,7 @@ class PhonetisaurusG2P(object):
             cmd_exists = shutil.which
         # Required binary for this class
         cmd = 'phonetisaurus-g2p'
-        if not cmd_exists(cmd):
-            return False
-        return True
+        return cmd_exists(cmd)
 
     @classmethod
     def execute(cls, fst_model, input, is_file=False, nbest=None):
