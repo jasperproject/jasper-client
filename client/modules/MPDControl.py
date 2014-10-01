@@ -186,11 +186,10 @@ class MusicMode(object):
 
             input = self.mic.activeListen(MUSIC=True)
 
-            if "close" in input.lower():
-                self.mic.say("Closing Spotify")
-                return
-
             if input:
+                if "close" in input.lower():
+                    self.mic.say("Closing Spotify")
+                    return
                 self.delegateInput(input)
             else:
                 self.mic.say("Pardon?")
