@@ -86,22 +86,17 @@ class TestMic(unittest.TestCase):
 class TestG2P(unittest.TestCase):
 
     def setUp(self):
-        self.translations = {
-            'GOOD': 'G UH D',
-            'BAD': 'B AE D',
-            'UGLY': 'AH G L IY'
-        }
+        self.g2pconverter = g2p.PhonetisaurusG2P(**g2p.PhonetisaurusG2P.get_config())
+        self.words = ['GOOD', 'BAD', 'UGLY']
 
     def testTranslateWord(self):
-        for word in self.translations:
-            translation = self.translations[word]
-            self.assertEqual(g2p.translateWord(word), translation)
+        for word in self.words:
+            self.assertIn(word, self.g2pconverter.translate(word).keys())
 
     def testTranslateWords(self):
-        words = self.translations.keys()
-        # preserve ordering
-        translations = [self.translations[w] for w in words]
-        self.assertEqual(g2p.translateWords(words), translations)
+        results = self.g2pconverter.translate(self.words).keys()
+        for word in self.words:
+            self.assertIn(word, results)
 
 
 class TestDiagnose(unittest.TestCase):
