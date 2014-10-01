@@ -98,6 +98,11 @@ class DiagnosticRunner(object):
         self._logger = logging.getLogger(__name__)
 
     def run(self):
+        # Set loglevel of this module least to info
+        loglvl = self._logger.getEffectiveLevel()
+        if loglvl == logging.NOTSET or loglvl > logging.INFO:
+            self._logger.setLevel(logging.INFO)
+
         self._logger.info("Starting jasper diagnostic at %s",
                           time.strftime("%c"))
         self._logger.info("Git revision: %r", get_git_revision())
@@ -141,5 +146,6 @@ class DiagnosticRunner(object):
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout)
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG if '--debug' in sys.argv else logging.INFO)
+    if '--debug' in sys.argv:
+        logger.setLevel(logging.DEBUG)
     DiagnosticRunner().run()
