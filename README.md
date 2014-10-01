@@ -1,7 +1,7 @@
 jasper-client
 =============
 
-<img src="https://travis-ci.org/jasperproject/jasper-client.svg?branch=master" alt="Build Status" />
+[![Build Status](https://travis-ci.org/jasperproject/jasper-client.svg?branch=master)](https://travis-ci.org/jasperproject/jasper-client)
 
 Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
 
