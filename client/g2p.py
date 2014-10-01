@@ -92,7 +92,6 @@ class PhonetisaurusG2P(object):
                             profile['pocketsphinx']['fst_model']
                     if 'nbest' in profile['pocketsphinx']:
                         conf['nbest'] = int(profile['pocketsphinx']['nbest'])
-        print conf
         return conf
 
     def __new__(cls, fst_model=None, *args, **kwargs):
