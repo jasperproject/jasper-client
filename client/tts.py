@@ -15,17 +15,18 @@ import tempfile
 import subprocess
 import pipes
 import logging
+import wave
 from abc import ABCMeta, abstractmethod
-from distutils.spawn import find_executable
 
 import argparse
-
-import wave
+import yaml
 try:
     import mad
     import gtts
 except ImportError:
     pass
+
+import diagnose
 
 
 class AbstractTTSEngine(object):
@@ -37,7 +38,7 @@ class AbstractTTSEngine(object):
     @classmethod
     @abstractmethod
     def is_available(cls):
-        return (find_executable('aplay') is not None)
+        return diagnose.check_executable('aplay')
 
     def __init__(self, **kwargs):
         self._logger = logging.getLogger(__name__)
@@ -67,7 +68,7 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         return (super(AbstractMp3TTSEngine, cls).is_available() and
-                'mad' in sys.modules.keys())
+                diagnose.check_python_import('mad'))
 
     def play_mp3(self, filename):
         mf = mad.MadFile(filename)
@@ -123,7 +124,7 @@ class EspeakTTS(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and
-                find_executable('espeak') is not None)
+                diagnose.check_executable('espeak'))
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
@@ -158,8 +159,9 @@ class FestivalTTS(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         if (super(cls, cls).is_available() and
-           find_executable('text2wave') is not None and
-           find_executable('festival') is not None):
+           diagnose.check_executable('text2wave') and
+           diagnose.check_executable('festival')):
+
             logger = logging.getLogger(__name__)
             cmd = ['festival', '--pipe']
             with tempfile.SpooledTemporaryFile() as out_f:
@@ -205,8 +207,8 @@ class MacOSXTTS(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         return (platform.system() == 'darwin' and
-                find_executable('say') is not None and
-                find_executable('afplay') is not None)
+                diagnose.check_executable('say') and
+                diagnose.check_executable('afplay'))
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
@@ -247,7 +249,7 @@ class PicoTTS(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and
-                find_executable('pico2wave') is not None)
+                diagnose.check_executable('pico2wave'))
 
     @property
     def languages(self):
@@ -303,7 +305,8 @@ class GoogleTTS(AbstractMp3TTSEngine):
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and
-                'gtts' in sys.modules.keys())
+                diagnose.check_python_import('gtts') and
+                diagnose.check_network_connection())
 
     @property
     def languages(self):
