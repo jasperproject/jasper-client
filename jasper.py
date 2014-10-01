@@ -8,8 +8,7 @@ import logging
 import yaml
 import argparse
 
-from client.diagnose import Diagnostics
-from client import vocabcompiler, tts, stt, jasperpath
+from client import vocabcompiler, tts, stt, jasperpath, diagnose
 
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
@@ -132,8 +131,7 @@ if __name__ == "__main__":
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    if (not args.no_network_check and
-       not Diagnostics.check_network_connection()):
+    if not args.no_network_check and not diagnose.check_network_connection():
         logger.warning("Network not connected. This may prevent Jasper from " +
                        "running properly.")
 

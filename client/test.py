@@ -13,8 +13,8 @@ import g2p
 import brain
 import jasperpath
 import tts
+import diagnose
 from stt import TranscriptionMode
-from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
@@ -154,7 +154,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Time)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testGmail(self):
         key = 'gmail_password'
@@ -167,7 +167,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Gmail)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testHN(self):
         from modules import HN
@@ -180,7 +180,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, HN)
         self.assertTrue("front-page articles" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testNews(self):
         from modules import News
@@ -193,7 +193,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, News)
         self.assertTrue("top headlines" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testWeather(self):
         from modules import Weather
