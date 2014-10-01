@@ -3,6 +3,7 @@
 import os
 import sys
 import unittest
+import logging
 import argparse
 from mock import patch, Mock
 from urllib2 import URLError, urlopen
@@ -237,7 +238,14 @@ if __name__ == '__main__':
         description='Test suite for the Jasper client code.')
     parser.add_argument('--light', action='store_true',
                         help='runs a subset of the tests (only requires Python dependencies)')
+    parser.add_argument('--debug', action='store_true',
+                        help='show debug messages')
     args = parser.parse_args()
+
+    logging.basicConfig()
+    logger = logging.getLogger()
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
