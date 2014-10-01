@@ -1,77 +1,94 @@
 #!/usr/bin/env python2
 import argparse
-import os
-import urllib2
 import json
+import os
 import subprocess
+import urllib2
+
 import pip
+
 import jasperpath
+
+
+MODULES_URL = 'http://jaspermoduleshub.herokuapp.com'
+
 
 class ModuleTypeError(Exception):
     pass
 
-class ModuleInstaller():
 
-    MODULES_URL = 'http://jaspermoduleshub.herokuapp.com'
-    def __init__(self, module):
-        self.module = module
+def install(module):
+    if _module_exists(module):
+        metadata = _get_module_metadata(module)
+        module_path = _get_module_folder(module)
+        _download_module_files(metadata, module_path, module)
+        _install_requirements(module_path)
+        print "Installed module: %s" % module
+    else:
+        print "Sorry, that module could not be found"
 
-    def install(self):
-        if self._module_exists():
-            self._get_module_metadata()
-            self._module_path = os.path.join(jasperpath.PLUGIN_PATH, self.module)
-            self._download_module_files()
-            self._install_requirements()
-            print "Installed module: %s" % self.module
-        else:
-            print "Sorry, that module could not be found"
 
-    def _create_module_folder(self):
-        if not os.path.exists(self._module_path):
-            os.makedirs(self._module_path)
-        open(os.path.join(self._module_path, '__init__.py'), 'a').close()
+def _module_exists(module):
+    try:
+        urllib2.urlopen(_module_url(module))
+    except urllib2.HTTPError:
+        return False
+    else:
+        return True
 
-    def _module_exists(self):
-        try:
-            urllib2.urlopen(self._module_url())
-        except urllib2.HTTPError:
-            return False
-        else:
-            return True
 
-    def _module_url(self):
-        return self.MODULES_URL+'/plugins/%s.json' % self.module
+def _module_url(module):
+    return MODULES_URL+'/plugins/%s.json' % module
 
-    def _get_module_metadata(self):
-        response = urllib2.urlopen(self._module_url())
-        self._module_json = json.loads(response.read())
 
-    def _download_module_files(self):
-        file_type = self._module_json['last_version']['file_type']
-        if file_type == 'git':
-            self._download_git()
-        elif file_type == 'files':
-            self._download_single_file()
-        else:
-            raise ModuleTypeError(self.module)
+def _get_module_metadata(module):
+    response = urllib2.urlopen(_module_url(module))
+    return json.loads(response.read())
 
-    def _download_single_file(self):
-        self._create_module_folder()
-        self._download_file('.py')
 
-    def _download_git(self):
-        subprocess.call(['git', 'clone', self._module_json['last_version']['file'], self._module_path])
+def _get_module_folder(module):
+    return os.path.join(jasperpath.PLUGIN_PATH, module)
 
-    def _download_file(self, extension):
-        module_code = urllib2.urlopen(self._module_json['last_version']['file']).read()
-        module_file = os.path.join(self._module_path, self.module + extension)
-        with open(module_file, 'w') as file:
-            file.write(module_code)
 
-    def _install_requirements(self):
-        reqs_file = os.path.join(self._module_path, 'requirements.txt')
-        if os.path.isfile(reqs_file):
-            pip.main(['install', '-r', reqs_file])
+def _download_module_files(metadata, module_path, module):
+    file_type = metadata['last_version']['file_type']
+    if file_type == 'git':
+        _download_git(metadata, module_path)
+    elif file_type == 'file':
+        _download_single_file(metadata, module_path, module)
+    else:
+        raise ModuleTypeError(module)
+
+
+def _download_git(metadata, module_path):
+    filename = metadata['last_version']['file']
+    subprocess.call(['git', 'clone', filename, module_path])
+
+
+def _download_single_file(metadata, module_path, module):
+    _create_module_folder(module_path)
+    _download_file(metadata, module_path, module, '.py')
+
+
+def _create_module_folder(module_path):
+    if not os.path.exists(module_path):
+        os.makedirs(module_path)
+    open(os.path.join(module_path, '__init__.py'), 'a').close()
+
+
+def _download_file(metadata, module_path, module, extension):
+    filename = metadata['last_version']['file']
+    module_code = urllib2.urlopen(filename).read()
+    module_file = os.path.join(module_path, module + extension)
+    with open(module_file, 'w') as file:
+        file.write(module_code)
+
+
+def _install_requirements(module_path):
+    reqs_file = os.path.join(module_path, 'requirements.txt')
+    if os.path.isfile(reqs_file):
+        pip.main(['install', '-r', reqs_file])
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Jasper modules installer')
@@ -80,6 +97,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     for module in args.install:
-        ModuleInstaller(module).install()
-
-
+        install(module)
