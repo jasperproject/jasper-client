@@ -4,18 +4,17 @@ import os
 import urllib2
 import json
 import subprocess
-import jasperpath
 import pip
+import jasperpath
+
+class ModuleTypeError(Exception):
+    pass
 
 class ModuleInstaller():
+
     MODULES_URL = 'http://jaspermoduleshub.herokuapp.com'
     def __init__(self, module):
         self.module = module
-        self.PROCESS_FILE = {
-                'file': self._download_single_file,
-                'git': self._download_git
-                }
-
 
     def install(self):
         if self._module_exists():
@@ -24,6 +23,8 @@ class ModuleInstaller():
             self._download_module_files()
             self._install_requirements()
             print "Installed module: %s" % self.module
+        else:
+            print "Sorry, that module could not be found"
 
     def _create_module_folder(self):
         if not os.path.exists(self._module_path):
@@ -34,7 +35,6 @@ class ModuleInstaller():
         try:
             urllib2.urlopen(self._module_url())
         except urllib2.HTTPError:
-            print "Sorry, that module could not be found"
             return False
         else:
             return True
@@ -47,7 +47,13 @@ class ModuleInstaller():
         self._module_json = json.loads(response.read())
 
     def _download_module_files(self):
-        self.PROCESS_FILE[self._module_json['last_version']['file_type']]()
+        file_type = self._module_json['last_version']['file_type']
+        if file_type == 'git':
+            self._download_git()
+        elif file_type == 'files':
+            self._download_single_file()
+        else:
+            raise ModuleTypeError(self.module)
 
     def _download_single_file(self):
         self._create_module_folder()
@@ -69,7 +75,7 @@ class ModuleInstaller():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Jasper modules installer')
-    parser.add_argument('--install', nargs=1,
+    parser.add_argument('--install', nargs='+',
                         help='Modules to install')
 
     args = parser.parse_args()
