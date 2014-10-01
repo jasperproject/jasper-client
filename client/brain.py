@@ -35,11 +35,11 @@ class Brain(object):
         logger = logging.getLogger(__name__)
         module_locations = [jasperpath.PLUGIN_PATH]
         logger.debug("Looking for modules in: %s", ', '.join(["'%s'" % location for location in module_locations]))
-        module_names = [name for loader, name, ispkg in pkgutil.walk_packages(module_locations, prefix='modules.')]
         modules = []
-        for name in module_names:
+        for finder, name, ispkg in pkgutil.walk_packages(module_locations):
             try:
-                mod = importlib.import_module(name)
+                loader = finder.find_module(name)
+                mod = loader.load_module(name)
             except:
                 logger.warning("Skipped module '%s' due to an error.", name, exc_info=True)
             else:

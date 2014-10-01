@@ -224,7 +224,7 @@ class TestBrain(unittest.TestCase):
     def testPriority(self):
         """Does Brain correctly send query to higher-priority module?"""
         my_brain = TestBrain._emptyBrain()
-        hn_module = 'modules.HN'
+        hn_module = 'HN'
         hn = filter(lambda m: m.__name__ == hn_module, my_brain.modules)[0]
 
         with patch.object(hn, 'handle') as mocked_handle:
