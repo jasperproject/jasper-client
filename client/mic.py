@@ -70,6 +70,10 @@ class Mic:
             lastN.append(self.getScore(data))
             average = sum(lastN) / len(lastN)
 
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+
         # this will be the benchmark to cause a disturbance over!
         THRESHOLD = average * THRESHOLD_MULTIPLIER
 
@@ -139,6 +143,9 @@ class Mic:
         # no use continuing if no flag raised
         if not didDetect:
             print "No disturbance detected"
+            stream.stop_stream()
+            stream.close()
+            audio.terminate()
             return (None, None)
 
         # cutoff any recording before this disturbance was detected
