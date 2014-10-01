@@ -10,6 +10,10 @@ import argparse
 
 from client.diagnose import Diagnostics
 from client import vocabcompiler, tts, stt, jasperpath
+
+# Add jasperpath.LIB_PATH to sys.path
+sys.path.append(jasperpath.LIB_PATH)
+
 from client.conversation import Conversation
 
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
@@ -25,8 +29,6 @@ else:
 
 # Change CWD to jasperpath.LIB_PATH
 os.chdir(jasperpath.LIB_PATH)
-# Add jasperpath.LIB_PATH to sys.path
-sys.path.append(jasperpath.LIB_PATH)
 
 class Jasper(object):
     def __init__(self):
