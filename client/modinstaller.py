@@ -34,7 +34,7 @@ def install(module, install_location, install_dependencies):
                 _install_requirements(temp_path)
             else:
                 _list_unmet_requirements(module, temp_path)
-            _move_module_directory(temp_path, module, install_location)
+            _copy_module_directory(temp_path, module, install_location)
         finally:
             shutil.rmtree(temp_path)
     else:
@@ -74,7 +74,7 @@ def _get_temp_module_folder(module):
     return tempfile.mkdtemp(prefix=module)
 
 
-def _move_module_directory(tmp_path, module, install_location):
+def _copy_module_directory(tmp_path, module, install_location):
     module_path = _get_module_folder(module, install_location)
     shutil.copytree(tmp_path, module_path)
 
