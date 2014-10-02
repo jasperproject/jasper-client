@@ -21,7 +21,7 @@ class ModuleInstallationError(Exception):
         self.module = module
 
     def __str__(self):
-        return self.message + ": " + self.module
+        return "%s: %s" % (self.message, self.module)
 
 
 def install(module, install_location, install_dependencies):
