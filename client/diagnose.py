@@ -19,6 +19,16 @@ logger = logging.getLogger(__name__)
 
 
 def check_network_connection(server="www.google.com"):
+    """
+    Checks if jasper can connect a network server.
+
+    Arguments:
+        server -- (optional) the server to connect with (Default:
+                  "www.google.com")
+
+    Returns:
+        True or False
+    """
     logger = logging.getLogger(__name__)
     logger.debug("Checking network connection to server '%s'...", server)
     try:
@@ -37,6 +47,15 @@ def check_network_connection(server="www.google.com"):
 
 
 def check_executable(executable):
+    """
+    Checks if an executable exists in $PATH.
+
+    Arguments:
+        executable -- the name of the executable (e.g. "echo")
+
+    Returns:
+        True or False
+    """
     logger = logging.getLogger(__name__)
     logger.debug("Checking executable '%s'...", executable)
     executable_path = find_executable(executable)
@@ -50,6 +69,15 @@ def check_executable(executable):
 
 
 def check_python_import(package_or_module):
+    """
+    Checks if a python package or module is importable.
+
+    Arguments:
+        package_or_module -- the package or module name to check
+
+    Returns:
+        True or False
+    """
     logger = logging.getLogger(__name__)
     logger.debug("Checking python import '%s'...", package_or_module)
     loader = pkgutil.get_loader(package_or_module)
@@ -65,6 +93,17 @@ def check_python_import(package_or_module):
 
 def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
                                             'requirements.txt')):
+    """
+    Gets the PIP requirements from a text file. If the files does not exists
+    or is not readable, it returns None
+
+    Arguments:
+        fname -- (optional) the requirement text file (Default:
+                 "client/requirements.txt")
+
+    Returns:
+        A list of pip requirement objects or None
+    """
     logger = logging.getLogger(__name__)
     if os.access(fname, os.R_OK):
         reqs = list(pip.req.parse_requirements(fname))
@@ -77,6 +116,13 @@ def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
 
 
 def get_git_revision():
+    """
+    Gets the current git revision hash as hex string. If the git executable is
+    missing or git is unable to get the revision, None is returned
+
+    Returns:
+        A hex string or None
+    """
     logger = logging.getLogger(__name__)
     if not check_executable('git'):
         logger.warning("'git' command not found, git revision not detectable")
@@ -87,10 +133,14 @@ def get_git_revision():
         return None
     return output
 
+
 def run():
     """
     Performs a series of checks against the system and writes the results to
     the logging system.
+
+    Returns:
+        The number of failed checks as integer
     """
     logger = logging.getLogger(__name__)
 
