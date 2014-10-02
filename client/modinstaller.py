@@ -24,13 +24,16 @@ class ModuleInstallationError(Exception):
         return self.message + ": " + self.module
 
 
-def install(module, install_location):
+def install(module, install_location, install_dependencies):
     if _module_exists(module):
         temp_path = _get_temp_module_folder(module)
         try:
             _check_installation_path(module, install_location)
             _download_module_files(temp_path, module)
-            _install_requirements(temp_path)
+            if install_dependencies:
+                _install_requirements(temp_path)
+            else:
+                _list_unmet_requirements(module, temp_path)
             _move_module_directory(temp_path, module, install_location)
         finally:
             shutil.rmtree(temp_path)
@@ -115,18 +118,33 @@ def _install_requirements(module_path):
         pip.main(['install', '-r', reqs_file])
 
 
+def _list_unmet_requirements(module, module_path):
+    req_file = os.path.join(module_path, 'requirements.txt')
+    if os.access(req_file, os.R_OK):
+        missing_reqs = [req
+                        for req in pip.req.parse_requirements(req_file)
+                        if not req.check_if_exists()]
+        if missing_reqs:
+            print("PIP requirements missing for module %s:" % module)
+            for req in missing_reqs:
+                print(" - %s" % req.name)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Jasper modules installer')
     parser.add_argument('--install', nargs='+',
                         help='Modules to install')
-
     parser.add_argument('--location', default=jasperpath.PLUGIN_PATH,
                         help="The location to install the modules to")
+    parser.add_argument('--install-dependencies', default=False,
+                        help="Install required dependencies")
 
     args = parser.parse_args()
     for module in args.install:
         try:
-            install(module, install_location=args.location)
+            install(module,
+                    install_location=args.location,
+                    install_dependencies=args.install_dependencies)
         except ModuleInstallationError as e:
             print e
         else:
