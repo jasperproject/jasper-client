@@ -12,7 +12,7 @@ import requests
 import jasperpath
 
 
-MODULES_URL = 'http://jaspermoduleshub.herokuapp.com'
+MODULES_URL = 'http://jaspermoduleshub.herokuapp.com/plugins/%s.json'
 
 
 class ModuleInstallationError(Exception):
@@ -51,7 +51,7 @@ def _module_exists(module):
 
 
 def _module_url(module):
-    return MODULES_URL+'/plugins/%s.json' % urllib.quote(module)
+    return MODULES_URL % urllib.quote(module)
 
 
 def _check_installation_path(module, install_location):
