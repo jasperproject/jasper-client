@@ -138,8 +138,7 @@ if __name__ == "__main__":
                        "running properly.")
 
     if args.diagnose:
-        diag = diagnose.DiagnosticRunner()
-        failed_checks = diag.run()
+        failed_checks = diagnose.run()
         sys.exit(0 if not failed_checks else 1)
 
     try:

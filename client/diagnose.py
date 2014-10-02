@@ -87,60 +87,54 @@ def get_git_revision():
         return None
     return output
 
-
-class DiagnosticRunner(object):
+def run():
     """
-    Performs a series of checks against the system, printing the results to the
-    console and also saving them to diagnostic.log
+    Performs a series of checks against the system and writes the results to
+    the logging system.
     """
+    logger = logging.getLogger(__name__)
 
-    def __init__(self):
-        self._logger = logging.getLogger(__name__)
+    # Set loglevel of this module least to info
+    loglvl = logger.getEffectiveLevel()
+    if loglvl == logging.NOTSET or loglvl > logging.INFO:
+        logger.setLevel(logging.INFO)
 
-    def run(self):
-        # Set loglevel of this module least to info
-        loglvl = self._logger.getEffectiveLevel()
-        if loglvl == logging.NOTSET or loglvl > logging.INFO:
-            self._logger.setLevel(logging.INFO)
+    logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
+    logger.info("Git revision: %r", get_git_revision())
 
-        self._logger.info("Starting jasper diagnostic at %s",
-                          time.strftime("%c"))
-        self._logger.info("Git revision: %r", get_git_revision())
+    failed_checks = 0
 
-        failed_checks = 0
+    if not check_network_connection():
+        failed_checks += 1
 
-        if not check_network_connection():
+    for executable in ['phonetisaurus-g2p', 'espeak', 'say']:
+        if not check_executable(executable):
+            logger.warning("Executable '%s' is missing in $PATH", executable)
             failed_checks += 1
 
-        for executable in ['phonetisaurus-g2p', 'espeak', 'say']:
-            if not check_executable(executable):
-                self._logger.warning("Executable '%s' is missing in $PATH",
-                                     executable)
-                failed_checks += 1
-
-        for req in get_pip_requirements():
-            self._logger.debug("Checking PIP package '%s'...", req.name)
-            if not req.check_if_exists():
-                self._logger.warning("PIP package '%s' is missing", req.name)
-                failed_checks += 1
-            else:
-                self._logger.debug("PIP package '%s' found", req.name)
-
-        for fname in [os.path.join(jasperpath.APP_PATH, os.pardir,
-                                   "phonetisaurus", "g014b2b.fst")]:
-            self._logger.debug("Checking file '%s'...", fname)
-            if not os.access(fname, os.R_OK):
-                self._logger.warning("File '%s' is missing", fname)
-                failed_checks += 1
-            else:
-                self._logger.debug("File '%s' found", fname)
-
-        if not failed_checks:
-            logger.info("All checks passed")
+    for req in get_pip_requirements():
+        logger.debug("Checking PIP package '%s'...", req.name)
+        if not req.check_if_exists():
+            logger.warning("PIP package '%s' is missing", req.name)
+            failed_checks += 1
         else:
-            logger.info("%d checks failed" % failed_checks)
+            logger.debug("PIP package '%s' found", req.name)
 
-        return failed_checks
+    for fname in [os.path.join(jasperpath.APP_PATH, os.pardir, "phonetisaurus",
+                               "g014b2b.fst")]:
+        logger.debug("Checking file '%s'...", fname)
+        if not os.access(fname, os.R_OK):
+            logger.warning("File '%s' is missing", fname)
+            failed_checks += 1
+        else:
+            logger.debug("File '%s' found", fname)
+
+    if not failed_checks:
+        logger.info("All checks passed")
+    else:
+        logger.info("%d checks failed" % failed_checks)
+
+    return failed_checks
 
 
 if __name__ == '__main__':
@@ -148,4 +142,4 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     if '--debug' in sys.argv:
         logger.setLevel(logging.DEBUG)
-    DiagnosticRunner().run()
+    run()
