@@ -29,6 +29,10 @@ class Mic:
         self.speaker = speaker
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
+        self._audio = pyaudio.PyAudio()
+
+    def __del__(self):
+        self._audio.terminate()
 
     def getScore(self, data):
         rms = audioop.rms(data, 2)
@@ -46,8 +50,7 @@ class Mic:
         THRESHOLD_TIME = 1
 
         # prepare recording stream
-        audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
+        stream = self._audio.open(format=pyaudio.paInt16,
                             channels=1,
                             rate=RATE,
                             input=True,
@@ -72,7 +75,6 @@ class Mic:
 
         stream.stop_stream()
         stream.close()
-        audio.terminate()
 
         # this will be the benchmark to cause a disturbance over!
         THRESHOLD = average * THRESHOLD_MULTIPLIER
@@ -96,8 +98,7 @@ class Mic:
         LISTEN_TIME = 10
 
         # prepare recording stream
-        audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
+        stream = self._audio.open(format=pyaudio.paInt16,
                             channels=1,
                             rate=RATE,
                             input=True,
@@ -145,7 +146,6 @@ class Mic:
             print "No disturbance detected"
             stream.stop_stream()
             stream.close()
-            audio.terminate()
             return (None, None)
 
         # cutoff any recording before this disturbance was detected
@@ -161,12 +161,11 @@ class Mic:
         # save the audio data
         stream.stop_stream()
         stream.close()
-        audio.terminate()
         
         with tempfile.NamedTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(1)
-            wav_fp.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wav_fp.setframerate(RATE)
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
@@ -208,8 +207,7 @@ class Mic:
         self.speaker.play(jasperpath.data('audio', 'beep_hi.wav'))
 
         # prepare recording stream
-        audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,
+        stream = self._audio.open(format=pyaudio.paInt16,
                             channels=1,
                             rate=RATE,
                             input=True,
@@ -239,12 +237,11 @@ class Mic:
         # save the audio data
         stream.stop_stream()
         stream.close()
-        audio.terminate()
 
         with tempfile.SpooledTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(1)
-            wav_fp.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
             wav_fp.setframerate(RATE)
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
