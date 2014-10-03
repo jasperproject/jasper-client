@@ -35,9 +35,7 @@ class TestVocabCompiler(unittest.TestCase):
         dictionary = "temp_dictionary.dic"
         languagemodel = "temp_languagemodel.lm"
 
-        words = [
-            'MUSIC', 'SPOTIFY'
-        ]
+        words = []
 
         mock_module = Mock()
         mock_module.WORDS = [

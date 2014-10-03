@@ -35,8 +35,6 @@ def compile(sentences, dictionary, languagemodel):
     for module in modules:
         words.extend(module.WORDS)
 
-    # for spotify module
-    words.extend(["MUSIC", "SPOTIFY"])
     words = list(set(words))
 
     # create the dictionary
