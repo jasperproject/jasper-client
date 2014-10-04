@@ -1,8 +1,13 @@
-language: python
-
 env:
     - ARCH=x86
-
-script:
+language: python
+python:
+    - "2.7"
+install: 
     - "pip install -r client/requirements.txt"
-    - "cd client && python test.py --light"
+    - "pip install python-coveralls"
+    - "pip install coverage"
+script:
+    - "coverage run client/test.py --light"
+after_success:
+    - "coveralls"
