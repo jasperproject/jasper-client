@@ -15,3 +15,4 @@ client/profile.yml
 build/*
 server/dump.rdb
 other/*
+.coverage
