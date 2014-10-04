@@ -1,18 +1,13 @@
 env:
     - ARCH=x86
-
 language: python
-
 python:
-    - 2.7
-
+    - "2.7"
 install: 
-    - pip install -r client/requirements.txt
-    - pip install python-coveralls
-    - pip install coverage
-
+    - "pip install -r client/requirements.txt"
+    - "pip install python-coveralls"
+    - "pip install coverage"
 script:
-    - coverage run client/test.py --light
-
+    - "coverage run client/test.py --light"
 after_success:
-    - coveralls
+    - "coveralls"
