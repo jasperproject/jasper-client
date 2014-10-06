@@ -7,6 +7,9 @@ install:
     - "pip install -r client/requirements.txt"
     - "pip install python-coveralls"
     - "pip install coverage"
+    - "pip install flake8"
+before_script:
+    - flake8 jasper.py client
 script:
     - "coverage run client/test.py --light"
 after_success:
