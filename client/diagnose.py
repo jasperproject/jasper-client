@@ -8,10 +8,10 @@ import subprocess
 import logging
 import sys
 from distutils.spawn import find_executable
-from pip.req import parse_requirements
 import pip.util
 
 logger = logging.getLogger(__name__)
+
 
 class Diagnostics:
 
@@ -39,7 +39,8 @@ class Diagnostics:
 
     @classmethod
     def check_phonetisaurus_dictionary_file(cls):
-        return os.path.isfile(os.path.join(jasperpath.APP_PATH, "..", "phonetisaurus/g014b2b.fst"))
+        return os.path.isfile(os.path.join(jasperpath.APP_PATH, "..",
+                                           "phonetisaurus/g014b2b.fst"))
 
     @classmethod
     def check_phonetisaurus_program(cls):
@@ -60,10 +61,13 @@ class Diagnostics:
     @classmethod
     def check_all_pip_requirements_installed(cls):
         distributions = pip.util.get_installed_distributions()
-        requirements_lines = [line.strip() for line in open('requirements.txt').readlines()]
-        requirements = [ name.split('==')[0] for name in list(filter(None, requirements_lines))]
-        installed_packages = [ pkg.project_name for pkg in list(distributions)]
-        missing_packages = [ pkg for pkg in requirements if pkg not in installed_packages ]
+        requirements_lines = [line.strip() for line in
+                              open('requirements.txt').readlines()]
+        requirements = [name.split('==')[0] for name in
+                        list(filter(None, requirements_lines))]
+        installed_packages = [pkg.project_name for pkg in list(distributions)]
+        missing_packages = [pkg for pkg in requirements
+                            if pkg not in installed_packages]
         if missing_packages:
             logger.info("Missing packages: "+', '.join(missing_packages))
             return False
@@ -102,9 +106,11 @@ class DiagnosticRunner:
 
     def select_methods(self, prefix):
         def is_match(method_name):
-            return callable(getattr(self.diagnostics, method_name)) and re.match(r"\A" + prefix + "_", method_name)
+            return (callable(getattr(self.diagnostics, method_name)) and
+                    re.match(r"\A" + prefix + "_", method_name))
 
-        return [method_name for method_name in dir(self.diagnostics) if is_match(method_name)]
+        return [method_name for method_name in dir(self.diagnostics)
+                if is_match(method_name)]
 
     def initialize_log(self):
         logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
@@ -131,5 +137,3 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     DiagnosticRunner(Diagnostics).run()
-
-

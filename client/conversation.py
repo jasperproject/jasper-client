@@ -3,6 +3,7 @@ import logging
 from notifier import Notifier
 from brain import Brain
 
+
 class Conversation(object):
 
     def __init__(self, persona, mic, profile):
@@ -14,27 +15,34 @@ class Conversation(object):
         self.notifier = Notifier(profile)
 
     def handleForever(self):
-        """Delegates user input to the handling function when activated."""
-        self._logger.info("Starting to handle conversation with keyword '%s'.", self.persona)
+        """
+        Delegates user input to the handling function when activated.
+        """
+        self._logger.info("Starting to handle conversation with keyword '%s'.",
+                          self.persona)
         while True:
             # Print notifications until empty
             notifications = self.notifier.getAllNotifications()
             for notif in notifications:
                 self._logger.info("Received notification: '%s'", str(notif))
 
-            self._logger.debug("Started listening for keyword '%s'", self.persona)
+            self._logger.debug("Started listening for keyword '%s'",
+                               self.persona)
             threshold, transcribed = self.mic.passiveListen(self.persona)
-            self._logger.debug("Stopped listening for keyword '%s'", self.persona)
+            self._logger.debug("Stopped listening for keyword '%s'",
+                               self.persona)
 
             if not transcribed or not threshold:
                 self._logger.info("Nothing has been said or transcribed.")
                 continue
             self._logger.info("Keyword '%s' has been said!", self.persona)
 
-            self._logger.debug("Started to listen actively with threshold: %r", threshold)
+            self._logger.debug("Started to listen actively with threshold: %r",
+                               threshold)
             input = self.mic.activeListenToAllOptions(threshold)
-            self._logger.debug("Stopped to listen actively with threshold: %r", threshold)
-            
+            self._logger.debug("Stopped to listen actively with threshold: %r",
+                               threshold)
+
             if input:
                 self.brain.query(input)
             else:

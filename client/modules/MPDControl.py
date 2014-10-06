@@ -11,14 +11,16 @@ from mic import Mic
 # Standard module stuff
 WORDS = ["MUSIC", "SPOTIFY"]
 
+
 def handle(text, mic, profile):
     """
-        Responds to user-input, typically speech text, by telling a joke.
+    Responds to user-input, typically speech text, by telling a joke.
 
-        Arguments:
+    Arguments:
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+        profile -- contains information related to the user (e.g., phone
+                   number)
     """
     logger = logging.getLogger(__name__)
 
@@ -34,7 +36,8 @@ def handle(text, mic, profile):
         mpdwrapper = MPDWrapper(**kwargs)
     except:
         logger.error("Couldn't connect to MPD server", exc_info=True)
-        mic.say("I'm sorry. It seems that Spotify is not enabled. Please read the documentation to learn how to configure Spotify.")
+        mic.say("I'm sorry. It seems that Spotify is not enabled. Please " +
+                "read the documentation to learn how to configure Spotify.")
         return
 
     mic.say("Please give me a moment, I'm loading your Spotify playlists.")
@@ -49,6 +52,7 @@ def handle(text, mic, profile):
 
     return
 
+
 def isValid(text):
     """
         Returns True if the input is related to jokes/humor.
@@ -57,6 +61,7 @@ def isValid(text):
         text -- user-input, typically transcribed speech
     """
     return any(word in text.upper() for word in WORDS)
+
 
 # The interesting part
 class MusicMode(object):
@@ -68,9 +73,9 @@ class MusicMode(object):
         self.music = mpdwrapper
 
         # index spotify playlists into new dictionary and language models
-        original = self.music.get_soup_playlist(
-        ) + ["STOP", "CLOSE", "PLAY", "PAUSE",
-             "NEXT", "PREVIOUS", "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME", "PLAYLIST"]
+        original = ["STOP", "CLOSE", "PLAY", "PAUSE", "NEXT", "PREVIOUS",
+                    "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME",
+                    "PLAYLIST"] + self.music.get_soup_playlist()
         pronounced = g2p.translateWords(original)
         zipped = zip(original, pronounced)
         lines = ["%s %s" % (x, y) for x, y in zipped]
@@ -84,16 +89,17 @@ class MusicMode(object):
             f.close()
 
         # make language model
-        os.system(
-            "text2idngram -vocab sentences_spotify.txt < sentences_spotify.txt -idngram spotify.idngram")
-        os.system(
-            "idngram2lm -idngram spotify.idngram -vocab sentences_spotify.txt -arpa languagemodel_spotify.lm")
+        os.system("text2idngram -vocab sentences_spotify.txt < " +
+                  "sentences_spotify.txt -idngram spotify.idngram")
+        os.system("idngram2lm -idngram spotify.idngram -vocab " +
+                  "sentences_spotify.txt -arpa languagemodel_spotify.lm")
 
         # create a new mic with the new music models
         self.mic = Mic(
             mic.speaker,
             mic.passive_stt_engine,
-            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm", dictd_music="dictionary_spotify.dic")
+            stt.PocketSphinxSTT(lmd_music="languagemodel_spotify.lm",
+                                dictd_music="dictionary_spotify.dic")
         )
 
     def delegateInput(self, input):
@@ -195,6 +201,7 @@ class MusicMode(object):
                 self.mic.say("Pardon?")
                 self.music.play()
 
+
 def reconnect(func, *default_args, **default_kwargs):
     """
         Reconnects before running
@@ -227,6 +234,7 @@ class Song(object):
         self.title = title
         self.artist = artist
         self.album = album
+
 
 class MPDWrapper(object):
     def __init__(self, server="localhost", port=6600):
@@ -329,7 +337,7 @@ class MPDWrapper(object):
 
     def get_soup(self):
         """
-                returns the list of unique words that comprise song and artist titles
+        Returns the list of unique words that comprise song and artist titles
         """
 
         soup = []
@@ -340,17 +348,17 @@ class MPDWrapper(object):
             soup.extend(song_words)
             soup.extend(artist_words)
 
-        title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", "")
-                for x in soup]
+        title_trans = ''.join(chr(c) if chr(c).isupper() or chr(c).islower()
+                              else '_' for c in range(256))
+        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(
+                title_trans).replace("_", "") for x in soup]
         soup = [x for x in soup if x != ""]
 
         return list(set(soup))
 
     def get_soup_playlist(self):
         """
-                returns the list of unique words that comprise playlist names
+        Returns the list of unique words that comprise playlist names
         """
 
         soup = []
@@ -358,17 +366,17 @@ class MPDWrapper(object):
         for name in self.playlists:
             soup.extend(name.split(" "))
 
-        title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", "")
-                for x in soup]
+        title_trans = ''.join(chr(c) if chr(c).isupper() or chr(c).islower()
+                              else '_' for c in range(256))
+        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(
+                title_trans).replace("_", "") for x in soup]
         soup = [x for x in soup if x != ""]
 
         return list(set(soup))
 
     def get_soup_separated(self):
         """
-                returns the list of PHRASES that comprise song and artist titles
+        Returns the list of PHRASES that comprise song and artist titles
         """
 
         title_soup = [song.title for song in self.songs]
@@ -376,23 +384,26 @@ class MPDWrapper(object):
 
         soup = list(set(title_soup + artist_soup))
 
-        title_trans = ''.join(
-            chr(c) if chr(c).isupper() or chr(c).islower() else '_' for c in range(256))
-        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(title_trans).replace("_", " ")
-                for x in soup]
+        title_trans = ''.join(chr(c) if chr(c).isupper() or chr(c).islower()
+                              else '_' for c in range(256))
+        soup = [x.decode('utf-8').encode("ascii", "ignore").upper().translate(
+                title_trans).replace("_", " ") for x in soup]
         soup = [re.sub(' +', ' ', x) for x in soup if x != ""]
 
         return soup
 
     def fuzzy_songs(self, query):
         """
-                Returns songs matching a query best as possible on either artist field, etc
+        Returns songs matching a query best as possible on either artist
+        field, etc
         """
 
         query = query.upper()
 
-        matched_song_titles = difflib.get_close_matches(query, self.song_titles)
-        matched_song_artists = difflib.get_close_matches(query, self.song_artists)
+        matched_song_titles = difflib.get_close_matches(query,
+                                                        self.song_titles)
+        matched_song_artists = difflib.get_close_matches(query,
+                                                         self.song_artists)
 
         # if query is beautifully matched, then forget about everything else
         strict_priority_title = [x for x in matched_song_titles if x == query]

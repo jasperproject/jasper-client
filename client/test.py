@@ -6,7 +6,6 @@ import unittest
 import logging
 import argparse
 from mock import patch, Mock
-from urllib2 import URLError, urlopen
 
 import test_mic
 import vocabcompiler
@@ -23,10 +22,12 @@ DEFAULT_PROFILE = {
     'phone_number': '012344321'
 }
 
+
 class UnorderedList(list):
 
     def __eq__(self, other):
         return sorted(self) == sorted(other)
+
 
 class TestVocabCompiler(unittest.TestCase):
 
@@ -46,13 +47,16 @@ class TestVocabCompiler(unittest.TestCase):
 
         with patch.object(g2p, 'translateWords') as translateWords:
             with patch.object(vocabcompiler, 'text2lm') as text2lm:
-                with patch.object(brain.Brain, 'get_modules', classmethod(lambda cls: [mock_module])) as modules:
+                with patch.object(brain.Brain, 'get_modules',
+                                  classmethod(lambda cls: [mock_module])):
                     vocabcompiler.compile(sentences, dictionary, languagemodel)
 
-                    translateWords.assert_called_once_with(UnorderedList(words))
+                    translateWords.assert_called_once_with(
+                        UnorderedList(words))
                     self.assertTrue(text2lm.called)
         os.remove(sentences)
         os.remove(dictionary)
+
 
 class TestMic(unittest.TestCase):
 
@@ -65,7 +69,8 @@ class TestMic(unittest.TestCase):
 
     def testTranscribeJasper(self):
         """Does Jasper recognize his name (i.e., passive listen)?"""
-        transcription = self.stt.transcribe(self.jasper_clip, PERSONA_ONLY=True)
+        transcription = self.stt.transcribe(self.jasper_clip,
+                                            PERSONA_ONLY=True)
         self.assertTrue("JASPER" in transcription)
 
     def testTranscribe(self):
@@ -132,7 +137,7 @@ class TestModules(unittest.TestCase):
         inputs = ["Who's there?", "Random response"]
         outputs = self.runConversation(query, inputs, Joke)
         self.assertEqual(len(outputs), 3)
-        allJokes = open(jasperpath.data('text','JOKES.txt'), 'r').read()
+        allJokes = open(jasperpath.data('text', 'JOKES.txt'), 'r').read()
         self.assertTrue(outputs[2] in allJokes)
 
     def testTime(self):
@@ -142,10 +147,11 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Time)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(),
+                     "No internet connection")
     def testGmail(self):
         key = 'gmail_password'
-        if not key in self.profile or not self.profile[key]:
+        if key not in self.profile or not self.profile[key]:
             return
 
         from modules import Gmail
@@ -154,7 +160,8 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Gmail)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(),
+                     "No internet connection")
     def testHN(self):
         from modules import HN
 
@@ -166,7 +173,8 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, HN)
         self.assertTrue("front-page articles" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(),
+                     "No internet connection")
     def testNews(self):
         from modules import News
 
@@ -178,7 +186,8 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, News)
         self.assertTrue("top headlines" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(), "No internet connection")
+    @unittest.skipIf(not Diagnostics.check_network_connection(),
+                     "No internet connection")
     def testWeather(self):
         from modules import Weather
 
@@ -189,11 +198,13 @@ class TestModules(unittest.TestCase):
             "can't see that far ahead" in outputs[0]
             or "Tomorrow" in outputs[0])
 
+
 class TestTTS(unittest.TestCase):
     def testTTS(self):
         tts_engine = tts.get_engine_by_slug('dummy-tts')
         tts_instance = tts_engine()
         tts_instance.say('This is a test.')
+
 
 class TestBrain(unittest.TestCase):
 
@@ -235,7 +246,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Test suite for the Jasper client code.')
     parser.add_argument('--light', action='store_true',
-                        help='runs a subset of the tests (only requires Python dependencies)')
+                        help='runs a subset of the tests (only requires ' +
+                             'Python dependencies)')
     parser.add_argument('--debug', action='store_true',
                         help='show debug messages')
     args = parser.parse_args()

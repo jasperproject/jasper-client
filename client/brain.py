@@ -1,9 +1,8 @@
 # -*- coding: utf-8-*-
 import logging
-import os
 import pkgutil
-import importlib
 import jasperpath
+
 
 class Brain(object):
 
@@ -16,7 +15,8 @@ class Brain(object):
 
         Arguments:
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+        profile -- contains information related to the user (e.g., phone
+                   number)
         """
 
         self.mic = mic
@@ -33,22 +33,27 @@ class Brain(object):
         """
 
         logger = logging.getLogger(__name__)
-        module_locations = [jasperpath.PLUGIN_PATH]
-        logger.debug("Looking for modules in: %s", ', '.join(["'%s'" % location for location in module_locations]))
+        locations = [jasperpath.PLUGIN_PATH]
+        logger.debug("Looking for modules in: %s",
+                     ', '.join(["'%s'" % location for location in locations]))
         modules = []
-        for finder, name, ispkg in pkgutil.walk_packages(module_locations):
+        for finder, name, ispkg in pkgutil.walk_packages(locations):
             try:
                 loader = finder.find_module(name)
                 mod = loader.load_module(name)
             except:
-                logger.warning("Skipped module '%s' due to an error.", name, exc_info=True)
+                logger.warning("Skipped module '%s' due to an error.", name,
+                               exc_info=True)
             else:
                 if hasattr(mod, 'WORDS'):
-                    logger.debug("Found module '%s' with words: %r", name, mod.WORDS)
+                    logger.debug("Found module '%s' with words: %r", name,
+                                 mod.WORDS)
                     modules.append(mod)
                 else:
-                    logger.warning("Skipped module '%s' because it misses the WORDS constant.", name)
-        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY') else 0, reverse=True)
+                    logger.warning("Skipped module '%s' because it misses " +
+                                   "the WORDS constant.", name)
+        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY')
+                     else 0, reverse=True)
         return modules
 
     def query(self, texts):
@@ -62,14 +67,20 @@ class Brain(object):
         for module in self.modules:
             for text in texts:
                 if module.isValid(text):
-                    self._logger.debug("'%s' is a valid phrase for module '%s'", text, module.__name__)
+                    self._logger.debug("'%s' is a valid phrase for module " +
+                                       "'%s'", text, module.__name__)
                     try:
                         module.handle(text, self.mic, self.profile)
                     except:
-                        self._logger.error('Failed to execute module', exc_info=True)
-                        self.mic.say("I'm sorry. I had some trouble with that operation. Please try again later.")
+                        self._logger.error('Failed to execute module',
+                                           exc_info=True)
+                        self.mic.say("I'm sorry. I had some trouble with " +
+                                     "that operation. Please try again later.")
                     else:
-                        self._logger.debug("Handling of phrase '%s' by module '%s' completed", text, module.__name__)
+                        self._logger.debug("Handling of phrase '%s' by " +
+                                           "module '%s' completed", text,
+                                           module.__name__)
                     finally:
                         return
-        self._logger.debug("No module was able to handle any of these phrases: %r", texts)
+        self._logger.debug("No module was able to handle any of these " +
+                           "phrases: %r", texts)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8-*-
 """
-    Iterates over all the WORDS variables in the modules and creates a dictionary for the client.
+Iterates over all the WORDS variables in the modules and creates a
+dictionary for the client.
 """
 
 import os
@@ -11,8 +12,8 @@ from brain import Brain
 def text2lm(in_filename, out_filename):
     """Wrapper around the language model compilation tools"""
     def text2idngram(in_filename, out_filename):
-        cmd = "text2idngram -vocab %s < %s -idngram temp.idngram" % (out_filename,
-                                                                     in_filename)
+        cmd = "text2idngram -vocab %s < %s -idngram temp.idngram" % (
+            out_filename, in_filename)
         os.system(cmd)
 
     def idngram2lm(in_filename, out_filename):

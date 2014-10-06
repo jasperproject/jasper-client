@@ -3,7 +3,6 @@ import smtplib
 from email.MIMEText import MIMEText
 import urllib2
 import re
-import requests
 from pytz import timezone
 
 
@@ -31,15 +30,18 @@ def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
 
 def emailUser(profile, SUBJECT="", BODY=""):
     """
-        Sends an email.
+    sends an email.
 
-        Arguments:
-        profile -- contains information related to the user (e.g., email address)
+    Arguments:
+        profile -- contains information related to the user (e.g., email
+                   address)
         SUBJECT -- subject line of the email
         BODY -- body text of the email
     """
     def generateSMSEmail(profile):
-        """Generates an email from a user's phone number based on their carrier."""
+        """
+        Generates an email from a user's phone number based on their carrier.
+        """
         if profile['carrier'] is None or not profile['phone_number']:
             return None
 
@@ -81,10 +83,11 @@ def emailUser(profile, SUBJECT="", BODY=""):
 
 def getTimezone(profile):
     """
-        Returns the pytz timezone for a given profile.
+    Returns the pytz timezone for a given profile.
 
-        Arguments:
-        profile -- contains information related to the user (e.g., email address)
+    Arguments:
+        profile -- contains information related to the user (e.g., email
+                   address)
     """
     try:
         return timezone(profile['timezone'])
@@ -94,9 +97,9 @@ def getTimezone(profile):
 
 def generateTinyURL(URL):
     """
-        Generates a compressed URL.
+    Generates a compressed URL.
 
-        Arguments:
+    Arguments:
         URL -- the original URL to-be compressed
     """
     target = "http://tinyurl.com/api-create.php?url=" + URL
@@ -106,12 +109,13 @@ def generateTinyURL(URL):
 
 def isNegative(phrase):
     """
-        Returns True if the input phrase has a negative sentiment.
+    Returns True if the input phrase has a negative sentiment.
 
-        Arguments:
+    Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return bool(re.search(r'\b(no(t)?|don\'t|stop|end)\b', phrase, re.IGNORECASE))
+    return bool(re.search(r'\b(no(t)?|don\'t|stop|end)\b', phrase,
+                          re.IGNORECASE))
 
 
 def isPositive(phrase):
