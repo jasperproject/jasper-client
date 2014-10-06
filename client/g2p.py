@@ -67,8 +67,3 @@ def translateFile(input_filename, output_filename=None):
         return None
 
     return out
-
-if __name__ == "__main__":
-
-    translateFile(PHONETISAURUS_PATH + "/phonetisaurus/sentences.txt",
-                  PHONETISAURUS_PATH + "/phonetisaurus/dictionary.dic")
