@@ -323,7 +323,7 @@ class PocketsphinxVocabulary(AbstractVocabulary):
                         line = "%s\t%s\n" % (word, pronounciation)
                     else:
                         line = "%s(%d)\t%s\n" % (word, i, pronounciation)
-                    f.write(line)                
+                    f.write(line)
 
 
 def get_phrases_from_module(module):

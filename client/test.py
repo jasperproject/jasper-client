@@ -86,7 +86,8 @@ class TestMic(unittest.TestCase):
 class TestG2P(unittest.TestCase):
 
     def setUp(self):
-        self.g2pconverter = g2p.PhonetisaurusG2P(**g2p.PhonetisaurusG2P.get_config())
+        self.g2pconverter = g2p.PhonetisaurusG2P(
+            **g2p.PhonetisaurusG2P.get_config())
         self.words = ['GOOD', 'BAD', 'UGLY']
 
     def testTranslateWord(self):
