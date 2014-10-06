@@ -75,7 +75,7 @@ class TestMic(unittest.TestCase):
         with open(self.jasper_clip, mode="rb") as f:
             transcription = self.stt.transcribe(f,
                                                 mode=TranscriptionMode.KEYWORD)
-        self.assertTrue("JASPER" in transcription)
+        self.assertIn("JASPER", transcription)
 
     def testTranscribe(self):
         """
@@ -83,7 +83,7 @@ class TestMic(unittest.TestCase):
         """
         with open(self.time_clip, mode="rb") as f:
             transcription = self.stt.transcribe(f)
-        self.assertTrue("TIME" in transcription)
+        self.assertIn("TIME", transcription)
 
 
 class TestG2P(unittest.TestCase):
