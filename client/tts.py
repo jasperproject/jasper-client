@@ -10,7 +10,6 @@ Speaker methods:
 import os
 import platform
 import re
-import sys
 import tempfile
 import subprocess
 import pipes
@@ -19,7 +18,6 @@ import wave
 from abc import ABCMeta, abstractmethod
 
 import argparse
-import yaml
 try:
     import mad
     import gtts
