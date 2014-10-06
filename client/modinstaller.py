@@ -25,29 +25,17 @@ class ModuleInstallationError(Exception):
 
 
 def install(module, install_location, install_dependencies):
-    if _module_exists(module):
-        temp_path = _get_temp_module_folder(module)
-        try:
-            _check_installation_path(module, install_location)
-            _download_module_files(temp_path, module)
-            if install_dependencies:
-                _install_requirements(temp_path)
-            else:
-                _list_unmet_requirements(module, temp_path)
-            _copy_module_directory(temp_path, module, install_location)
-        finally:
-            shutil.rmtree(temp_path)
-    else:
-        raise ModuleInstallationError("Module not found", module)
-
-
-def _module_exists(module):
+    temp_path = _get_temp_module_folder(module)
     try:
-        requests.get(_module_url(module)).raise_for_status()
-    except requests.exceptions.HTTPError:
-        return False
-    else:
-        return True
+        _check_installation_path(module, install_location)
+        _download_module_files(temp_path, module)
+        if install_dependencies:
+            _install_requirements(temp_path)
+        else:
+            _list_unmet_requirements(module, temp_path)
+        _copy_module_directory(temp_path, module, install_location)
+    finally:
+        _remove_temp_directory(temp_path)
 
 
 def _module_url(module):
@@ -67,7 +55,13 @@ def _get_module_folder(module, install_location):
 
 
 def _get_module_metadata(module):
-    return requests.get(_module_url(module)).json()
+    try:
+        response = requests.get(_module_url(module))
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        raise ModuleInstallationError("The module could not be found", module)
+    else:
+        return response.json()
 
 
 def _get_temp_module_folder(module):
@@ -128,6 +122,10 @@ def _list_unmet_requirements(module, module_path):
             print("PIP requirements missing for module %s:" % module)
             for req in missing_reqs:
                 print(" - %s" % req.name)
+
+
+def _remove_temp_directory(temp_path):
+    shutil.rmtree(temp_path)
 
 
 if __name__ == '__main__':
