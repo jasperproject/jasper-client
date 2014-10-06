@@ -107,6 +107,14 @@ class TestG2P(unittest.TestCase):
         self.assertEqual(g2p.translateWords(words), translations)
 
 
+class TestDiagnose(unittest.TestCase):
+    def testPythonImportCheck(self):
+        # This a python stdlib module that definitely exists
+        self.assertTrue(diagnose.check_python_import("os"))
+        # I sincerly hope nobody will ever create a package with that name
+        self.assertFalse(diagnose.check_python_import("nonexistant_package"))
+
+
 class TestModules(unittest.TestCase):
 
     def setUp(self):
@@ -267,7 +275,8 @@ if __name__ == '__main__':
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
 
-    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS]
+    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS,
+                  TestDiagnose]
     if not args.light:
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
