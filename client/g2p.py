@@ -43,28 +43,27 @@ class PhonetisaurusG2P(object):
             cmd.extend(['--nbest=%d' % nbest])
 
         cmd = [str(x) for x in cmd]
-        with tempfile.SpooledTemporaryFile() as err_f:
-            try:
-                # FIXME: We can't just use subprocess.call and redirect stdout
-                # and stderr, because it looks like Phonetisaurus can't open
-                # an already opened file descriptor a second time. This is why
-                # we have to use this somehow hacky subprocess.Popen approach.
-                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
-                stdoutdata, stderrdata = proc.communicate()
-                returncode = proc.returncode
-                if returncode != 0:
-                    logger.warning("Command '%s' return with exit status %d",
-                                   ' '.join(cmd), returncode)
-            except OSError:
-                logger.error("Error occured while executing command '%s'",
-                             ' '.join(cmd), exc_info=True)
-                stdoutdata, stderrdata = None, None
-            if stderrdata is not None:
-                for line in stderrdata.splitlines():
-                    message = line.strip()
-                    if message:
-                        logger.debug(message)
+        try:
+            # FIXME: We can't just use subprocess.call and redirect stdout
+            # and stderr, because it looks like Phonetisaurus can't open
+            # an already opened file descriptor a second time. This is why
+            # we have to use this somehow hacky subprocess.Popen approach.
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            stdoutdata, stderrdata = proc.communicate()
+            returncode = proc.returncode
+            if returncode != 0:
+                logger.warning("Command '%s' return with exit status %d",
+                               ' '.join(cmd), returncode)
+        except OSError:
+            logger.error("Error occured while executing command '%s'",
+                         ' '.join(cmd), exc_info=True)
+            stdoutdata, stderrdata = None, None
+        if stderrdata is not None:
+            for line in stderrdata.splitlines():
+                message = line.strip()
+                if message:
+                    logger.debug(message)
 
         result = {}
         if stdoutdata is not None:
