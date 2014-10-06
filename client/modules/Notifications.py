@@ -1,6 +1,6 @@
 # -*- coding: utf-8-*-
 import re
-from facebook import *
+import facebook
 
 
 WORDS = ["FACEBOOK", "NOTIFICATION"]
@@ -15,17 +15,19 @@ def handle(text, mic, profile):
         Arguments:
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+        profile -- contains information related to the user (e.g., phone
+                   number)
     """
     oauth_access_token = profile['keys']['FB_TOKEN']
 
-    graph = GraphAPI(oauth_access_token)
+    graph = facebook.GraphAPI(oauth_access_token)
 
     try:
         results = graph.request("me/notifications")
-    except GraphAPIError:
-        mic.say(
-            "I have not been authorized to query your Facebook. If you would like to check your notifications in the future, please visit the Jasper dashboard.")
+    except facebook.GraphAPIError:
+        mic.say("I have not been authorized to query your Facebook. If you " +
+                "would like to check your notifications in the future, " +
+                "please visit the Jasper dashboard.")
         return
     except:
         mic.say(

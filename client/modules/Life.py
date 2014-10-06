@@ -13,7 +13,8 @@ def handle(text, mic, profile):
         Arguments:
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
+        profile -- contains information related to the user (e.g., phone
+                   number)
     """
     messages = ["It's 42, you idiot.",
                 "It's 42. How many times do I have to tell you?"]

@@ -3,7 +3,6 @@ import imaplib
 import email
 import re
 from dateutil import parser
-from app_utils import *
 
 WORDS = ["EMAIL", "INBOX"]
 
@@ -51,7 +50,8 @@ def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
         Fetches a list of unread email objects from a user's Gmail inbox.
 
         Arguments:
-        profile -- contains information related to the user (e.g., Gmail address)
+        profile -- contains information related to the user (e.g., Gmail
+                   address)
         since -- if provided, no emails before this date will be returned
         markRead -- if True, marks all returned emails as read in target inbox
 
@@ -93,7 +93,8 @@ def handle(text, mic, profile):
         Arguments:
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., Gmail address)
+        profile -- contains information related to the user (e.g., Gmail
+                   address)
     """
     try:
         msgs = fetchUnreadEmails(profile, limit=5)

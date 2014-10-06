@@ -3,7 +3,6 @@
     The Mic class handles all interactions with the microphone and speaker.
 """
 
-import os
 import tempfile
 import wave
 import audioop
@@ -11,6 +10,7 @@ import pyaudio
 import alteration
 import jasperpath
 from stt import TranscriptionMode
+
 
 class Mic:
 
@@ -23,7 +23,8 @@ class Mic:
 
         Arguments:
         speaker -- handles platform-independent audio output
-        passive_stt_engine -- performs STT while Jasper is in passive listen mode
+        passive_stt_engine -- performs STT while Jasper is in passive listen
+                              mode
         acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self.speaker = speaker
@@ -51,10 +52,10 @@ class Mic:
 
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
-                            input=True,
-                            frames_per_buffer=CHUNK)
+                                  channels=1,
+                                  rate=RATE,
+                                  input=True,
+                                  frames_per_buffer=CHUNK)
 
         # stores the audio data
         frames = []
@@ -83,8 +84,8 @@ class Mic:
 
     def passiveListen(self, PERSONA):
         """
-        Listens for PERSONA in everyday sound. Times out after LISTEN_TIME, so needs to be
-        restarted.
+        Listens for PERSONA in everyday sound. Times out after LISTEN_TIME, so
+        needs to be restarted.
         """
 
         THRESHOLD_MULTIPLIER = 1.8
@@ -99,10 +100,10 @@ class Mic:
 
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
-                            input=True,
-                            frames_per_buffer=CHUNK)
+                                  channels=1,
+                                  rate=RATE,
+                                  input=True,
+                                  frames_per_buffer=CHUNK)
 
         # stores the audio data
         frames = []
@@ -161,7 +162,7 @@ class Mic:
         # save the audio data
         stream.stop_stream()
         stream.close()
-        
+
         with tempfile.NamedTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(1)
@@ -171,7 +172,8 @@ class Mic:
             wav_fp.close()
             f.seek(0)
             # check if PERSONA was said
-            transcribed = self.passive_stt_engine.transcribe(f, mode=TranscriptionMode.KEYWORD)
+            transcribed = self.passive_stt_engine.transcribe(
+                f, mode=TranscriptionMode.KEYWORD)
 
         if PERSONA in transcribed:
             return (THRESHOLD, PERSONA)
@@ -189,7 +191,8 @@ class Mic:
         if options:
             return options[0]
 
-    def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
+    def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True,
+                                 MUSIC=False):
         """
             Records until a second of silence or times out after 12 seconds
 
@@ -201,20 +204,21 @@ class Mic:
         LISTEN_TIME = 12
 
         # check if no threshold provided
-        if THRESHOLD == None:
+        if THRESHOLD is None:
             THRESHOLD = self.fetchThreshold()
 
         self.speaker.play(jasperpath.data('audio', 'beep_hi.wav'))
 
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,
-                            channels=1,
-                            rate=RATE,
-                            input=True,
-                            frames_per_buffer=CHUNK)
+                                  channels=1,
+                                  rate=RATE,
+                                  input=True,
+                                  frames_per_buffer=CHUNK)
 
         frames = []
-        # increasing the range # results in longer pause after command generation
+        # increasing the range # results in longer pause after command
+        # generation
         lastN = [THRESHOLD * 1.2 for i in range(30)]
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
@@ -246,11 +250,13 @@ class Mic:
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
             f.seek(0)
-            mode = TranscriptionMode.MUSIC if MUSIC else TranscriptionMode.NORMAL
+            mode = (TranscriptionMode.MUSIC if MUSIC
+                    else TranscriptionMode.NORMAL)
             transcribed = self.active_stt_engine.transcribe(f, mode=mode)
         return transcribed
 
-    def say(self, phrase, OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+    def say(self, phrase,
+            OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
         self.speaker.say(phrase)

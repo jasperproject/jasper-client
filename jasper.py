@@ -2,7 +2,6 @@
 # -*- coding: utf-8-*-
 import os
 import sys
-import traceback
 import shutil
 import logging
 
@@ -18,8 +17,10 @@ sys.path.append(jasperpath.LIB_PATH)
 from client.conversation import Conversation
 
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
-parser.add_argument('--local', action='store_true', help='Use text input instead of a real microphone')
-parser.add_argument('--no-network-check', action='store_true', help='Disable the network connection check')
+parser.add_argument('--local', action='store_true',
+                    help='Use text input instead of a real microphone')
+parser.add_argument('--no-network-check', action='store_true',
+                    help='Disable the network connection check')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
 args = parser.parse_args()
 
@@ -28,34 +29,44 @@ if args.local:
 else:
     from client.mic import Mic
 
+
 class Jasper(object):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
-        
+
         # Create config dir if it does not exist yet
         if not os.path.exists(jasperpath.CONFIG_PATH):
             try:
                 os.makedirs(jasperpath.CONFIG_PATH)
             except OSError:
-                self._logger.error("Could not create config dir: '%s'", jasperpath.CONFIG_PATH, exc_info=True)
+                self._logger.error("Could not create config dir: '%s'",
+                                   jasperpath.CONFIG_PATH, exc_info=True)
                 raise
 
         # Check if config dir is writable
         if not os.access(jasperpath.CONFIG_PATH, os.W_OK):
-            self._logger.critical("Config dir %s is not writable. Jasper won't work correctly.")
+            self._logger.critical("Config dir %s is not writable. Jasper " +
+                                  "won't work correctly.",
+                                  jasperpath.CONFIG_PATH)
 
-        # FIXME: For backwards compatibility, move old config file to newly created config dir
+        # FIXME: For backwards compatibility, move old config file to newly
+        #        created config dir
         old_configfile = os.path.join(jasperpath.LIB_PATH, 'profile.yml')
         new_configfile = jasperpath.config('profile.yml')
         if os.path.exists(old_configfile):
             if os.path.exists(new_configfile):
-                self._logger.warning("Deprecated profile file found: '%s'. Please remove it.", old_configfile)
+                self._logger.warning("Deprecated profile file found: '%s'. " +
+                                     "Please remove it.", old_configfile)
             else:
-                self._logger.warning("Deprecated profile file found: '%s'. Trying to copy it to new location '%s'.", old_configfile, new_configfile)
+                self._logger.warning("Deprecated profile file found: '%s'. " +
+                                     "Trying to copy it to new location '%s'.",
+                                     old_configfile, new_configfile)
                 try:
                     shutil.copy2(old_configfile, new_configfile)
                 except shutil.Error:
-                    self._logger.error("Unable to copy config file. Please copy it manually.", exc_info=True)
+                    self._logger.error("Unable to copy config file. " +
+                                       "Please copy it manually.",
+                                       exc_info=True)
                     raise
 
         # Read config
@@ -76,25 +87,31 @@ class Jasper(object):
             stt_engine_type = self.config['stt_engine']
         except KeyError:
             stt_engine_type = "sphinx"
-            self._logger.warning("stt_engine not specified in profile, defaulting to '%s'", stt_engine_type)
+            self._logger.warning("stt_engine not specified in profile, " +
+                                 "defaulting to '%s'", stt_engine_type)
 
         try:
             tts_engine_slug = self.config['tts_engine']
         except KeyError:
             tts_engine_slug = tts.get_default_engine_slug()
-            logger.warning("tts_engine not specified in profile, defaulting to '%s'", tts_engine_slug)
+            logger.warning("tts_engine not specified in profile, defaulting " +
+                           "to '%s'", tts_engine_slug)
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
         # Compile dictionary
-        sentences, dictionary, languagemodel = [jasperpath.config(filename) for filename in ("sentences.txt", "dictionary.dic", "languagemodel.lm")]
+        sentences = jasperpath.config("sentences.txt")
+        dictionary = jasperpath.config("dictionary.dic")
+        languagemodel = jasperpath.config("languagemodel.lm")
         vocabcompiler.compile(sentences, dictionary, languagemodel)
 
         # Initialize Mic
-        self.mic = Mic(tts_engine_class(), stt.PocketSphinxSTT(), stt.newSTTEngine(stt_engine_type, api_key=api_key))
+        self.mic = Mic(tts_engine_class(), stt.PocketSphinxSTT(),
+                       stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
     def run(self):
         if 'first_name' in self.config:
-            salutation = "How can I be of service, %s?" % self.config["first_name"]
+            salutation = ("How can I be of service, %s?"
+                          % self.config["first_name"])
         else:
             salutation = "How can I be of service?"
         self.mic.say(salutation)
@@ -111,17 +128,19 @@ if __name__ == "__main__":
 
     logging.basicConfig()
     logger = logging.getLogger()
-    
+
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    if not args.no_network_check and not Diagnostics.check_network_connection():
-        logger.warning("Network not connected. This may prevent Jasper from running properly.")
+    if (not args.no_network_check and
+       not Diagnostics.check_network_connection()):
+        logger.warning("Network not connected. This may prevent Jasper from " +
+                       "running properly.")
 
     try:
         app = Jasper()
     except Exception:
         logger.exception("Error occured!", exc_info=True)
         sys.exit(1)
-    
+
     app.run()

@@ -16,11 +16,13 @@ profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
 if os.path.exists(profile_path):
     with open(profile_path, 'r') as f:
         profile = yaml.safe_load(f)
-        if 'pocketsphinx' in profile and 'fst_model' in profile['pocketsphinx']:
+        if ('pocketsphinx' in profile and
+           'fst_model' in profile['pocketsphinx']):
             FST_MODEL = profile['pocketsphinx']['fst_model']
 
 if not FST_MODEL:
-    FST_MODEL = os.path.join(jasperpath.APP_PATH, os.pardir, 'phonetisaurus', 'g014b2b.fst')
+    FST_MODEL = os.path.join(jasperpath.APP_PATH, os.pardir, 'phonetisaurus',
+                             'g014b2b.fst')
 
 
 def parseLine(line):
@@ -52,7 +54,8 @@ def translateWords(words):
 
 def translateFile(input_filename, output_filename=None):
     out = subprocess.check_output(
-        ['phonetisaurus-g2p', '--model=%s' % FST_MODEL, '--input=%s' % input_filename, '--words', '--isfile'])
+        ['phonetisaurus-g2p', '--model=%s' % FST_MODEL,
+         '--input=%s' % input_filename, '--words', '--isfile'])
     out = parseOutput(out)
 
     if output_filename:
@@ -64,8 +67,3 @@ def translateFile(input_filename, output_filename=None):
         return None
 
     return out
-
-if __name__ == "__main__":
-
-    translateFile(PHONETISAURUS_PATH + "/phonetisaurus/sentences.txt",
-                  PHONETISAURUS_PATH + "/phonetisaurus/dictionary.dic")
