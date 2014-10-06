@@ -13,6 +13,7 @@ import g2p
 import brain
 import jasperpath
 import tts
+from stt import TranscriptionMode
 from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
@@ -68,15 +69,21 @@ class TestMic(unittest.TestCase):
         self.stt = PocketSphinxSTT()
 
     def testTranscribeJasper(self):
-        """Does Jasper recognize his name (i.e., passive listen)?"""
-        transcription = self.stt.transcribe(self.jasper_clip,
-                                            PERSONA_ONLY=True)
-        self.assertTrue("JASPER" in transcription)
+        """
+        Does Jasper recognize his name (i.e., passive listen)?
+        """
+        with open(self.jasper_clip, mode="rb") as f:
+            transcription = self.stt.transcribe(f,
+                                                mode=TranscriptionMode.KEYWORD)
+        self.assertIn("JASPER", transcription)
 
     def testTranscribe(self):
-        """Does Jasper recognize 'time' (i.e., active listen)?"""
-        transcription = self.stt.transcribe(self.time_clip)
-        self.assertTrue("TIME" in transcription)
+        """
+        Does Jasper recognize 'time' (i.e., active listen)?
+        """
+        with open(self.time_clip, mode="rb") as f:
+            transcription = self.stt.transcribe(f)
+        self.assertIn("TIME", transcription)
 
 
 class TestG2P(unittest.TestCase):
