@@ -13,8 +13,8 @@ import g2p
 import brain
 import jasperpath
 import tts
+import diagnose
 from stt import TranscriptionMode
-from diagnose import Diagnostics
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
@@ -107,6 +107,14 @@ class TestG2P(unittest.TestCase):
         self.assertEqual(g2p.translateWords(words), translations)
 
 
+class TestDiagnose(unittest.TestCase):
+    def testPythonImportCheck(self):
+        # This a python stdlib module that definitely exists
+        self.assertTrue(diagnose.check_python_import("os"))
+        # I sincerly hope nobody will ever create a package with that name
+        self.assertFalse(diagnose.check_python_import("nonexistant_package"))
+
+
 class TestModules(unittest.TestCase):
 
     def setUp(self):
@@ -154,7 +162,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Time)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testGmail(self):
         key = 'gmail_password'
@@ -167,7 +175,7 @@ class TestModules(unittest.TestCase):
         inputs = []
         self.runConversation(query, inputs, Gmail)
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testHN(self):
         from modules import HN
@@ -180,7 +188,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, HN)
         self.assertTrue("front-page articles" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testNews(self):
         from modules import News
@@ -193,7 +201,7 @@ class TestModules(unittest.TestCase):
         outputs = self.runConversation(query, inputs, News)
         self.assertTrue("top headlines" in outputs[1])
 
-    @unittest.skipIf(not Diagnostics.check_network_connection(),
+    @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def testWeather(self):
         from modules import Weather
@@ -267,7 +275,8 @@ if __name__ == '__main__':
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
 
-    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS]
+    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS,
+                  TestDiagnose]
     if not args.light:
         test_cases.append(TestG2P)
         test_cases.append(TestMic)

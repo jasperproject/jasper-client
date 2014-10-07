@@ -5,12 +5,12 @@ import traceback
 import wave
 import json
 import tempfile
-import pkgutil
 import logging
 from abc import ABCMeta, abstractmethod
 import requests
 import yaml
 import jasperpath
+import diagnose
 
 """
 The default Speech-to-Text implementation which relies on PocketSphinx.
@@ -171,7 +171,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
     @classmethod
     def is_available(cls):
-        return (pkgutil.get_loader('pocketsphinx') is not None)
+        return diagnose.check_python_import('pocketsphinx')
 
 """
 Speech-To-Text implementation which relies on the Google Speech API.
@@ -274,7 +274,7 @@ class GoogleSTT(AbstractSTTEngine):
 
     @classmethod
     def is_available(cls):
-        return True
+        return diagnose.check_network_connection()
 
 """
 Returns a Speech-To-Text engine.

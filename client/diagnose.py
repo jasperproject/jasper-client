@@ -1,139 +1,195 @@
-#!/usr/bin/env python2
-import time
-import re
-import socket
+# -*- coding: utf-8-*-
 import os
-import jasperpath
-import subprocess
-import logging
 import sys
-from distutils.spawn import find_executable
+import time
+import socket
+import subprocess
+import pkgutil
+import logging
+if sys.version_info < (3, 3):
+    from distutils.spawn import find_executable
+else:
+    from shutil import which as find_executable
+
+import pip.req
 import pip.util
+import jasperpath
 
 logger = logging.getLogger(__name__)
 
 
-class Diagnostics:
-
+def check_network_connection(server="www.google.com"):
     """
-    Set of diagnostics to be run for determining the health of the
-    host running Jasper
+    Checks if jasper can connect a network server.
 
-    To add new checks, add a boolean returning method with a name that starts
-    with `check_`
+    Arguments:
+        server -- (optional) the server to connect with (Default:
+                  "www.google.com")
+
+    Returns:
+        True or False
     """
-
-    @classmethod
-    def check_network_connection(cls):
-        try:
-            # see if we can resolve the host name -- tells us if there is
-            # a DNS listening
-            host = socket.gethostbyname("www.google.com")
-            # connect to the host -- tells us if the host is actually
-            # reachable
-            socket.create_connection((host, 80), 2)
-        except Exception:
-            return False
-        else:
-            return True
-
-    @classmethod
-    def check_phonetisaurus_dictionary_file(cls):
-        return os.path.isfile(os.path.join(jasperpath.APP_PATH, "..",
-                                           "phonetisaurus/g014b2b.fst"))
-
-    @classmethod
-    def check_phonetisaurus_program(cls):
-        return cls.do_check_program('phonetisaurus-g2p')
-
-    @classmethod
-    def check_espeak_program(cls):
-        return cls.do_check_program('espeak')
-
-    @classmethod
-    def check_say_program(cls):
-        return cls.do_check_program('say')
-
-    @classmethod
-    def do_check_program(cls, program):
-        return find_executable(program) is not None
-
-    @classmethod
-    def check_all_pip_requirements_installed(cls):
-        distributions = pip.util.get_installed_distributions()
-        requirements_lines = [line.strip() for line in
-                              open('requirements.txt').readlines()]
-        requirements = [name.split('==')[0] for name in
-                        list(filter(None, requirements_lines))]
-        installed_packages = [pkg.project_name for pkg in list(distributions)]
-        missing_packages = [pkg for pkg in requirements
-                            if pkg not in installed_packages]
-        if missing_packages:
-            logger.info("Missing packages: "+', '.join(missing_packages))
-            return False
-        else:
-            return True
-
-    @classmethod
-    def info_git_revision(cls):
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    logger = logging.getLogger(__name__)
+    logger.debug("Checking network connection to server '%s'...", server)
+    try:
+        # see if we can resolve the host name -- tells us if there is
+        # a DNS listening
+        host = socket.gethostbyname(server)
+        # connect to the host -- tells us if the host is actually
+        # reachable
+        socket.create_connection((host, 80), 2)
+    except Exception:
+        logger.debug("Network connection not working")
+        return False
+    else:
+        logger.debug("Network connection working")
+        return True
 
 
-class DiagnosticRunner:
-
+def check_executable(executable):
     """
-    Performs a series of checks against the system, printing the results to the
-    console and also saving them to diagnostic.log
+    Checks if an executable exists in $PATH.
+
+    Arguments:
+        executable -- the name of the executable (e.g. "echo")
+
+    Returns:
+        True or False
     """
+    logger = logging.getLogger(__name__)
+    logger.debug("Checking executable '%s'...", executable)
+    executable_path = find_executable(executable)
+    found = executable_path is not None
+    if found:
+        logger.debug("Executable '%s' found: '%s'", executable,
+                     executable_path)
+    else:
+        logger.debug("Executable '%s' not found", executable)
+    return found
 
-    def __init__(self, diagnostics):
-        self.diagnostics = diagnostics
 
-    def run(self):
-        self.initialize_log()
-        self.perform_checks()
+def check_python_import(package_or_module):
+    """
+    Checks if a python package or module is importable.
 
-    def perform_checks(self):
-        self.failed_checks = 0
-        for check in self.select_methods('check'):
-            self.do_check(check)
-        for info in self.select_methods('info'):
-            self.get_info(info)
-        if self.failed_checks == 0:
-            logger.info("All checks passed")
+    Arguments:
+        package_or_module -- the package or module name to check
+
+    Returns:
+        True or False
+    """
+    logger = logging.getLogger(__name__)
+    logger.debug("Checking python import '%s'...", package_or_module)
+    loader = pkgutil.get_loader(package_or_module)
+    found = loader is not None
+    if found:
+        logger.debug("Python %s '%s' found: %r",
+                     "package" if loader.is_package(package_or_module)
+                     else "module", package_or_module, loader.get_filename())
+    else:
+        logger.debug("Python import '%s' not found", package_or_module)
+    return found
+
+
+def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
+                                            'requirements.txt')):
+    """
+    Gets the PIP requirements from a text file. If the files does not exists
+    or is not readable, it returns None
+
+    Arguments:
+        fname -- (optional) the requirement text file (Default:
+                 "client/requirements.txt")
+
+    Returns:
+        A list of pip requirement objects or None
+    """
+    logger = logging.getLogger(__name__)
+    if os.access(fname, os.R_OK):
+        reqs = list(pip.req.parse_requirements(fname))
+        logger.debug("Found %d PIP requirements in file '%s'", len(reqs),
+                     fname)
+        return reqs
+    else:
+        logger.debug("PIP requirements file '%s' not found or not readable",
+                     fname)
+
+
+def get_git_revision():
+    """
+    Gets the current git revision hash as hex string. If the git executable is
+    missing or git is unable to get the revision, None is returned
+
+    Returns:
+        A hex string or None
+    """
+    logger = logging.getLogger(__name__)
+    if not check_executable('git'):
+        logger.warning("'git' command not found, git revision not detectable")
+        return None
+    output = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+    if not output:
+        logger.warning("Couldn't detect git revision (not a git repository?)")
+        return None
+    return output
+
+
+def run():
+    """
+    Performs a series of checks against the system and writes the results to
+    the logging system.
+
+    Returns:
+        The number of failed checks as integer
+    """
+    logger = logging.getLogger(__name__)
+
+    # Set loglevel of this module least to info
+    loglvl = logger.getEffectiveLevel()
+    if loglvl == logging.NOTSET or loglvl > logging.INFO:
+        logger.setLevel(logging.INFO)
+
+    logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
+    logger.info("Git revision: %r", get_git_revision())
+
+    failed_checks = 0
+
+    if not check_network_connection():
+        failed_checks += 1
+
+    for executable in ['phonetisaurus-g2p', 'espeak', 'say']:
+        if not check_executable(executable):
+            logger.warning("Executable '%s' is missing in $PATH", executable)
+            failed_checks += 1
+
+    for req in get_pip_requirements():
+        logger.debug("Checking PIP package '%s'...", req.name)
+        if not req.check_if_exists():
+            logger.warning("PIP package '%s' is missing", req.name)
+            failed_checks += 1
         else:
-            logger.info("%d checks failed" % self.failed_checks)
+            logger.debug("PIP package '%s' found", req.name)
 
-    def select_methods(self, prefix):
-        def is_match(method_name):
-            return (callable(getattr(self.diagnostics, method_name)) and
-                    re.match(r"\A" + prefix + "_", method_name))
-
-        return [method_name for method_name in dir(self.diagnostics)
-                if is_match(method_name)]
-
-    def initialize_log(self):
-        logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
-
-    def get_info(self, info_name):
-        message = info_name.replace("info_", "").replace("_", " ")
-        info_method = getattr(self.diagnostics, info_name)
-        info = info_method()
-        logger.info("%s: %s" % (message, info))
-
-    def do_check(self, check_name):
-        message = check_name.replace("check_", "").replace("_", " ")
-        check = getattr(self.diagnostics, check_name)
-        if check():
-            result = "OK"
+    for fname in [os.path.join(jasperpath.APP_PATH, os.pardir, "phonetisaurus",
+                               "g014b2b.fst")]:
+        logger.debug("Checking file '%s'...", fname)
+        if not os.access(fname, os.R_OK):
+            logger.warning("File '%s' is missing", fname)
+            failed_checks += 1
         else:
-            self.failed_checks += 1
-            result = "FAILED"
+            logger.debug("File '%s' found", fname)
 
-        logger.info("Checking %s... %s" % (message, result))
+    if not failed_checks:
+        logger.info("All checks passed")
+    else:
+        logger.info("%d checks failed" % failed_checks)
+
+    return failed_checks
 
 
 if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-    DiagnosticRunner(Diagnostics).run()
+    logging.basicConfig(stream=sys.stdout)
+    logger = logging.getLogger()
+    if '--debug' in sys.argv:
+        logger.setLevel(logging.DEBUG)
+    run()
