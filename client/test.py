@@ -100,6 +100,43 @@ class TestG2P(unittest.TestCase):
             self.assertIn(word, results)
 
 
+class TestPatchedG2P(TestG2P):
+    class DummyProc(object):
+        def __init__(self, *args, **kwargs):
+            self.returncode = 0
+
+        def communicate(self):
+            return ("GOOD\t9.20477\t<s> G UH D </s>\n" +
+                    "GOOD\t14.4036\t<s> G UW D </s>\n" +
+                    "GOOD\t16.0258\t<s> G UH D IY </s>\n" +
+                    "BAD\t0.7416\t<s> B AE D </s>\n" +
+                    "BAD\t12.5495\t<s> B AA D </s>\n" +
+                    "BAD\t13.6745\t<s> B AH D </s>\n" +
+                    "UGLY\t12.572\t<s> AH G L IY </s>\n" +
+                    "UGLY\t17.9278\t<s> Y UW G L IY </s>\n" +
+                    "UGLY\t18.9617\t<s> AH G L AY </s>\n", "")
+
+    def setUp(self):
+        with patch.object(g2p.PhonetisaurusG2P, 'executable_found',
+                          classmethod(lambda cls: True)):
+            with tempfile.NamedTemporaryFile() as f:
+                conf = g2p.PhonetisaurusG2P.get_config().items()
+                with patch.object(g2p.PhonetisaurusG2P, 'get_config',
+                                  classmethod(lambda cls: dict(
+                                      conf + [('fst_model', f.name)]))):
+                    super(self.__class__, self).setUp()
+
+    def testTranslateWord(self):
+            with patch('subprocess.Popen',
+                       return_value=TestPatchedG2P.DummyProc()):
+                super(self.__class__, self).testTranslateWord()
+
+    def testTranslateWords(self):
+            with patch('subprocess.Popen',
+                       return_value=TestPatchedG2P.DummyProc()):
+                super(self.__class__, self).testTranslateWords()
+
+
 class TestDiagnose(unittest.TestCase):
     def testPythonImportCheck(self):
         # This a python stdlib module that definitely exists
@@ -270,7 +307,9 @@ if __name__ == '__main__':
 
     test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS,
                   TestDiagnose]
-    if not args.light:
+    if args.light:
+        test_cases.append(TestPatchedG2P)
+    else:
         test_cases.append(TestG2P)
         test_cases.append(TestMic)
 
