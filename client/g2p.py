@@ -1,14 +1,11 @@
 # -*- coding: utf-8-*-
 import os
-import sys
 import re
 import subprocess
 import tempfile
-import shutil
 import logging
-if sys.version_info < (3, 3):
-    import distutils.spawn
 
+import diagnose
 import jasperpath
 import yaml
 
@@ -16,16 +13,6 @@ import yaml
 class PhonetisaurusG2P(object):
     PATTERN = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t<s> ' +
                          r'(?P<pronounciation>.*) </s>', re.MULTILINE)
-
-    @classmethod
-    def executable_found(cls):
-        if sys.version_info < (3, 3):
-            cmd_exists = distutils.spawn.find_executable
-        else:
-            cmd_exists = shutil.which
-        # Required binary for this class
-        cmd = 'phonetisaurus-g2p'
-        return cmd_exists(cmd)
 
     @classmethod
     def execute(cls, fst_model, input, is_file=False, nbest=None):
@@ -94,7 +81,7 @@ class PhonetisaurusG2P(object):
         return conf
 
     def __new__(cls, fst_model=None, *args, **kwargs):
-        if not cls.executable_found():
+        if not diagnose.check_executable('phonetisaurus-g2p'):
             raise OSError("Can't find command 'phonetisaurus-g2p'! Please " +
                           "check if Phonetisaurus is installed and in your " +
                           "$PATH.")
