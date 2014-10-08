@@ -40,6 +40,19 @@ class TestVocabCompiler(unittest.TestCase):
             extracted_phrases = vocabcompiler.get_all_phrases()
         self.assertEqual(expected_phrases, extracted_phrases)
 
+    def testKeywordPhraseExtraction(self):
+        expected_phrases = ['MOCK']
+
+        with tempfile.TemporaryFile() as f:
+            # We can't use mock_open here, because it doesn't seem to work
+            # with the 'for line in f' syntax
+            f.write("MOCK\n")
+            f.seek(0)
+            with patch('%s.open' % vocabcompiler.__name__,
+                       return_value=f, create=True):
+                extracted_phrases = vocabcompiler.get_keyword_phrases()
+        self.assertEqual(expected_phrases, extracted_phrases)
+
 
 class TestVocabulary(unittest.TestCase):
     VOCABULARY = vocabcompiler.DummyVocabulary
