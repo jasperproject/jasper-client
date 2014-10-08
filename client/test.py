@@ -150,7 +150,7 @@ class TestMic(unittest.TestCase):
         self.time_clip = jasperpath.data('audio', 'time.wav')
 
         from stt import PocketSphinxSTT
-        self.stt = PocketSphinxSTT()
+        self.stt = PocketSphinxSTT(**PocketSphinxSTT.get_config())
 
     def testTranscribeJasper(self):
         """
