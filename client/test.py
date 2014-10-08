@@ -215,8 +215,8 @@ class TestPatchedG2P(TestG2P):
                     "UGLY\t18.9617\t<s> AH G L AY </s>\n", "")
 
     def setUp(self):
-        with patch.object(g2p.PhonetisaurusG2P, 'executable_found',
-                          classmethod(lambda cls: True)):
+        with patch('g2p.diagnose.check_executable',
+                   return_value=True):
             with tempfile.NamedTemporaryFile() as f:
                 conf = g2p.PhonetisaurusG2P.get_config().items()
                 with patch.object(g2p.PhonetisaurusG2P, 'get_config',
