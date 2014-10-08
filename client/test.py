@@ -88,10 +88,11 @@ class TestVocabulary(unittest.TestCase):
 
             class StrangeCompilationError(Exception):
                 pass
-            with self.assertRaises(StrangeCompilationError):
-                with patch.object(self.vocab, '_compile_vocabulary',
-                                  side_effect=StrangeCompilationError('test')):
+            with patch.object(self.vocab, '_compile_vocabulary',
+                              side_effect=StrangeCompilationError('test')):
+                with self.assertRaises(StrangeCompilationError):
                     self.vocab.compile(phrases)
+                with self.assertRaises(StrangeCompilationError):
                     with patch('os.remove',
                                side_effect=OSError('test')):
                         self.vocab.compile(phrases)
@@ -130,17 +131,27 @@ class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
             with open(output_file, "w") as f:
                 f.write("TEST")
 
+        class DummyG2P(object):
+            def __init__(self, *args, **kwargs):
+                pass
+
+            @classmethod
+            def get_config(self, *args, **kwargs):
+                return {}
+
+            def translate(self, *args, **kwargs):
+                return {'GOOD': ['G UH D',
+                                 'G UW D'],
+                        'BAD': ['B AE D'],
+                        'UGLY': ['AH G L IY']}
+
         with patch('vocabcompiler.cmuclmtk',
                    create=True) as mocked_cmuclmtk:
             mocked_cmuclmtk.text2vocab = write_test_vocab
             mocked_cmuclmtk.text2lm = write_test_lm
-            with patch.object(g2p.PhonetisaurusG2P, '__new__',
-                              create=True) as mocked_g2p:
-                mocked_g2p.translate.return_value = (lambda *args, **kwargs:
-                                                     {'GOOD': ['G UH D'],
-                                                      'BAD': ['B AE D'],
-                                                      'UGLY': ['AH G L IY']})
-                super(TestPatchedPocketsphinxVocabulary, self).testVocabulary()
+            with patch('vocabcompiler.PhonetisaurusG2P', DummyG2P):
+                super(TestPatchedPocketsphinxVocabulary,
+                      self).testVocabulary()
 
 
 class TestMic(unittest.TestCase):
