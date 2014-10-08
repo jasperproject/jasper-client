@@ -42,7 +42,6 @@ class TestVocabCompiler(unittest.TestCase):
 
 
 class TestVocabulary(unittest.TestCase):
-
     VOCABULARY = vocabcompiler.DummyVocabulary
 
     @contextlib.contextmanager
@@ -54,19 +53,55 @@ class TestVocabulary(unittest.TestCase):
     def testVocabulary(self):
         phrases = ['GOOD BAD UGLY']
         with self.do_in_tempdir() as tempdir:
-            vocab = self.VOCABULARY(path=tempdir)
-            self.assertIsNone(vocab.compiled_revision)
-            self.assertFalse(vocab.is_compiled)
-            self.assertFalse(vocab.matches_phrases(phrases))
-            vocab.compile(phrases)
-            self.assertIsInstance(vocab.compiled_revision, str)
-            self.assertTrue(vocab.is_compiled)
-            self.assertTrue(vocab.matches_phrases(phrases))
+            self.vocab = self.VOCABULARY(path=tempdir)
+            self.assertIsNone(self.vocab.compiled_revision)
+            self.assertFalse(self.vocab.is_compiled)
+            self.assertFalse(self.vocab.matches_phrases(phrases))
+
+            # We're now testing error handling. To avoid flooding the
+            # output with error messages that are catched anyway,
+            # we'll temporarly disable logging. Otherwise, error log
+            # messages and traceback would be printed so that someone
+            # might think that tests failed even though they succeeded.
+            logging.disable(logging.ERROR)
+            with self.assertRaises(OSError):
+                with patch('os.makedirs', side_effect=OSError('test')):
+                    self.vocab.compile(phrases)
+            with self.assertRaises(OSError):
+                with patch('%s.open' % vocabcompiler.__name__,
+                           create=True,
+                           side_effect=OSError('test')):
+                    self.vocab.compile(phrases)
+
+            class StrangeCompilationError(Exception):
+                pass
+            with self.assertRaises(StrangeCompilationError):
+                with patch.object(self.vocab, '_compile_vocabulary',
+                                  side_effect=StrangeCompilationError('test')):
+                    self.vocab.compile(phrases)
+                    with patch('os.remove',
+                               side_effect=OSError('test')):
+                        self.vocab.compile(phrases)
+            # Re-enable logging again
+            logging.disable(logging.NOTSET)
+
+            self.vocab.compile(phrases)
+            self.assertIsInstance(self.vocab.compiled_revision, str)
+            self.assertTrue(self.vocab.is_compiled)
+            self.assertTrue(self.vocab.matches_phrases(phrases))
+            self.vocab.compile(phrases)
+            self.vocab.compile(phrases, force=True)
 
 
 class TestPocketsphinxVocabulary(TestVocabulary):
 
     VOCABULARY = vocabcompiler.PocketsphinxVocabulary
+
+    def testVocabulary(self):
+        super(TestPocketsphinxVocabulary, self).testVocabulary()
+        self.assertIsInstance(self.vocab.decoder_kwargs, dict)
+        self.assertIn('lm', self.vocab.decoder_kwargs)
+        self.assertIn('dict', self.vocab.decoder_kwargs)
 
 
 class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
@@ -82,17 +117,17 @@ class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
             with open(output_file, "w") as f:
                 f.write("TEST")
 
-        vocabcompiler.cmuclmtk = None
-        with patch('vocabcompiler.cmuclmtk') as mocked_cmuclmtk:
+        with patch('vocabcompiler.cmuclmtk',
+                   create=True) as mocked_cmuclmtk:
             mocked_cmuclmtk.text2vocab = write_test_vocab
             mocked_cmuclmtk.text2lm = write_test_lm
             with patch.object(g2p.PhonetisaurusG2P, '__new__',
                               create=True) as mocked_g2p:
-                mocked_g2p.translate = (lambda *args, **kwargs:
-                                        {'GOOD': ['G UH D'],
-                                         'BAD': ['B AE D'],
-                                         'UGLY': ['AH G L IY']})
-                super(self.__class__, self).testVocabulary()
+                mocked_g2p.translate.return_value = (lambda *args, **kwargs:
+                                                     {'GOOD': ['G UH D'],
+                                                      'BAD': ['B AE D'],
+                                                      'UGLY': ['AH G L IY']})
+                super(TestPatchedPocketsphinxVocabulary, self).testVocabulary()
 
 
 class TestMic(unittest.TestCase):
