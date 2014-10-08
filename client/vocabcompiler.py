@@ -176,7 +176,6 @@ class AbstractVocabulary(object):
         Arguments:
             phrases -- a list of phrases that this vocabulary will contain
         """
-        pass
 
 
 class DummyVocabulary(AbstractVocabulary):
