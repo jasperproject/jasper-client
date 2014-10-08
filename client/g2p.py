@@ -5,9 +5,10 @@ import subprocess
 import tempfile
 import logging
 
+import yaml
+
 import diagnose
 import jasperpath
-import yaml
 
 
 class PhonetisaurusG2P(object):
