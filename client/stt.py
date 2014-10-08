@@ -12,10 +12,6 @@ import yaml
 import jasperpath
 import diagnose
 
-"""
-The default Speech-to-Text implementation which relies on PocketSphinx.
-"""
-
 
 class TranscriptionMode:
     NORMAL, KEYWORD, MUSIC = range(3)
@@ -43,6 +39,9 @@ class AbstractSTTEngine(object):
 
 
 class PocketSphinxSTT(AbstractSTTEngine):
+    """
+    The default Speech-to-Text implementation which relies on PocketSphinx.
+    """
 
     SLUG = 'sphinx'
 
@@ -173,37 +172,36 @@ class PocketSphinxSTT(AbstractSTTEngine):
     def is_available(cls):
         return diagnose.check_python_import('pocketsphinx')
 
-"""
-Speech-To-Text implementation which relies on the Google Speech API.
-
-This implementation requires a Google API key to be present in profile.yml
-
-To obtain an API key:
-1. Join the Chromium Dev group:
-   https://groups.google.com/a/chromium.org/forum/?fromgroups#!forum/chromium-dev
-2. Create a project through the Google Developers console:
-   https://console.developers.google.com/project
-3. Select your project. In the sidebar, navigate to "APIs & Auth." Activate
-   the Speech API.
-4. Under "APIs & Auth," navigate to "Credentials." Create a new key for public
-   API access.
-5. Add your credentials to your profile.yml. Add an entry to the 'keys' section
-   using the key name 'GOOGLE_SPEECH.' Sample configuration:
-6. Set the value of the 'stt_engine' key in your profile.yml to 'google'
-
-
-Excerpt from sample profile.yml:
-
-    ...
-    timezone: US/Pacific
-    stt_engine: google
-    keys:
-        GOOGLE_SPEECH: $YOUR_KEY_HERE
-
-"""
-
 
 class GoogleSTT(AbstractSTTEngine):
+    """
+    Speech-To-Text implementation which relies on the Google Speech API.
+
+    This implementation requires a Google API key to be present in profile.yml
+
+    To obtain an API key:
+    1. Join the Chromium Dev group:
+       https://groups.google.com/a/chromium.org/forum/?fromgroups#!forum/chromium-dev
+    2. Create a project through the Google Developers console:
+       https://console.developers.google.com/project
+    3. Select your project. In the sidebar, navigate to "APIs & Auth." Activate
+       the Speech API.
+    4. Under "APIs & Auth," navigate to "Credentials." Create a new key for
+       public API access.
+    5. Add your credentials to your profile.yml. Add an entry to the 'keys'
+       section using the key name 'GOOGLE_SPEECH.' Sample configuration:
+    6. Set the value of the 'stt_engine' key in your profile.yml to 'google'
+
+
+    Excerpt from sample profile.yml:
+
+        ...
+        timezone: US/Pacific
+        stt_engine: google
+        keys:
+            GOOGLE_SPEECH: $YOUR_KEY_HERE
+
+    """
 
     SLUG = 'google'
 
@@ -276,17 +274,6 @@ class GoogleSTT(AbstractSTTEngine):
     def is_available(cls):
         return diagnose.check_network_connection()
 
-"""
-Returns a Speech-To-Text engine.
-
-Currently, the supported implementations are the default Pocket Sphinx and
-the Google Speech API
-
-Arguments:
-engine_type - one of "sphinx" or "google"
-kwargs - keyword arguments passed to the constructor of the STT engine
-"""
-
 
 def get_engines():
     return [stt_engine for stt_engine in AbstractSTTEngine.__subclasses__()
@@ -294,6 +281,16 @@ def get_engines():
 
 
 def newSTTEngine(stt_engine, **kwargs):
+    """
+    Returns a Speech-To-Text engine.
+
+    Currently, the supported implementations are the default Pocket Sphinx and
+    the Google Speech API
+
+    Arguments:
+        engine_type -- one of "sphinx" or "google"
+        kwargs -- keyword arguments passed to the constructor of the STT engine
+    """
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
                               engine.SLUG == stt_engine, get_engines())
     if len(selected_engines) == 0:
