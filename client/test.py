@@ -6,6 +6,7 @@ import unittest
 import logging
 import tempfile
 import shutil
+import contextlib
 import argparse
 from mock import patch, Mock
 
@@ -39,21 +40,59 @@ class TestVocabCompiler(unittest.TestCase):
             extracted_phrases = vocabcompiler.get_all_phrases()
         self.assertEqual(expected_phrases, extracted_phrases)
 
-    def testVocabulary(self):
-        phrases = ['THIS IS A TEST']
 
+class TestVocabulary(unittest.TestCase):
+
+    VOCABULARY = vocabcompiler.DummyVocabulary
+
+    @contextlib.contextmanager
+    def do_in_tempdir(self):
         tempdir = tempfile.mkdtemp()
-
-        vocab = vocabcompiler.DummyVocabulary(path=tempdir)
-        self.assertIsNone(vocab.compiled_revision)
-        self.assertFalse(vocab.is_compiled)
-        self.assertFalse(vocab.matches_phrases(phrases))
-        vocab.compile(phrases)
-        self.assertIsInstance(vocab.compiled_revision, str)
-        self.assertTrue(vocab.is_compiled)
-        self.assertTrue(vocab.matches_phrases(phrases))
-
+        yield tempdir
         shutil.rmtree(tempdir)
+
+    def testVocabulary(self):
+        phrases = ['GOOD BAD UGLY']
+        with self.do_in_tempdir() as tempdir:
+            vocab = self.VOCABULARY(path=tempdir)
+            self.assertIsNone(vocab.compiled_revision)
+            self.assertFalse(vocab.is_compiled)
+            self.assertFalse(vocab.matches_phrases(phrases))
+            vocab.compile(phrases)
+            self.assertIsInstance(vocab.compiled_revision, str)
+            self.assertTrue(vocab.is_compiled)
+            self.assertTrue(vocab.matches_phrases(phrases))
+
+
+class TestPocketsphinxVocabulary(TestVocabulary):
+
+    VOCABULARY = vocabcompiler.PocketsphinxVocabulary
+
+
+class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
+
+    def testVocabulary(self):
+
+        def write_test_vocab(text, output_file):
+            with open(output_file, "w") as f:
+                for word in text.split(' '):
+                    f.write("%s\n" % word)
+
+        def write_test_lm(text, output_file, **kwargs):
+            with open(output_file, "w") as f:
+                f.write("TEST")
+
+        vocabcompiler.cmuclmtk = None
+        with patch('vocabcompiler.cmuclmtk') as mocked_cmuclmtk:
+            mocked_cmuclmtk.text2vocab = write_test_vocab
+            mocked_cmuclmtk.text2lm = write_test_lm
+            with patch.object(g2p.PhonetisaurusG2P, '__new__',
+                              create=True) as mocked_g2p:
+                mocked_g2p.translate = (lambda *args, **kwargs:
+                                        {'GOOD': ['G UH D'],
+                                         'BAD': ['B AE D'],
+                                         'UGLY': ['AH G L IY']})
+                super(self.__class__, self).testVocabulary()
 
 
 class TestMic(unittest.TestCase):
@@ -305,12 +344,14 @@ if __name__ == '__main__':
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
 
-    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS,
-                  TestDiagnose]
+    test_cases = [TestBrain, TestModules, TestDiagnose, TestTTS,
+                  TestVocabCompiler, TestVocabulary]
     if args.light:
         test_cases.append(TestPatchedG2P)
+        test_cases.append(TestPatchedPocketsphinxVocabulary)
     else:
         test_cases.append(TestG2P)
+        test_cases.append(TestPocketsphinxVocabulary)
         test_cases.append(TestMic)
 
     suite = unittest.TestSuite()
