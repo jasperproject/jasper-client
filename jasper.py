@@ -80,16 +80,12 @@ class Jasper(object):
             raise
 
         try:
-            api_key = self.config['keys']['GOOGLE_SPEECH']
+            stt_engine_slug = self.config['stt_engine']
         except KeyError:
-            api_key = None
-
-        try:
-            stt_engine_type = self.config['stt_engine']
-        except KeyError:
-            stt_engine_type = "sphinx"
-            self._logger.warning("stt_engine not specified in profile, " +
-                                 "defaulting to '%s'", stt_engine_type)
+            stt_engine_slug = 'sphinx'
+            logger.warning("stt_engine not specified in profile, defaulting " +
+                           "to '%s'", stt_engine_slug)
+        stt_engine_class = stt.get_engine_by_slug(stt_engine_slug)
 
         try:
             tts_engine_slug = self.config['tts_engine']
@@ -101,8 +97,8 @@ class Jasper(object):
 
         # Initialize Mic
         self.mic = Mic(tts_engine_class.get_instance(),
-                       stt.PocketSphinxSTT(**stt.PocketSphinxSTT.get_config()),
-                       stt.newSTTEngine(stt_engine_type, api_key=api_key))
+                       stt_engine_class.get_passive_instance(),
+                       stt_engine_class.get_active_instance())
 
     def run(self):
         if 'first_name' in self.config:
