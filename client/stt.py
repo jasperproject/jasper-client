@@ -105,7 +105,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
         config = {}
         # HMM dir
         # Try to get hmm_dir from config
-        profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
+        profile_path = jasperpath.config('profile.yml')
 
         name_default = 'default'
         path_default = jasperpath.config('vocabularies')
