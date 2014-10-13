@@ -32,7 +32,7 @@ class AbstractVocabulary(object):
     __metaclass__ = ABCMeta
 
     @classmethod
-    def phrases_to_revision(self, phrases):
+    def phrases_to_revision(cls, phrases):
         """
         Calculates a revision from phrases by using the SHA1 hash function.
 
