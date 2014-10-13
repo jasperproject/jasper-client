@@ -4,6 +4,9 @@ import os
 import sys
 import unittest
 import logging
+import tempfile
+import shutil
+import contextlib
 import argparse
 from mock import patch, Mock
 
@@ -24,39 +27,131 @@ DEFAULT_PROFILE = {
 }
 
 
-class UnorderedList(list):
-
-    def __eq__(self, other):
-        return sorted(self) == sorted(other)
-
-
 class TestVocabCompiler(unittest.TestCase):
 
-    def testWordExtraction(self):
-        sentences = "temp_sentences.txt"
-        dictionary = "temp_dictionary.dic"
-        languagemodel = "temp_languagemodel.lm"
-
-        words = []
+    def testPhraseExtraction(self):
+        expected_phrases = ['MOCK']
 
         mock_module = Mock()
-        mock_module.WORDS = [
-            'MOCK'
-        ]
+        mock_module.WORDS = ['MOCK']
 
-        words.extend(mock_module.WORDS)
+        with patch.object(brain.Brain, 'get_modules',
+                          classmethod(lambda cls: [mock_module])):
+            extracted_phrases = vocabcompiler.get_all_phrases()
+        self.assertEqual(expected_phrases, extracted_phrases)
 
-        with patch.object(g2p, 'translateWords') as translateWords:
-            with patch.object(vocabcompiler, 'text2lm') as text2lm:
-                with patch.object(brain.Brain, 'get_modules',
-                                  classmethod(lambda cls: [mock_module])):
-                    vocabcompiler.compile(sentences, dictionary, languagemodel)
+    def testKeywordPhraseExtraction(self):
+        expected_phrases = ['MOCK']
 
-                    translateWords.assert_called_once_with(
-                        UnorderedList(words))
-                    self.assertTrue(text2lm.called)
-        os.remove(sentences)
-        os.remove(dictionary)
+        with tempfile.TemporaryFile() as f:
+            # We can't use mock_open here, because it doesn't seem to work
+            # with the 'for line in f' syntax
+            f.write("MOCK\n")
+            f.seek(0)
+            with patch('%s.open' % vocabcompiler.__name__,
+                       return_value=f, create=True):
+                extracted_phrases = vocabcompiler.get_keyword_phrases()
+        self.assertEqual(expected_phrases, extracted_phrases)
+
+
+class TestVocabulary(unittest.TestCase):
+    VOCABULARY = vocabcompiler.DummyVocabulary
+
+    @contextlib.contextmanager
+    def do_in_tempdir(self):
+        tempdir = tempfile.mkdtemp()
+        yield tempdir
+        shutil.rmtree(tempdir)
+
+    def testVocabulary(self):
+        phrases = ['GOOD BAD UGLY']
+        with self.do_in_tempdir() as tempdir:
+            self.vocab = self.VOCABULARY(path=tempdir)
+            self.assertIsNone(self.vocab.compiled_revision)
+            self.assertFalse(self.vocab.is_compiled)
+            self.assertFalse(self.vocab.matches_phrases(phrases))
+
+            # We're now testing error handling. To avoid flooding the
+            # output with error messages that are catched anyway,
+            # we'll temporarly disable logging. Otherwise, error log
+            # messages and traceback would be printed so that someone
+            # might think that tests failed even though they succeeded.
+            logging.disable(logging.ERROR)
+            with self.assertRaises(OSError):
+                with patch('os.makedirs', side_effect=OSError('test')):
+                    self.vocab.compile(phrases)
+            with self.assertRaises(OSError):
+                with patch('%s.open' % vocabcompiler.__name__,
+                           create=True,
+                           side_effect=OSError('test')):
+                    self.vocab.compile(phrases)
+
+            class StrangeCompilationError(Exception):
+                pass
+            with patch.object(self.vocab, '_compile_vocabulary',
+                              side_effect=StrangeCompilationError('test')):
+                with self.assertRaises(StrangeCompilationError):
+                    self.vocab.compile(phrases)
+                with self.assertRaises(StrangeCompilationError):
+                    with patch('os.remove',
+                               side_effect=OSError('test')):
+                        self.vocab.compile(phrases)
+            # Re-enable logging again
+            logging.disable(logging.NOTSET)
+
+            self.vocab.compile(phrases)
+            self.assertIsInstance(self.vocab.compiled_revision, str)
+            self.assertTrue(self.vocab.is_compiled)
+            self.assertTrue(self.vocab.matches_phrases(phrases))
+            self.vocab.compile(phrases)
+            self.vocab.compile(phrases, force=True)
+
+
+class TestPocketsphinxVocabulary(TestVocabulary):
+
+    VOCABULARY = vocabcompiler.PocketsphinxVocabulary
+
+    def testVocabulary(self):
+        super(TestPocketsphinxVocabulary, self).testVocabulary()
+        self.assertIsInstance(self.vocab.decoder_kwargs, dict)
+        self.assertIn('lm', self.vocab.decoder_kwargs)
+        self.assertIn('dict', self.vocab.decoder_kwargs)
+
+
+class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
+
+    def testVocabulary(self):
+
+        def write_test_vocab(text, output_file):
+            with open(output_file, "w") as f:
+                for word in text.split(' '):
+                    f.write("%s\n" % word)
+
+        def write_test_lm(text, output_file, **kwargs):
+            with open(output_file, "w") as f:
+                f.write("TEST")
+
+        class DummyG2P(object):
+            def __init__(self, *args, **kwargs):
+                pass
+
+            @classmethod
+            def get_config(self, *args, **kwargs):
+                return {}
+
+            def translate(self, *args, **kwargs):
+                return {'GOOD': ['G UH D',
+                                 'G UW D'],
+                        'BAD': ['B AE D'],
+                        'UGLY': ['AH G L IY']}
+
+        with patch('vocabcompiler.cmuclmtk',
+                   create=True) as mocked_cmuclmtk:
+            mocked_cmuclmtk.text2vocab = write_test_vocab
+            mocked_cmuclmtk.text2lm = write_test_lm
+            with patch('vocabcompiler.PhonetisaurusG2P', DummyG2P):
+                super(TestPatchedPocketsphinxVocabulary,
+                      self).testVocabulary()
 
 
 class TestMic(unittest.TestCase):
@@ -66,7 +161,7 @@ class TestMic(unittest.TestCase):
         self.time_clip = jasperpath.data('audio', 'time.wav')
 
         from stt import PocketSphinxSTT
-        self.stt = PocketSphinxSTT()
+        self.stt = PocketSphinxSTT(**PocketSphinxSTT.get_config())
 
     def testTranscribeJasper(self):
         """
@@ -89,22 +184,55 @@ class TestMic(unittest.TestCase):
 class TestG2P(unittest.TestCase):
 
     def setUp(self):
-        self.translations = {
-            'GOOD': 'G UH D',
-            'BAD': 'B AE D',
-            'UGLY': 'AH G L IY'
-        }
+        self.g2pconverter = g2p.PhonetisaurusG2P(
+            **g2p.PhonetisaurusG2P.get_config())
+        self.words = ['GOOD', 'BAD', 'UGLY']
 
     def testTranslateWord(self):
-        for word in self.translations:
-            translation = self.translations[word]
-            self.assertEqual(g2p.translateWord(word), translation)
+        for word in self.words:
+            self.assertIn(word, self.g2pconverter.translate(word).keys())
 
     def testTranslateWords(self):
-        words = self.translations.keys()
-        # preserve ordering
-        translations = [self.translations[w] for w in words]
-        self.assertEqual(g2p.translateWords(words), translations)
+        results = self.g2pconverter.translate(self.words).keys()
+        for word in self.words:
+            self.assertIn(word, results)
+
+
+class TestPatchedG2P(TestG2P):
+    class DummyProc(object):
+        def __init__(self, *args, **kwargs):
+            self.returncode = 0
+
+        def communicate(self):
+            return ("GOOD\t9.20477\t<s> G UH D </s>\n" +
+                    "GOOD\t14.4036\t<s> G UW D </s>\n" +
+                    "GOOD\t16.0258\t<s> G UH D IY </s>\n" +
+                    "BAD\t0.7416\t<s> B AE D </s>\n" +
+                    "BAD\t12.5495\t<s> B AA D </s>\n" +
+                    "BAD\t13.6745\t<s> B AH D </s>\n" +
+                    "UGLY\t12.572\t<s> AH G L IY </s>\n" +
+                    "UGLY\t17.9278\t<s> Y UW G L IY </s>\n" +
+                    "UGLY\t18.9617\t<s> AH G L AY </s>\n", "")
+
+    def setUp(self):
+        with patch('g2p.diagnose.check_executable',
+                   return_value=True):
+            with tempfile.NamedTemporaryFile() as f:
+                conf = g2p.PhonetisaurusG2P.get_config().items()
+                with patch.object(g2p.PhonetisaurusG2P, 'get_config',
+                                  classmethod(lambda cls: dict(
+                                      conf + [('fst_model', f.name)]))):
+                    super(self.__class__, self).setUp()
+
+    def testTranslateWord(self):
+            with patch('subprocess.Popen',
+                       return_value=TestPatchedG2P.DummyProc()):
+                super(self.__class__, self).testTranslateWord()
+
+    def testTranslateWords(self):
+            with patch('subprocess.Popen',
+                       return_value=TestPatchedG2P.DummyProc()):
+                super(self.__class__, self).testTranslateWords()
 
 
 class TestDiagnose(unittest.TestCase):
@@ -275,10 +403,14 @@ if __name__ == '__main__':
     # Change CWD to jasperpath.LIB_PATH
     os.chdir(jasperpath.LIB_PATH)
 
-    test_cases = [TestBrain, TestModules, TestVocabCompiler, TestTTS,
-                  TestDiagnose]
-    if not args.light:
+    test_cases = [TestBrain, TestModules, TestDiagnose, TestTTS,
+                  TestVocabCompiler, TestVocabulary]
+    if args.light:
+        test_cases.append(TestPatchedG2P)
+        test_cases.append(TestPatchedPocketsphinxVocabulary)
+    else:
         test_cases.append(TestG2P)
+        test_cases.append(TestPocketsphinxVocabulary)
         test_cases.append(TestMic)
 
     suite = unittest.TestSuite()

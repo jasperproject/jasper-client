@@ -11,6 +11,7 @@ import requests
 import yaml
 import jasperpath
 import diagnose
+import vocabcompiler
 
 
 class TranscriptionMode:
@@ -45,23 +46,19 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
     SLUG = 'sphinx'
 
-    def __init__(self, lmd=jasperpath.config("languagemodel.lm"),
-                 dictd=jasperpath.config("dictionary.dic"),
-                 lmd_persona=jasperpath.data("languagemodel_persona.lm"),
-                 dictd_persona=jasperpath.data("dictionary_persona.dic"),
-                 lmd_music=None, dictd_music=None,
-                 hmm_dir="/usr/local/share/pocketsphinx/model/hmm/en_US/" +
-                         "hub4wsj_sc_8k"):
+    def __init__(self, vocabulary=None, vocabulary_keyword=None,
+                 vocabulary_music=None, hmm_dir="/usr/local/share/" +
+                 "pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
+
         """
         Initiates the pocketsphinx instance.
 
         Arguments:
-        speaker -- handles platform-independent audio output
-        lmd -- filename of the full language model
-        dictd -- filename of the full dictionary (.dic)
-        lmd_persona -- filename of the 'Persona' language model (containing,
-                       e.g., 'Jasper')
-        dictd_persona -- filename of the 'Persona' dictionary (.dic)
+            vocabulary -- a PocketsphinxVocabulary instance
+            vocabulary_keyword -- a PocketsphinxVocabulary instance
+                                  (containing, e.g., 'Jasper')
+            vocabulary_music -- (optional) a PocketsphinxVocabulary instance
+            hmm_dir -- the path of the Hidden Markov Model (HMM)
         """
 
         self._logger = logging.getLogger(__name__)
@@ -84,16 +81,19 @@ class PocketSphinxSTT(AbstractSTTEngine):
             self._logfiles[TranscriptionMode.NORMAL] = f.name
 
         self._decoders = {}
-        if lmd_music and dictd_music:
+        if vocabulary_music is not None:
             self._decoders[TranscriptionMode.MUSIC] = \
-                ps.Decoder(hmm=hmm_dir, lm=lmd_music, dict=dictd_music,
-                           logfn=self._logfiles[TranscriptionMode.MUSIC])
+                ps.Decoder(hmm=hmm_dir,
+                           logfn=self._logfiles[TranscriptionMode.MUSIC],
+                           **vocabulary_music.decoder_kwargs)
         self._decoders[TranscriptionMode.KEYWORD] = \
-            ps.Decoder(hmm=hmm_dir, lm=lmd_persona, dict=dictd_persona,
-                       logfn=self._logfiles[TranscriptionMode.KEYWORD])
+            ps.Decoder(hmm=hmm_dir,
+                       logfn=self._logfiles[TranscriptionMode.KEYWORD],
+                       **vocabulary_keyword.decoder_kwargs)
         self._decoders[TranscriptionMode.NORMAL] = \
-            ps.Decoder(hmm=hmm_dir, lm=lmd, dict=dictd,
-                       logfn=self._logfiles[TranscriptionMode.NORMAL])
+            ps.Decoder(hmm=hmm_dir,
+                       logfn=self._logfiles[TranscriptionMode.NORMAL],
+                       **vocabulary.decoder_kwargs)
 
     def __del__(self):
         for filename in self._logfiles.values():
@@ -106,27 +106,45 @@ class PocketSphinxSTT(AbstractSTTEngine):
         # HMM dir
         # Try to get hmm_dir from config
         profile_path = os.path.join(os.path.dirname(__file__), 'profile.yml')
+
+        name_default = 'default'
+        path_default = jasperpath.config('vocabularies')
+
+        name_keyword = 'keyword'
+        path_keyword = jasperpath.config('vocabularies')
+
         if os.path.exists(profile_path):
             with open(profile_path, 'r') as f:
                 profile = yaml.safe_load(f)
                 if 'pocketsphinx' in profile:
                     if 'hmm_dir' in profile['pocketsphinx']:
                         config['hmm_dir'] = profile['pocketsphinx']['hmm_dir']
-                    if 'lmd' in profile['pocketsphinx']:
-                        config['lmd'] = profile['pocketsphinx']['lmd']
-                    if 'dictd' in profile['pocketsphinx']:
-                        config['dictd'] = profile['pocketsphinx']['dictd']
-                    if 'lmd_persona' in profile['pocketsphinx']:
-                        config['lmd_persona'] = \
-                            profile['pocketsphinx']['lmd_persona']
-                    if 'dictd_persona' in profile['pocketsphinx']:
-                        config['dictd_persona'] = \
-                            profile['pocketsphinx']['dictd_persona']
-                    if 'lmd_music' in profile['pocketsphinx']:
-                        config['lmd'] = profile['pocketsphinx']['lmd_music']
-                    if 'dictd_music' in profile['pocketsphinx']:
-                        config['dictd_music'] = \
-                            profile['pocketsphinx']['dictd_music']
+
+                    if 'vocabulary_default_name' in profile['pocketsphinx']:
+                        name_default = \
+                            profile['pocketsphinx']['vocabulary_default_name']
+
+                    if 'vocabulary_default_path' in profile['pocketsphinx']:
+                        path_default = \
+                            profile['pocketsphinx']['vocabulary_default_path']
+
+                    if 'vocabulary_keyword_name' in profile['pocketsphinx']:
+                        name_keyword = \
+                            profile['pocketsphinx']['vocabulary_keyword_name']
+
+                    if 'vocabulary_keyword_path' in profile['pocketsphinx']:
+                        path_keyword = \
+                            profile['pocketsphinx']['vocabulary_keyword_path']
+
+        config['vocabulary'] = vocabcompiler.PocketsphinxVocabulary(
+            name_default, path=path_default)
+        config['vocabulary_keyword'] = vocabcompiler.PocketsphinxVocabulary(
+            name_keyword, path=path_keyword)
+
+        config['vocabulary'].compile(vocabcompiler.get_all_phrases())
+        config['vocabulary_keyword'].compile(
+            vocabcompiler.get_keyword_phrases())
+
         return config
 
     def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
