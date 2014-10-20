@@ -558,5 +558,5 @@ if __name__ == '__main__':
     print("")
     for i, engine in enumerate(available_engines, start=1):
         print("%d. Testing engine '%s'..." % (i, engine.SLUG))
-        engine().say("This is a test.")
+        engine.get_instance().say("This is a test.")
     print("Done.")
