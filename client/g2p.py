@@ -86,8 +86,8 @@ class PhonetisaurusG2P(object):
                           "check if Phonetisaurus is installed and in your " +
                           "$PATH.")
         if fst_model is None or not os.access(fst_model, os.R_OK):
-            raise OSError("FST model '%r' does not exist! Can't create " +
-                          "instance." % fst_model)
+            raise OSError(("FST model '%r' does not exist! Can't create " +
+                           "instance.") % fst_model)
         inst = object.__new__(cls, fst_model, *args, **kwargs)
         return inst
 
