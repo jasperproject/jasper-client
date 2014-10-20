@@ -37,6 +37,16 @@ class AbstractTTSEngine(object):
     __metaclass__ = ABCMeta
 
     @classmethod
+    def get_config(cls):
+        return {}
+
+    @classmethod
+    def get_instance(cls):
+        config = cls.get_config()
+        instance = cls(**config)
+        return instance
+
+    @classmethod
     @abstractmethod
     def is_available(cls):
         return diagnose.check_executable('aplay')

@@ -100,7 +100,7 @@ class Jasper(object):
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
         # Initialize Mic
-        self.mic = Mic(tts_engine_class(),
+        self.mic = Mic(tts_engine_class.get_instance(),
                        stt.PocketSphinxSTT(**stt.PocketSphinxSTT.get_config()),
                        stt.newSTTEngine(stt_engine_type, api_key=api_key))
 
