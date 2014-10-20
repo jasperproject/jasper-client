@@ -21,6 +21,7 @@ import requests
 from abc import ABCMeta, abstractmethod
 
 import argparse
+import yaml
 try:
     import mad
     import gtts
@@ -28,6 +29,7 @@ except ImportError:
     pass
 
 import diagnose
+import jasperpath
 
 
 class AbstractTTSEngine(object):
@@ -131,6 +133,27 @@ class EspeakTTS(AbstractTTSEngine):
         self.voice = voice
         self.pitch_adjustment = pitch_adjustment
         self.words_per_minute = words_per_minute
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'espeak-tts' in profile:
+                    if 'voice' in profile['espeak-tts']:
+                        config['voice'] = profile['espeak-tts']['voice']
+                    if 'pitch_adjustment' in profile['espeak-tts']:
+                        config['pitch_adjustment'] = \
+                            profile['espeak-tts']['pitch_adjustment']
+                    if 'words_per_minute' in profile['espeak-tts']:
+                        config['words_per_minute'] = \
+                            profile['espeak-tts']['words_per_minute']
+        return config
 
     @classmethod
     def is_available(cls):
@@ -262,6 +285,21 @@ class PicoTTS(AbstractTTSEngine):
         return (super(cls, cls).is_available() and
                 diagnose.check_executable('pico2wave'))
 
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'pico-tts' in profile and 'language' in profile['pico-tts']:
+                    config['language'] = profile['pico-tts']['language']
+
+        return config
+
     @property
     def languages(self):
         cmd = ['pico2wave', '-l', 'NULL',
@@ -319,6 +357,22 @@ class GoogleTTS(AbstractMp3TTSEngine):
                 diagnose.check_python_import('gtts') and
                 diagnose.check_network_connection())
 
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if ('google-tts' in profile and
+                   'language' in profile['google-tts']):
+                    config['language'] = profile['google-tts']['language']
+
+        return config
+
     @property
     def languages(self):
         langs = ['af', 'sq', 'ar', 'hy', 'ca', 'zh-CN', 'zh-TW', 'hr', 'cs',
@@ -374,6 +428,28 @@ class MaryTTS(AbstractTTSEngine):
         r = self.session.get(self._makeurl('/voices'))
         r.raise_for_status()
         return [line.split()[0] for line in r.text.splitlines()]
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'mary-tts' in profile:
+                    if 'server' in profile['mary-tts']:
+                        config['server'] = profile['mary-tts']['server']
+                    if 'port' in profile['mary-tts']:
+                        config['port'] = profile['mary-tts']['port']
+                    if 'language' in profile['mary-tts']:
+                        config['language'] = profile['mary-tts']['language']
+                    if 'voice' in profile['mary-tts']:
+                        config['voice'] = profile['mary-tts']['voice']
+
+        return config
 
     @classmethod
     def is_available(cls):
