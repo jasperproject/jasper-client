@@ -31,7 +31,7 @@ class Mic:
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
         self._logger.info("Initializing PyAudio. ALSA/Jack error messages " +
-                          "that pop up during this process are normal an " +
+                          "that pop up during this process are normal and " +
                           "can usually be safely ignored.")
         self._audio = pyaudio.PyAudio()
         self._logger.info("Initialization of PyAudio completed.")
