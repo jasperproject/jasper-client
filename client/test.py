@@ -20,7 +20,7 @@ import diagnose
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
-    'location': '08544',
+    'location': 'Cape Town',
     'timezone': 'US/Eastern',
     'phone_number': '012344321'
 }

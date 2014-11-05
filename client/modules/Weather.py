@@ -1,7 +1,11 @@
 # -*- coding: utf-8-*-
 import re
 import datetime
+import struct
+import urllib
 import feedparser
+import requests
+import bs4
 from app_utils import getTimezone
 from semantic.dates import DateService
 
@@ -34,9 +38,57 @@ def replaceAcronyms(text):
     return text
 
 
-def getForecast(profile):
-    return feedparser.parse("http://rss.wunderground.com/auto/rss_full/"
-                            + str(profile['location']))['entries']
+def get_locations():
+    r = requests.get('http://www.wunderground.com/about/faq/' +
+                     'international_cities.asp')
+    soup = bs4.BeautifulSoup(r.text)
+    data = soup.find(id="inner-content").find('pre').string
+    # Data Stucture:
+    #  00 25 location
+    #  01  1
+    #  02  2 region
+    #  03  1
+    #  04  2 country
+    #  05  2
+    #  06  4 ID
+    #  07  5
+    #  08  7 latitude
+    #  09  1
+    #  10  7 logitude
+    #  11  1
+    #  12  5 elevation
+    #  13  5 wmo_id
+    s = struct.Struct("25s1s2s1s2s2s4s5s7s1s7s1s5s5s")
+    for line in data.splitlines()[3:]:
+        row = s.unpack_from(line)
+        info = {'name': row[0].strip(),
+                'region': row[2].strip(),
+                'country': row[4].strip(),
+                'latitude': float(row[8].strip()),
+                'logitude': float(row[10].strip()),
+                'elevation': int(row[12].strip()),
+                'id': row[6].strip(),
+                'wmo_id': row[13].strip()}
+        yield info
+
+
+def get_forecast_by_name(location_name):
+    entries = feedparser.parse("http://rss.wunderground.com/auto/rss_full/%s"
+                               % urllib.quote(location_name))['entries']
+    if entries:
+        # We found weather data the easy way
+        return entries
+    else:
+        # We try to get weather data via the list of stations
+        for location in get_locations():
+            if location['name'] == location_name:
+                return get_forecast_by_wmo_id(location['wmo_id'])
+
+
+def get_forecast_by_wmo_id(wmo_id):
+    return feedparser.parse("http://rss.wunderground.com/auto/" +
+                            "rss_full/global/stations/%s.xml"
+                            % wmo_id)['entries']
 
 
 def handle(text, mic, profile):
@@ -51,11 +103,15 @@ def handle(text, mic, profile):
         profile -- contains information related to the user (e.g., phone
                    number)
     """
+    forecast = None
+    if 'wmo_id' in profile:
+        forecast = get_forecast_by_wmo_id(str(profile['wmo_id']))
+    elif 'location' in profile:
+        forecast = get_forecast_by_name(str(profile['location']))
 
-    if not profile['location']:
-        mic.say(
-            "I'm sorry, I can't seem to access that information. Please make" +
-            "sure that you've set your location on the dashboard.")
+    if not forecast:
+        mic.say("I'm sorry, I can't seem to access that information. Please " +
+                "make sure that you've set your location on the dashboard.")
         return
 
     tz = getTimezone(profile)
@@ -73,8 +129,6 @@ def handle(text, mic, profile):
         date_keyword = "Tomorrow"
     else:
         date_keyword = "On " + weekday
-
-    forecast = getForecast(profile)
 
     output = None
 
