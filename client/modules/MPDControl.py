@@ -3,9 +3,6 @@ import re
 import logging
 import difflib
 import mpd
-import stt
-import vocabcompiler
-import jasperpath
 from mic import Mic
 
 # Standard module stuff
@@ -78,17 +75,11 @@ class MusicMode(object):
                    "PLAYLIST"]
         phrases.extend(self.music.get_soup_playlist())
 
-        vocabulary_music = vocabcompiler.PocketsphinxVocabulary(
-            name='music', path=jasperpath.config('vocabularies'))
-        vocabulary_music.compile(phrases)
-
-        # create a new mic with the new music models
-        config = stt.PocketSphinxSTT.get_config()
+        music_stt_engine = mic.active_stt_engine.get_instance('music', phrases)
 
         self.mic = Mic(mic.speaker,
                        mic.passive_stt_engine,
-                       stt.PocketSphinxSTT(vocabulary_music=vocabulary_music,
-                                           **config))
+                       music_stt_engine)
 
     def delegateInput(self, input):
 

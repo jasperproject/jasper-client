@@ -17,7 +17,6 @@ import brain
 import jasperpath
 import tts
 import diagnose
-from stt import TranscriptionMode
 
 DEFAULT_PROFILE = {
     'prefers_email': False,
@@ -154,22 +153,22 @@ class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
                       self).testVocabulary()
 
 
-class TestMic(unittest.TestCase):
+class TestSTT(unittest.TestCase):
 
     def setUp(self):
         self.jasper_clip = jasperpath.data('audio', 'jasper.wav')
         self.time_clip = jasperpath.data('audio', 'time.wav')
 
         from stt import PocketSphinxSTT
-        self.stt = PocketSphinxSTT(**PocketSphinxSTT.get_config())
+        self.passive_stt_engine = PocketSphinxSTT.get_passive_instance()
+        self.active_stt_engine = PocketSphinxSTT.get_active_instance()
 
     def testTranscribeJasper(self):
         """
         Does Jasper recognize his name (i.e., passive listen)?
         """
         with open(self.jasper_clip, mode="rb") as f:
-            transcription = self.stt.transcribe(f,
-                                                mode=TranscriptionMode.KEYWORD)
+            transcription = self.passive_stt_engine.transcribe(f)
         self.assertIn("JASPER", transcription)
 
     def testTranscribe(self):
@@ -177,7 +176,7 @@ class TestMic(unittest.TestCase):
         Does Jasper recognize 'time' (i.e., active listen)?
         """
         with open(self.time_clip, mode="rb") as f:
-            transcription = self.stt.transcribe(f)
+            transcription = self.active_stt_engine.transcribe(f)
         self.assertIn("TIME", transcription)
 
 
@@ -411,7 +410,7 @@ if __name__ == '__main__':
     else:
         test_cases.append(TestG2P)
         test_cases.append(TestPocketsphinxVocabulary)
-        test_cases.append(TestMic)
+        test_cases.append(TestSTT)
 
     suite = unittest.TestSuite()
 

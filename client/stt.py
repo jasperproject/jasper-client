@@ -14,20 +14,40 @@ import diagnose
 import vocabcompiler
 
 
-class TranscriptionMode:
-    NORMAL, KEYWORD, MUSIC = range(3)
-
-
 class AbstractSTTEngine(object):
     """
     Generic parent class for all STT engines
     """
 
     __metaclass__ = ABCMeta
+    VOCABULARY_TYPE = None
 
     @classmethod
     def get_config(cls):
         return {}
+
+    @classmethod
+    def get_instance(cls, vocabulary_name, phrases):
+        config = cls.get_config()
+        if cls.VOCABULARY_TYPE:
+            vocabulary = cls.VOCABULARY_TYPE(vocabulary_name,
+                                             path=jasperpath.config(
+                                                 'vocabularies'))
+            if not vocabulary.matches_phrases(phrases):
+                vocabulary.compile(phrases)
+            config['vocabulary'] = vocabulary
+        instance = cls(**config)
+        return instance
+
+    @classmethod
+    def get_passive_instance(cls):
+        phrases = vocabcompiler.get_keyword_phrases()
+        return cls.get_instance('keyword', phrases)
+
+    @classmethod
+    def get_active_instance(cls):
+        phrases = vocabcompiler.get_all_phrases()
+        return cls.get_instance('default', phrases)
 
     @classmethod
     @abstractmethod
@@ -35,7 +55,7 @@ class AbstractSTTEngine(object):
         return True
 
     @abstractmethod
-    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp):
         pass
 
 
@@ -45,9 +65,9 @@ class PocketSphinxSTT(AbstractSTTEngine):
     """
 
     SLUG = 'sphinx'
+    VOCABULARY_TYPE = vocabcompiler.PocketsphinxVocabulary
 
-    def __init__(self, vocabulary=None, vocabulary_keyword=None,
-                 vocabulary_music=None, hmm_dir="/usr/local/share/" +
+    def __init__(self, vocabulary, hmm_dir="/usr/local/share/" +
                  "pocketsphinx/model/hmm/en_US/hub4wsj_sc_8k"):
 
         """
@@ -55,9 +75,6 @@ class PocketSphinxSTT(AbstractSTTEngine):
 
         Arguments:
             vocabulary -- a PocketsphinxVocabulary instance
-            vocabulary_keyword -- a PocketsphinxVocabulary instance
-                                  (containing, e.g., 'Jasper')
-            vocabulary_music -- (optional) a PocketsphinxVocabulary instance
             hmm_dir -- the path of the Hidden Markov Model (HMM)
         """
 
@@ -69,35 +86,15 @@ class PocketSphinxSTT(AbstractSTTEngine):
         except:
             import pocketsphinx as ps
 
-        self._logfiles = {}
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_music_',
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_',
                                          suffix='.log', delete=False) as f:
-            self._logfiles[TranscriptionMode.MUSIC] = f.name
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_keyword_',
-                                         suffix='.log', delete=False) as f:
-            self._logfiles[TranscriptionMode.KEYWORD] = f.name
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_normal_',
-                                         suffix='.log', delete=False) as f:
-            self._logfiles[TranscriptionMode.NORMAL] = f.name
+            self._logfile = f.name
 
-        self._decoders = {}
-        if vocabulary_music is not None:
-            self._decoders[TranscriptionMode.MUSIC] = \
-                ps.Decoder(hmm=hmm_dir,
-                           logfn=self._logfiles[TranscriptionMode.MUSIC],
-                           **vocabulary_music.decoder_kwargs)
-        self._decoders[TranscriptionMode.KEYWORD] = \
-            ps.Decoder(hmm=hmm_dir,
-                       logfn=self._logfiles[TranscriptionMode.KEYWORD],
-                       **vocabulary_keyword.decoder_kwargs)
-        self._decoders[TranscriptionMode.NORMAL] = \
-            ps.Decoder(hmm=hmm_dir,
-                       logfn=self._logfiles[TranscriptionMode.NORMAL],
-                       **vocabulary.decoder_kwargs)
+        self._decoder = ps.Decoder(hmm=hmm_dir, logfn=self._logfile,
+                                   **vocabulary.decoder_kwargs)
 
     def __del__(self):
-        for filename in self._logfiles.values():
-            os.remove(filename)
+        os.remove(self._logfile)
 
     @classmethod
     def get_config(cls):
@@ -107,78 +104,38 @@ class PocketSphinxSTT(AbstractSTTEngine):
         # Try to get hmm_dir from config
         profile_path = jasperpath.config('profile.yml')
 
-        name_default = 'default'
-        path_default = jasperpath.config('vocabularies')
-
-        name_keyword = 'keyword'
-        path_keyword = jasperpath.config('vocabularies')
-
         if os.path.exists(profile_path):
             with open(profile_path, 'r') as f:
                 profile = yaml.safe_load(f)
-                if 'pocketsphinx' in profile:
-                    if 'hmm_dir' in profile['pocketsphinx']:
-                        config['hmm_dir'] = profile['pocketsphinx']['hmm_dir']
-
-                    if 'vocabulary_default_name' in profile['pocketsphinx']:
-                        name_default = \
-                            profile['pocketsphinx']['vocabulary_default_name']
-
-                    if 'vocabulary_default_path' in profile['pocketsphinx']:
-                        path_default = \
-                            profile['pocketsphinx']['vocabulary_default_path']
-
-                    if 'vocabulary_keyword_name' in profile['pocketsphinx']:
-                        name_keyword = \
-                            profile['pocketsphinx']['vocabulary_keyword_name']
-
-                    if 'vocabulary_keyword_path' in profile['pocketsphinx']:
-                        path_keyword = \
-                            profile['pocketsphinx']['vocabulary_keyword_path']
-
-        config['vocabulary'] = vocabcompiler.PocketsphinxVocabulary(
-            name_default, path=path_default)
-        config['vocabulary_keyword'] = vocabcompiler.PocketsphinxVocabulary(
-            name_keyword, path=path_keyword)
-
-        config['vocabulary'].compile(vocabcompiler.get_all_phrases())
-        config['vocabulary_keyword'].compile(
-            vocabcompiler.get_keyword_phrases())
+                try:
+                    config['hmm_dir'] = profile['pocketsphinx']['hmm_dir']
+                except KeyError:
+                    pass
 
         return config
 
-    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp):
         """
         Performs STT, transcribing an audio file and returning the result.
 
         Arguments:
-        audio_file_path -- the path to the audio file to-be transcribed
-        PERSONA_ONLY -- if True, uses the 'Persona' language model and
-                        dictionary
-        MUSIC -- if True, uses the 'Music' language model and dictionary
+            fp -- a file object containing audio data
         """
-        decoder = self._decoders[mode]
 
         fp.seek(44)
 
         # FIXME: Can't use the Decoder.decode_raw() here, because
         # pocketsphinx segfaults with tempfile.SpooledTemporaryFile()
         data = fp.read()
-        decoder.start_utt()
-        decoder.process_raw(data, False, True)
-        decoder.end_utt()
+        self._decoder.start_utt()
+        self._decoder.process_raw(data, False, True)
+        self._decoder.end_utt()
 
-        result = decoder.get_hyp()
-        with open(self._logfiles[mode], 'r+') as f:
-                if mode == TranscriptionMode.KEYWORD:
-                    modename = "[KEYWORD]"
-                elif mode == TranscriptionMode.MUSIC:
-                    modename = "[MUSIC]"
-                else:
-                    modename = "[NORMAL]"
-                for line in f:
-                    self._logger.debug("%s %s", modename, line.strip())
-                f.truncate()
+        result = self._decoder.get_hyp()
+        with open(self._logfile, 'r+') as f:
+            for line in f:
+                self._logger.debug(line.strip())
+            f.truncate()
 
         print "==================="
         print "JASPER: " + result[0]
@@ -248,7 +205,7 @@ class GoogleSTT(AbstractSTTEngine):
                     config['api_key'] = profile['keys']['GOOGLE_SPEECH']
         return config
 
-    def transcribe(self, fp, mode=TranscriptionMode.NORMAL):
+    def transcribe(self, fp):
         """
         Performs STT via the Google Speech API, transcribing an audio file and
         returning an English string.
@@ -293,33 +250,41 @@ class GoogleSTT(AbstractSTTEngine):
         return diagnose.check_network_connection()
 
 
-def get_engines():
-    return [stt_engine for stt_engine in AbstractSTTEngine.__subclasses__()
-            if hasattr(stt_engine, 'SLUG') and stt_engine.SLUG]
-
-
-def newSTTEngine(stt_engine, **kwargs):
+def get_engine_by_slug(slug=None):
     """
-    Returns a Speech-To-Text engine.
+    Returns:
+        An STT Engine implementation available on the current platform
 
-    Currently, the supported implementations are the default Pocket Sphinx and
-    the Google Speech API
-
-    Arguments:
-        engine_type -- one of "sphinx" or "google"
-        kwargs -- keyword arguments passed to the constructor of the STT engine
+    Raises:
+        ValueError if no speaker implementation is supported on this platform
     """
+
+    if not slug or type(slug) is not str:
+        raise TypeError("Invalid slug '%s'", slug)
+
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
-                              engine.SLUG == stt_engine, get_engines())
+                              engine.SLUG == slug, get_engines())
     if len(selected_engines) == 0:
-        raise ValueError("No STT engine found for slug '%s'" % stt_engine)
+        raise ValueError("No TTS engine found for slug '%s'" % slug)
     else:
         if len(selected_engines) > 1:
-            print(("WARNING: Multiple STT engines found for slug '%s'. This " +
-                   "is most certainly a bug.") % stt_engine)
+            print("WARNING: Multiple TTS engines found for slug '%s'. " +
+                  "This is most certainly a bug." % slug)
         engine = selected_engines[0]
         if not engine.is_available():
-            raise ValueError(("STT engine '%s' is not available (due to " +
-                              "missing dependencies, missing dependencies, " +
-                              "etc.)") % stt_engine)
-        return engine(**engine.get_config())
+            raise ValueError("TTS engine '%s' is not available (due to " +
+                             "missing dependencies, missing " +
+                             "dependencies, etc.)" % slug)
+        return engine
+
+
+def get_engines():
+    def get_subclasses(cls):
+        subclasses = set()
+        for subclass in cls.__subclasses__():
+            subclasses.add(subclass)
+            subclasses.update(get_subclasses(subclass))
+        return subclasses
+    return [tts_engine for tts_engine in
+            list(get_subclasses(AbstractSTTEngine))
+            if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
