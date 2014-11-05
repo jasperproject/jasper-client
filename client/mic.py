@@ -2,7 +2,7 @@
 """
     The Mic class handles all interactions with the microphone and speaker.
 """
-
+import logging
 import tempfile
 import wave
 import audioop
@@ -26,10 +26,15 @@ class Mic:
                               mode
         acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
+        self._logger = logging.getLogger(__name__)
         self.speaker = speaker
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
+        self._logger.info("Initializing PyAudio. ALSA/Jack error messages " +
+                          "that pop up during this process are normal an " +
+                          "can usually be safely ignored.")
         self._audio = pyaudio.PyAudio()
+        self._logger.info("Initialization of PyAudio completed.")
 
     def __del__(self):
         self._audio.terminate()
