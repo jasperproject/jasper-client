@@ -19,6 +19,7 @@ from abc import ABCMeta, abstractmethod
 import jasperpath
 import yaml
 
+
 class AbstractConfig(object):
     """
     Base class which acts as an interface for custom Config classes.
@@ -31,10 +32,13 @@ class AbstractConfig(object):
     def __init__(self, fname="", load_defaults=True, autosave=False):
         """
         The Constructor. Calls AbstractConfig.load().
-        Parameters:
-            fname: If given, load file fname, otherwise use STANDARD_CONFIG_FILE
-            load_defaults: If config value not present, try to return default value from DEFAULTS_FILE (default: True)
-            autosave: If True, automatically save config file during calls of AbstractConfig.set(). (default: False)
+        Arguments:
+            fname -- If given, load file fname, otherwise use
+                     STANDARD_CONFIG_FILE
+            load_defaults -- If config value not present, try to return default
+                             value from DEFAULTS_FILE (default: True)
+            autosave -- If True, automatically save config file during calls of
+                        AbstractConfig.set(). (default: False)
         """
         self._logger = logging.getLogger(__name__)
         self._config_file = fname if fname else self.STANDARD_CONFIG_FILE
@@ -60,7 +64,7 @@ class AbstractConfig(object):
     def set(self, path, value=None):
         """
         Sets config value specified by 'path' to 'value'.
-        """ 
+        """
         pass
 
     @abstractmethod
@@ -74,7 +78,8 @@ class AbstractConfig(object):
     @abstractmethod
     def save(self, output_file=""):
         """
-        Writes the current configuration to 'output_file' if given, otherwise writes it to the current config file
+        Writes the current configuration to 'output_file' if given, otherwise
+        writes it to the current config file
         """
         pass
 
@@ -93,10 +98,13 @@ class AbstractConfig(object):
                 raise TypeError("Path must contain strings only")
         return path
 
+
 class YamlConfig(AbstractConfig):
     FILE_EXT = "yml"
-    DEFAULTS_FILE = jasperpath.data(os.extsep.join(['profile_defaults', FILE_EXT]))
-    STANDARD_CONFIG_FILE = jasperpath.config(os.extsep.join(['profile', FILE_EXT]))
+    DEFAULTS_FILE = jasperpath.data(os.extsep.join(['profile_defaults',
+                                                    FILE_EXT]))
+    STANDARD_CONFIG_FILE = jasperpath.config(os.extsep.join(['profile',
+                                                             FILE_EXT]))
 
     def load(self, fname):
         self._config = self._load_yaml(fname)
@@ -116,7 +124,8 @@ class YamlConfig(AbstractConfig):
             if component not in conf.keys():
                 conf[component] = {}
             conf = conf[component]
-        if self.load_defaults and value == self._get_value(self._defaults, path):
+        if self.load_defaults and value == self._get_value(self._defaults,
+                                                           path):
             if path[-1] in conf:
                 conf.pop(path[-1])
         else:
@@ -135,14 +144,15 @@ class YamlConfig(AbstractConfig):
 
     def _load_yaml(self, fname):
         try:
-            with open(fname,'r') as f:
+            with open(fname, 'r') as f:
                 content = yaml.safe_load(f)
         except IOError:
-            self._logger.warning("Unable to open file '%s', using empty config.", fname, exc_info=True)
+            self._logger.warning("Unable to open '%s', using empty config.",
+                                 fname, exc_info=True)
             content = {}
         else:
             if content is None:
-                self._logger.warning("File '%s' seems to be empty, using empty config.", fname)
+                self._logger.warning("File '%s' seems to be empty.", fname)
                 content = {}
         self._logger.debug("File '%s' loaded and parsed.", fname)
         return content
@@ -158,9 +168,12 @@ class YamlConfig(AbstractConfig):
 DEFAULT_CONFIG_TYPE = YamlConfig
 
 # Used for backward compatibility
-old_config_file = os.path.join(jasperpath.LIB_PATH, os.extsep.join(['profile', YamlConfig.FILE_EXT]))
-if os.path.exists(old_config_file) and not os.path.exists(YamlConfig.STANDARD_CONFIG_FILE):
-    logging.getLogger(__name__).warning("Using deprecated profile location: '%s'", old_config_file)
+old_config_file = os.path.join(jasperpath.LIB_PATH, os.extsep.join(
+    ['profile', YamlConfig.FILE_EXT]))
+if (os.path.exists(old_config_file) and
+   not os.path.exists(YamlConfig.STANDARD_CONFIG_FILE)):
+    logger = logging.getLogger(__name__)
+    logger.warning("Using deprecated profile location: '%s'", old_config_file)
     YamlConfig.STANDARD_CONFIG_FILE = old_config_file
 
 # Singleton
