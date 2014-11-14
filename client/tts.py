@@ -240,7 +240,7 @@ class MacOSXTTS(AbstractTTSEngine):
 
     @classmethod
     def is_available(cls):
-        return (platform.system() == 'darwin' and
+        return (platform.system().lower() == 'darwin' and
                 diagnose.check_executable('say') and
                 diagnose.check_executable('afplay'))
 
@@ -486,7 +486,7 @@ class MaryTTS(AbstractTTSEngine):
 
 
 def get_default_engine_slug():
-    return 'osx-tts' if platform.system() == 'darwin' else 'espeak-tts'
+    return 'osx-tts' if platform.system().lower() == 'darwin' else 'espeak-tts'
 
 
 def get_engine_by_slug(slug=None):
