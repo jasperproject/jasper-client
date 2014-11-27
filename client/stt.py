@@ -251,6 +251,19 @@ class GoogleSTT(AbstractSTTEngine):
 
 
 class ATandTSTT(AbstractSTTEngine):
+    """
+    Speech-To-Text implementation which relies on the AT&T Speech API.
+
+    This implementation requires an AT&T app_key/app_secret to be present in
+    profile.yml. Please sign up at http://developer.att.com/apis/speech and
+    create a new app. You can then take the app_key/app_secret and put it into
+    your profile.yml:
+        ...
+        stt_engine: att
+        att-stt:
+          app_key:    4xxzd6abcdefghijklmnopqrstuvwxyz
+          app_secret: 6o5jgiabcdefghijklmnopqrstuvwxyz
+    """
 
     SLUG = "att"
 
