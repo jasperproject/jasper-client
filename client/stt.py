@@ -264,8 +264,7 @@ class ATandTSTT(AbstractSTTEngine):
     def get_config(cls):
         # FIXME: Replace this as soon as we have a config module
         config = {}
-        # HMM dir
-        # Try to get hmm_dir from config
+        # Try to get AT&T app_key/app_secret from config
         profile_path = jasperpath.config('profile.yml')
         if os.path.exists(profile_path):
             with open(profile_path, 'r') as f:
