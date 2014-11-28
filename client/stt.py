@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 import os
-import traceback
 import wave
 import json
 import tempfile
