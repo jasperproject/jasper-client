@@ -1,262 +1,169 @@
 # -*- coding: utf-8-*-
-"""
-    The Mic class handles all interactions with the microphone and speaker.
-"""
 import logging
 import tempfile
 import wave
 import audioop
-import pyaudio
+import collections
+import contextlib
+import threading
+import Queue as queue
+
 import alteration
+
 import jasperpath
 
 
-class Mic:
+class Mic(object):
+    """
+    The Mic class handles all interactions with the microphone and speaker.
+    """
 
-    speechRec = None
-    speechRec_persona = None
-
-    def __init__(self, speaker, passive_stt_engine, active_stt_engine):
-        """
-        Initiates the pocketsphinx instance.
-
-        Arguments:
-        speaker -- handles platform-independent audio output
-        passive_stt_engine -- performs STT while Jasper is in passive listen
-                              mode
-        acive_stt_engine -- performs STT while Jasper is in active listen mode
-        """
+    def __init__(self, input_device, output_device,
+                 passive_stt_engine, active_stt_engine,
+                 tts_engine, keyword='JASPER'):
         self._logger = logging.getLogger(__name__)
-        self.speaker = speaker
+        self._keyword = keyword
+        self.tts_engine = tts_engine
         self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
-        self._logger.info("Initializing PyAudio. ALSA/Jack error messages " +
-                          "that pop up during this process are normal and " +
-                          "can usually be safely ignored.")
-        self._audio = pyaudio.PyAudio()
-        self._logger.info("Initialization of PyAudio completed.")
+        self._input_device = input_device
+        self._output_device = output_device
+        self._input_rate = 16000
+        self._input_channels = 1
+        self._input_bits = 16
+        self._input_chunksize = 1024
+        self._threshold = self._get_threshold()
 
-    def __del__(self):
-        self._audio.terminate()
+    # Input methods
+    def _get_threshold(self):
+        self._logger.debug("Recording silence...")
+        recording = self._input_device.record(self._input_chunksize,
+                                              self._input_bits,
+                                              self._input_channels,
+                                              self._input_rate)
+        rms = max([audioop.rms(recording.next(), 1) for i in range(30)])
+        self._logger.debug("Finished recording silence, Threshold is %r", rms)
+        return rms
 
-    def getScore(self, data):
-        rms = audioop.rms(data, 2)
-        score = rms / 3
-        return score
-
-    def fetchThreshold(self):
-
-        # TODO: Consolidate variables from the next three functions
-        THRESHOLD_MULTIPLIER = 1.8
-        RATE = 16000
-        CHUNK = 1024
-
-        # number of seconds to allow to establish threshold
-        THRESHOLD_TIME = 1
-
-        # prepare recording stream
-        stream = self._audio.open(format=pyaudio.paInt16,
-                                  channels=1,
-                                  rate=RATE,
-                                  input=True,
-                                  frames_per_buffer=CHUNK)
-
-        # stores the audio data
-        frames = []
-
-        # stores the lastN score values
-        lastN = [i for i in range(20)]
-
-        # calculate the long run average, and thereby the proper threshold
-        for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
-
-        stream.stop_stream()
-        stream.close()
-
-        # this will be the benchmark to cause a disturbance over!
-        THRESHOLD = average * THRESHOLD_MULTIPLIER
-
-        return THRESHOLD
-
-    def passiveListen(self, PERSONA):
-        """
-        Listens for PERSONA in everyday sound. Times out after LISTEN_TIME, so
-        needs to be restarted.
-        """
-
-        THRESHOLD_MULTIPLIER = 1.8
-        RATE = 16000
-        CHUNK = 1024
-
-        # number of seconds to allow to establish threshold
-        THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
-
-        # prepare recording stream
-        stream = self._audio.open(format=pyaudio.paInt16,
-                                  channels=1,
-                                  rate=RATE,
-                                  input=True,
-                                  frames_per_buffer=CHUNK)
-
-        # stores the audio data
-        frames = []
-
-        # stores the lastN score values
-        lastN = [i for i in range(30)]
-
-        # calculate the long run average, and thereby the proper threshold
-        for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
-
-        # this will be the benchmark to cause a disturbance over!
-        THRESHOLD = average * THRESHOLD_MULTIPLIER
-
-        # save some memory for sound data
-        frames = []
-
-        # flag raised when sound disturbance detected
-        didDetect = False
-
-        # start passively listening for disturbance above threshold
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-            score = self.getScore(data)
-
-            if score > THRESHOLD:
-                didDetect = True
-                break
-
-        # no use continuing if no flag raised
-        if not didDetect:
-            print "No disturbance detected"
-            stream.stop_stream()
-            stream.close()
-            return (None, None)
-
-        # cutoff any recording before this disturbance was detected
-        frames = frames[-20:]
-
-        # otherwise, let's keep recording for few seconds and save the file
-        DELAY_MULTIPLIER = 1
-        for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-        # save the audio data
-        stream.stop_stream()
-        stream.close()
-
+    @contextlib.contextmanager
+    def _write_frames_to_file(self, frames):
         with tempfile.NamedTemporaryFile(mode='w+b') as f:
             wav_fp = wave.open(f, 'wb')
-            wav_fp.setnchannels(1)
-            wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
-            wav_fp.setframerate(RATE)
+            wav_fp.setnchannels(self._input_channels)
+            wav_fp.setsampwidth(int(self._input_bits/8))
+            wav_fp.setframerate(self._input_rate)
             wav_fp.writeframes(''.join(frames))
             wav_fp.close()
             f.seek(0)
-            # check if PERSONA was said
-            transcribed = self.passive_stt_engine.transcribe(f)
+            yield f
 
-        if any(PERSONA in phrase for phrase in transcribed):
-            return (THRESHOLD, PERSONA)
+    def check_for_keyword(self, frame_queue, keyword_uttered, keyword):
+        while True:
+            frames = frame_queue.get()
+            with self._write_frames_to_file(frames) as f:
+                try:
+                    transcribed = self.passive_stt_engine.transcribe(f)
+                except:
+                    pass
+                else:
+                    if transcribed and any([keyword.lower() in t.lower()
+                                            for t in transcribed if t]):
+                        keyword_uttered.set()
+                finally:
+                    frame_queue.task_done()
 
-        return (False, transcribed)
+    def wait_for_keyword(self, keyword):
+        frame_queue = queue.Queue()
+        keyword_uttered = threading.Event()
 
-    def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
-        """
-            Records until a second of silence or times out after 12 seconds
+        # FIXME: not configurable yet
+        num_worker_threads = 2
 
-            Returns the first matching string or None
-        """
+        for i in range(num_worker_threads):
+            t = threading.Thread(target=self.check_for_keyword,
+                                 args=(frame_queue, keyword_uttered, keyword))
+            t.daemon = True
+            t.start()
 
-        options = self.activeListenToAllOptions(THRESHOLD, LISTEN, MUSIC)
-        if options:
-            return options[0]
+        frames = collections.deque([], 10)
+        recording = False
+        recording_frames = []
+        for frame in self._input_device.record(self._input_chunksize,
+                                               self._input_bits,
+                                               self._input_channels,
+                                               self._input_rate):
+            if keyword_uttered.is_set():
+                self._logger.info("Keyword %s has been uttered", keyword)
+                return
+            frames.append(frame)
+            if not recording:
+                if self._threshold < audioop.rms(frame, 1):
+                    # Loudness is higher than normal, start recording and use
+                    # the last 10 frames to start
+                    self._logger.debug("Started recording on device '%s'",
+                                       self._input_device.slug)
+                    recording = True
+                    recording_frames = []
+                    recording_frames.extend(frames)
+            else:
+                # We're recording
+                recording_frames.append(frame)
+                if len(recording_frames) > (len(frames) + 10):
+                    # If we recorded at least 20 frames, check if we're below
+                    # threshold again
+                    last_frames = recording_frames[-10:]
+                    avg_rms = float(sum([audioop.rms(frame, 1)
+                                         for frame in last_frames]))/10
+                    self._logger.debug("Recording's RMS/Threshold ratio: %f",
+                                       (avg_rms/self._threshold))
+                    if avg_rms < self._threshold:
+                        # The loudness of the sound is not at least as high as
+                        # the the threshold, we'll stop recording now
+                        recording = False
+                        self._logger.debug("Recorded %d frames",
+                                           len(recording_frames))
+                        frame_queue.put(tuple(recording_frames))
 
-    def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True,
-                                 MUSIC=False):
-        """
-            Records until a second of silence or times out after 12 seconds
+    def listen(self):
+        self.wait_for_keyword(self._keyword)
+        return self.active_listen()
 
-            Returns a list of the matching options or None
-        """
-
-        RATE = 16000
-        CHUNK = 1024
-        LISTEN_TIME = 12
-
-        # check if no threshold provided
-        if THRESHOLD is None:
-            THRESHOLD = self.fetchThreshold()
-
-        self.speaker.play(jasperpath.data('audio', 'beep_hi.wav'))
-
-        # prepare recording stream
-        stream = self._audio.open(format=pyaudio.paInt16,
-                                  channels=1,
-                                  rate=RATE,
-                                  input=True,
-                                  frames_per_buffer=CHUNK)
-
+    def active_listen(self, timeout=3):
+        # record until <timeout> second of silence
+        n = int(round((self._input_rate/self._input_chunksize)*timeout))
+        self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
         frames = []
-        # increasing the range # results in longer pause after command
-        # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
-
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-            score = self.getScore(data)
-
-            lastN.pop(0)
-            lastN.append(score)
-
-            average = sum(lastN) / float(len(lastN))
-
-            # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
-                break
-
-        self.speaker.play(jasperpath.data('audio', 'beep_lo.wav'))
-
-        # save the audio data
-        stream.stop_stream()
-        stream.close()
-
-        with tempfile.SpooledTemporaryFile(mode='w+b') as f:
-            wav_fp = wave.open(f, 'wb')
-            wav_fp.setnchannels(1)
-            wav_fp.setsampwidth(pyaudio.get_sample_size(pyaudio.paInt16))
-            wav_fp.setframerate(RATE)
-            wav_fp.writeframes(''.join(frames))
-            wav_fp.close()
-            f.seek(0)
+        for frame in self._input_device.record(self._input_chunksize,
+                                               self._input_bits,
+                                               self._input_channels,
+                                               self._input_rate):
+            frames.append(frame)
+            if len(frames) > n:
+                avg_rms = float(sum([audioop.rms(frame, 1)
+                                     for frame in frames[-n:]]))/n
+                if avg_rms < self._threshold:
+                    break
+        self.play_file(jasperpath.data('audio', 'beep_lo.wav'))
+        with self._write_frames_to_file(frames) as f:
             return self.active_stt_engine.transcribe(f)
 
-    def say(self, phrase,
-            OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
-        # alter phrase before speaking
-        phrase = alteration.clean(phrase)
-        self.speaker.say(phrase)
+    # Output methods
+    def play_file(self, filename):
+        self._output_device.play_file(filename)
+
+    def say(self, phrase):
+        altered_phrase = alteration.clean(phrase)
+        with tempfile.SpooledTemporaryFile() as f:
+            f.write(self.tts_engine.say(altered_phrase))
+            f.seek(0)
+            self._output_device.play_fp(f)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("stt").setLevel(logging.WARNING)
+    audio = Mic.get_instance()
+    while True:
+        text = audio.listen()[0]
+        if text:
+            audio.say(text)

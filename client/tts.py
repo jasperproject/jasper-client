@@ -70,19 +70,6 @@ class AbstractTTSEngine(object):
     def say(self, phrase, *args):
         pass
 
-    def play(self, filename):
-        # FIXME: Use platform-independent audio-output here
-        # See issue jasperproject/jasper-client#188
-        cmd = ['aplay', '-D', 'plughw:1,0', str(filename)]
-        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
-                                                     for arg in cmd]))
-        with tempfile.TemporaryFile() as f:
-            subprocess.call(cmd, stdout=f, stderr=f)
-            f.seek(0)
-            output = f.read()
-            if output:
-                self._logger.debug("Output was: '%s'", output)
-
 
 class AbstractMp3TTSEngine(AbstractTTSEngine):
     """
@@ -93,20 +80,23 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
         return (super(AbstractMp3TTSEngine, cls).is_available() and
                 diagnose.check_python_import('mad'))
 
-    def play_mp3(self, filename):
+    def mp3_to_wave(self, filename):
         mf = mad.MadFile(filename)
-        with tempfile.NamedTemporaryFile(suffix='.wav') as f:
+        with tempfile.SpooledTemporaryFile() as f:
             wav = wave.open(f, mode='wb')
             wav.setframerate(mf.samplerate())
             wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
             # 4L is the sample width of 32 bit audio
-            wav.setsampwidth(4L)
+            wav.setsampwidth(4)
             frame = mf.read()
             while frame is not None:
                 wav.writeframes(frame)
                 frame = mf.read()
             wav.close()
-            self.play(f.name)
+            wavread = wave.open(f, mode='rb')
+            data = wavread.readframes()
+            wavread.close()
+        return data
 
 
 class DummyTTS(AbstractTTSEngine):
@@ -182,14 +172,10 @@ class EspeakTTS(AbstractTTSEngine):
         cmd = [str(x) for x in cmd]
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
                                                      for arg in cmd]))
-        with tempfile.TemporaryFile() as f:
-            subprocess.call(cmd, stdout=f, stderr=f)
-            f.seek(0)
-            output = f.read()
-            if output:
-                self._logger.debug("Output was: '%s'", output)
-        self.play(fname)
+        with open(fname, 'rb') as f:
+            data = f.read()
         os.remove(fname)
+        return data
 
 
 class FestivalTTS(AbstractTTSEngine):
@@ -224,7 +210,7 @@ class FestivalTTS(AbstractTTSEngine):
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         cmd = ['text2wave']
-        with tempfile.NamedTemporaryFile(suffix='.wav') as out_f:
+        with tempfile.SpooledTemporaryFile() as out_f:
             with tempfile.SpooledTemporaryFile() as in_f:
                 in_f.write(phrase)
                 in_f.seek(0)
@@ -238,7 +224,8 @@ class FestivalTTS(AbstractTTSEngine):
                     output = err_f.read()
                     if output:
                         self._logger.debug("Output was: '%s'", output)
-            self.play(out_f.name)
+            out_f.seek(0)
+            return out_f.read()
 
 
 class FliteTTS(AbstractTTSEngine):
@@ -413,8 +400,10 @@ class PicoTTS(AbstractTTSEngine):
             output = f.read()
             if output:
                 self._logger.debug("Output was: '%s'", output)
-        self.play(fname)
+        with open(fname, 'rb') as f:
+            data = f.read()
         os.remove(fname)
+        return data
 
 
 class GoogleTTS(AbstractMp3TTSEngine):
@@ -469,8 +458,9 @@ class GoogleTTS(AbstractMp3TTSEngine):
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         tts.save(tmpfile)
-        self.play_mp3(tmpfile)
+        data = self.mp3_to_wave(tmpfile)
         os.remove(tmpfile)
+        return data
 
 
 class MaryTTS(AbstractTTSEngine):
@@ -561,11 +551,7 @@ class MaryTTS(AbstractTTSEngine):
                  'VOICE': self.voice}
 
         r = self.session.get(self._makeurl('/process', query=query))
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
-            f.write(r.content)
-            tmpfile = f.name
-        self.play(tmpfile)
-        os.remove(tmpfile)
+        return r.content
 
 
 class IvonaTTS(AbstractMp3TTSEngine):
@@ -631,8 +617,9 @@ class IvonaTTS(AbstractMp3TTSEngine):
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         self._pyvonavoice.fetch_voice(phrase, tmpfile)
-        self.play_mp3(tmpfile)
+        data = self.mp3_to_wave(tmpfile)
         os.remove(tmpfile)
+        return data
 
 
 def get_default_engine_slug():
