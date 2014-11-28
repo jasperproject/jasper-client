@@ -189,6 +189,7 @@ class GoogleSTT(AbstractSTTEngine):
         if not api_key:
             raise ValueError("No Google API Key given")
         self.api_key = api_key
+        self._logger = logging.getLogger(__name__)
         self.http = requests.Session()
 
     @classmethod
@@ -217,33 +218,42 @@ class GoogleSTT(AbstractSTTEngine):
         wav = wave.open(fp, 'rb')
         frame_rate = wav.getframerate()
         wav.close()
+        data = fp.read()
 
         url = (("https://www.google.com/speech-api/v2/recognize?output=json" +
                 "&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2") %
                (self.api_key, "en-us"))
-
-        data = fp.read()
-
+        headers = {'content-type': 'audio/l16; rate=%s' % frame_rate}
+        r = self.http.post(url, data=data, headers=headers)
         try:
-            headers = {'Content-type': 'audio/l16; rate=%s' % frame_rate}
-            response = self.http.post(url, data=data, headers=headers)
-            response.encoding = 'utf-8'
-            response_read = response.text
-
-            response_parts = response_read.strip().split("\n")
-            decoded = json.loads(response_parts[-1])
-            if decoded['result']:
-                texts = [alt['transcript'] for alt in
-                         decoded['result'][0]['alternative']]
-                if texts:
-                    print "==================="
-                    print "JASPER: " + ', '.join(texts)
-                    print "==================="
-                return texts
-            else:
-                return []
-        except Exception:
-            traceback.print_exc()
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            self._logger.critical('Request failed with http status %d',
+                                  r.status_code)
+            if r.status_code == requests.codes['forbidden']:
+                self._logger.warning('Status 403 is probably caused by an ' +
+                                     'invalid Google API key.')
+            return []
+        r.encoding = 'utf-8'
+        try:
+            # We cannot simply use r.json() because Google sends invalid json
+            # (i.e. multiple json objects, seperated by newlines. We only want
+            # the last one).
+            response = json.loads(list(r.text.strip().split('\n'))[-1])
+            if len(response['result']) == 0:
+                # Response result is empty
+                raise ValueError('Nothing has been transcribed.')
+            results = [alt['transcript'] for alt
+                       in response['result'][0]['alternative']]
+        except ValueError as e:
+            self._logger.warning('Empty response: %s', e.args[0])
+            results = []
+        except (KeyError, IndexError):
+            self._logger.warning('Cannot parse response.', exc_info=True)
+            results = []
+        else:
+            self._logger.info('Transcribed: %r', results)
+        return results
 
     @classmethod
     def is_available(cls):
