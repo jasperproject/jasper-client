@@ -9,7 +9,7 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose
+from client import tts, stt, jasperpath, diagnose, audioengine
 
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
@@ -96,10 +96,30 @@ class Jasper(object):
                            "to '%s'", tts_engine_slug)
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
+        # Initialize AudioEngine
+        audio = audioengine.PyAudioEngine()
+
+        try:
+            input_device_slug = self.config['input_device']
+        except KeyError:
+            input_device_slug = 'default'
+            logger.warning("input_device not specified in profile, " +
+                           "defaulting to '%s'", input_device_slug)
+        input_device = audio.get_device_by_slug(input_device_slug)
+
+        try:
+            output_device_slug = self.config['output_device']
+        except KeyError:
+            output_device_slug = 'default'
+            logger.warning("output_device not specified in profile, " +
+                           "defaulting to '%s'", input_device_slug)
+        output_device = audio.get_device_by_slug(output_device_slug)
+
         # Initialize Mic
-        self.mic = Mic(tts_engine_class.get_instance(),
+        self.mic = Mic(input_device, output_device,
                        stt_engine_class.get_passive_instance(),
-                       stt_engine_class.get_active_instance())
+                       stt_engine_class.get_active_instance(),
+                       tts_engine_class.get_instance())
 
     def run(self):
         if 'first_name' in self.config:
