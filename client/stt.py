@@ -265,16 +265,16 @@ def get_engine_by_slug(slug=None):
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
                               engine.SLUG == slug, get_engines())
     if len(selected_engines) == 0:
-        raise ValueError("No TTS engine found for slug '%s'" % slug)
+        raise ValueError("No STT engine found for slug '%s'" % slug)
     else:
         if len(selected_engines) > 1:
-            print("WARNING: Multiple TTS engines found for slug '%s'. " +
-                  "This is most certainly a bug." % slug)
+            print(("WARNING: Multiple STT engines found for slug '%s'. " +
+                   "This is most certainly a bug.") % slug)
         engine = selected_engines[0]
         if not engine.is_available():
-            raise ValueError("TTS engine '%s' is not available (due to " +
-                             "missing dependencies, missing " +
-                             "dependencies, etc.)" % slug)
+            raise ValueError(("STT engine '%s' is not available (due to " +
+                              "missing dependencies, missing " +
+                              "dependencies, etc.)") % slug)
         return engine
 
 
