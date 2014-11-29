@@ -9,11 +9,15 @@ import pyaudio
 import slugify
 
 
-class UnsupportedFormat(Exception):
+class DeviceException(Exception):
     pass
 
 
-class DeviceNotFound(Exception):
+class UnsupportedFormat(DeviceException):
+    pass
+
+
+class DeviceNotFound(DeviceException):
     pass
 
 
