@@ -5,6 +5,8 @@ import wave
 import json
 import tempfile
 import logging
+import urllib
+import urlparse
 from abc import ABCMeta, abstractmethod
 import requests
 import yaml
@@ -179,17 +181,55 @@ class GoogleSTT(AbstractSTTEngine):
 
     SLUG = 'google'
 
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, language='en-us'):
         # FIXME: get init args from config
         """
         Arguments:
         api_key - the public api key which allows access to Google APIs
         """
-        if not api_key:
-            raise ValueError("No Google API Key given")
-        self.api_key = api_key
         self._logger = logging.getLogger(__name__)
-        self.http = requests.Session()
+        self._request_url = None
+        self._language = None
+        self._api_key = None
+        self._http = requests.Session()
+        self.language = language
+        self.api_key = api_key
+
+    @property
+    def request_url(self):
+        return self._request_url
+
+    @property
+    def language(self):
+        return self._language
+
+    @language.setter
+    def language(self, value):
+        self._language = value
+        self._regenerate_request_url()
+
+    @property
+    def api_key(self):
+        return self._api_key
+
+    @api_key.setter
+    def api_key(self, value):
+        self._api_key = value
+        self._regenerate_request_url()
+
+    def _regenerate_request_url(self):
+        if self.api_key and self.language:
+            query = urllib.urlencode({'output': 'json',
+                                      'client': 'chromium',
+                                      'key': self.api_key,
+                                      'lang': self.language,
+                                      'maxresults': 6,
+                                      'pfilter': 2})
+            self._request_url = urlparse.urlunparse(
+                ('https', 'www.google.com', '/speech-api/v2/recognize', '',
+                 query, ''))
+        else:
+            self._request_url = None
 
     @classmethod
     def get_config(cls):
@@ -214,16 +254,22 @@ class GoogleSTT(AbstractSTTEngine):
         audio_file_path -- the path to the .wav file to be transcribed
         """
 
+        if not self.api_key:
+            self._logger.critical('API key missing, transcription request ' +
+                                  'aborted.')
+            return []
+        elif not self.language:
+            self._logger.critical('Language info missing, transcription ' +
+                                  'request aborted.')
+            return []
+
         wav = wave.open(fp, 'rb')
         frame_rate = wav.getframerate()
         wav.close()
         data = fp.read()
 
-        url = (("https://www.google.com/speech-api/v2/recognize?output=json" +
-                "&client=chromium&key=%s&lang=%s&maxresults=6&pfilter=2") %
-               (self.api_key, "en-us"))
         headers = {'content-type': 'audio/l16; rate=%s' % frame_rate}
-        r = self.http.post(url, data=data, headers=headers)
+        r = self._http.post(self.request_url, data=data, headers=headers)
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError:
@@ -238,7 +284,7 @@ class GoogleSTT(AbstractSTTEngine):
             # We cannot simply use r.json() because Google sends invalid json
             # (i.e. multiple json objects, seperated by newlines. We only want
             # the last one).
-            response = json.loads(list(r.text.strip().split('\n'))[-1])
+            response = json.loads(list(r.text.strip().split('\n', 1))[-1])
             if len(response['result']) == 0:
                 # Response result is empty
                 raise ValueError('Nothing has been transcribed.')
@@ -251,6 +297,8 @@ class GoogleSTT(AbstractSTTEngine):
             self._logger.warning('Cannot parse response.', exc_info=True)
             results = []
         else:
+            # Convert all results to uppercase
+            results = tuple(result.upper() for result in results)
             self._logger.info('Transcribed: %r', results)
         return results
 
