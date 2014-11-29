@@ -104,21 +104,57 @@ class Jasper(object):
         # Initialize AudioEngine
         audio = audioengine.PyAudioEngine()
 
+        # Initialize audio input device
+        devices = [device.slug for device
+                   in audio.get_input_devices()]
         try:
-            input_device_slug = self.config['input_device']
+            if len(devices) == 0:
+                raise RuntimeError("Can't find any input devices")
+            device_slug = self.config['input_device']
+        except RuntimeError as e:
+            logger.critical(e.args[0])
+            raise
         except KeyError:
-            input_device_slug = 'default'
+            device_slug = 'default' if 'default' in devices else devices[0]
             logger.warning("input_device not specified in profile, " +
-                           "defaulting to '%s'", input_device_slug)
-        input_device = audio.get_device_by_slug(input_device_slug)
-
+                           "defaulting to '%s' (Possible values: %s)",
+                           device_slug, ', '.join(devices))
         try:
-            output_device_slug = self.config['output_device']
+            input_device = audio.get_device_by_slug(device_slug)
+            if not input_device.is_input_device:
+                raise audioengine.UnsupportedFormat(
+                    "Audio device with slug '%s' is not an input device"
+                    % input_device.slug)
+        except (audioengine.DeviceException) as e:
+            logger.critical(e.args[0])
+            logger.warning('Valid output devices: %s', ', '.join(devices))
+            raise
+
+        # Initialize audio output device
+        devices = [device.slug for device
+                   in audio.get_output_devices()]
+        try:
+            if len(devices) == 0:
+                raise RuntimeError("Can't find any output devices")
+            device_slug = self.config['output_device']
+        except RuntimeError as e:
+            logger.critical(e.args[0])
+            raise
         except KeyError:
-            output_device_slug = 'default'
+            device_slug = 'default' if 'default' in devices else devices[0]
             logger.warning("output_device not specified in profile, " +
-                           "defaulting to '%s'", input_device_slug)
-        output_device = audio.get_device_by_slug(output_device_slug)
+                           "defaulting to '%s' (Possible values: %s)",
+                           device_slug, ', '.join(devices))
+        try:
+            output_device = audio.get_device_by_slug(device_slug)
+            if not output_device.is_output_device:
+                raise audioengine.UnsupportedFormat(
+                    "Audio device with slug '%s' is not an output device"
+                    % output_device.slug)
+        except (audioengine.DeviceException) as e:
+            logger.critical(e.args[0])
+            logger.warning('Valid output devices: %s', ', '.join(devices))
+            raise
 
         # Initialize Mic
         self.mic = Mic(input_device, output_device,
