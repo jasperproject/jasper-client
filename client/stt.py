@@ -250,7 +250,7 @@ class GoogleSTT(AbstractSTTEngine):
         return diagnose.check_network_connection()
 
 
-class ATandTSTT(AbstractSTTEngine):
+class AttSTT(AbstractSTTEngine):
     """
     Speech-To-Text implementation which relies on the AT&T Speech API.
 
