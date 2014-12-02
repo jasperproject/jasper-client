@@ -1,5 +1,6 @@
 # -*- coding: utf-8-*-
 import Queue
+import atexit
 from modules import Gmail
 from apscheduler.scheduler import Scheduler
 import logging
@@ -29,9 +30,10 @@ class Notifier(object):
             self._logger.warning('gmail_address or gmail_password not set ' +
                                  'in profile, Gmail notifier will not be used')
 
-        sched = Scheduler()
+        sched = Scheduler(daemon=True)
         sched.start()
         sched.add_interval_job(self.gather, seconds=30)
+        atexit.register(lambda: sched.shutdown(wait=False))
 
     def gather(self):
         [client.run() for client in self.notifiers]
