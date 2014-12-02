@@ -419,8 +419,13 @@ class MaryTTS(AbstractTTSEngine):
 
     @property
     def languages(self):
-        r = self.session.get(self._makeurl('/locales'))
-        r.raise_for_status()
+        try:
+            r = self.session.get(self._makeurl('/locales'))
+            r.raise_for_status()
+        except requests.exceptions.RequestException:
+            self._logger.critical("Communication with MaryTTS server at %s " +
+                                  "failed.", self.netloc)
+            raise
         return r.text.splitlines()
 
     @property
