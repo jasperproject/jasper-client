@@ -2,6 +2,7 @@
 APScheduler==3.0.1
 argparse==1.2.2
 mock==1.0.1
+python-slugify==0.1.0
 pytz==2014.10
 PyYAML==3.11
 requests==2.5.0
