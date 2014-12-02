@@ -1,4 +1,4 @@
-APScheduler==2.1.2
+APScheduler==3.0.1
 PyYAML==3.10
 argparse==1.2.1
 beautifulsoup4==4.2.1
