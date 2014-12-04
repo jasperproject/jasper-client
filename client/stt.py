@@ -138,11 +138,13 @@ class PocketSphinxSTT(AbstractSTTEngine):
                 self._logger.debug(line.strip())
             f.truncate()
 
-        print "==================="
-        print "JASPER: " + result[0]
-        print "==================="
+        transcribed = [result[0]]
 
-        return [result[0]]
+        print("===================")
+        print("JASPER: %r" % transcribed)
+        print("===================")
+
+        return transcribed
 
     @classmethod
     def is_available(cls):

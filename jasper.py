@@ -113,10 +113,10 @@ class Jasper(object):
 
 if __name__ == "__main__":
 
-    print "==========================================================="
-    print " JASPER The Talking Computer                               "
-    print " Copyright 2013 Shubhro Saha & Charlie Marsh               "
-    print "==========================================================="
+    print("===========================================================")
+    print(" JASPER The Talking Computer                               ")
+    print(" Copyright 2013 Shubhro Saha & Charlie Marsh               ")
+    print("===========================================================")
 
     logging.basicConfig()
     logger = logging.getLogger()

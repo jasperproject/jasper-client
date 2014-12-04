@@ -131,10 +131,10 @@ class MusicMode(object):
         #     self.mic.say("Found songs")
         #     self.music.play(songs = songs)
 
-        #     print "SONG RESULTS"
-        #     print "============"
+        #     print("SONG RESULTS")
+        #     print("============")
         #     for song in songs:
-        #         print "Song: %s Artist: %s" % (song.title, song.artist)
+        #         print("Song: %s Artist: %s" % (song.title, song.artist))
 
         #     self.mic.say("Playing %s" % self.music.current_song())
 

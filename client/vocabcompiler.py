@@ -388,7 +388,7 @@ if __name__ == '__main__':
     base_dir = args.base_dir if args.base_dir else tempfile.mkdtemp()
 
     phrases = get_all_phrases()
-    print "Module phrases:    %r" % phrases
+    print("Module phrases:    %r" % phrases)
 
     for subclass in AbstractVocabulary.__subclasses__():
         if hasattr(subclass, 'PATH_PREFIX'):

@@ -29,4 +29,4 @@ class Mic:
         return input
 
     def say(self, phrase, OPTIONS=None):
-        print "JASPER: " + phrase
+        print("JASPER: %s" % phrase)
