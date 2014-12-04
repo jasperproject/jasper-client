@@ -120,6 +120,7 @@ if __name__ == "__main__":
 
     logging.basicConfig()
     logger = logging.getLogger()
+    logger.getChild("client.stt").setLevel(logging.INFO)
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
