@@ -139,11 +139,7 @@ class PocketSphinxSTT(AbstractSTTEngine):
             f.truncate()
 
         transcribed = [result[0]]
-
-        print("===================")
-        print("JASPER: %r" % transcribed)
-        print("===================")
-
+        self._logger.info('Transcribed: %r', transcribed)
         return transcribed
 
     @classmethod
@@ -398,11 +394,11 @@ class AttSTT(AbstractSTTEngine):
                                       exc_info=True)
                 return []
             else:
-                results = [x[0].upper() for x in sorted(results,
-                                                        key=lambda x: x[1],
-                                                        reverse=True)]
-                self._logger.info('Recognized: %r', results)
-                return results
+                transcribed = [x[0].upper() for x in sorted(results,
+                                                            key=lambda x: x[1],
+                                                            reverse=True)]
+                self._logger.info('Transcribed: %r', transcribed)
+                return transcribed
 
     def _get_response(self, data):
         headers = {'authorization': 'Bearer %s' % self.token,
