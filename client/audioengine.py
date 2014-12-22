@@ -49,6 +49,38 @@ class PyAudioEngine(object):
         return [PyAudioDevice(self, self._pyaudio.get_device_info_by_index(i))
                 for i in range(num_devices)]
 
+    def get_default_input_device(self):
+        try:
+            info = self._pyaudio.get_default_input_device_info()
+        except IOError:
+            devices = self.get_input_devices()
+            if len(devices) == 0:
+                self._logger.warning('No input devices available!')
+                raise DeviceNotFound('No input devices available!')
+            try:
+                device = [d for d in devices if d.slug == 'default'][0]
+            except IndexError:
+                device = devices[0]
+            return device
+        else:
+            return PyAudioDevice(self, info)
+
+    def get_default_output_device(self):
+        try:
+            info = self._pyaudio.get_default_output_device_info()
+        except IOError:
+            devices = self.get_output_devices()
+            if len(devices) == 0:
+                self._logger.warning('No input devices available!')
+                raise DeviceNotFound('No input devices available!')
+            try:
+                device = [d for d in devices if d.slug == 'default'][0]
+            except IndexError:
+                device = devices[0]
+            return device
+        else:
+            return PyAudioDevice(self, info)
+
     def get_input_devices(self):
         return [device for device in self.get_devices()
                 if device.is_input_device]

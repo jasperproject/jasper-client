@@ -108,14 +108,9 @@ class Jasper(object):
         devices = [device.slug for device
                    in audio.get_input_devices()]
         try:
-            if len(devices) == 0:
-                raise RuntimeError("Can't find any input devices")
             device_slug = self.config['input_device']
-        except RuntimeError as e:
-            logger.critical(e.args[0])
-            raise
         except KeyError:
-            device_slug = 'default' if 'default' in devices else devices[0]
+            device_slug = audio.get_default_input_device().slug
             logger.warning("input_device not specified in profile, " +
                            "defaulting to '%s' (Possible values: %s)",
                            device_slug, ', '.join(devices))
@@ -134,14 +129,9 @@ class Jasper(object):
         devices = [device.slug for device
                    in audio.get_output_devices()]
         try:
-            if len(devices) == 0:
-                raise RuntimeError("Can't find any output devices")
             device_slug = self.config['output_device']
-        except RuntimeError as e:
-            logger.critical(e.args[0])
-            raise
         except KeyError:
-            device_slug = 'default' if 'default' in devices else devices[0]
+            device_slug = audio.get_default_output_device().slug
             logger.warning("output_device not specified in profile, " +
                            "defaulting to '%s' (Possible values: %s)",
                            device_slug, ', '.join(devices))
