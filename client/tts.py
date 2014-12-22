@@ -305,31 +305,28 @@ class MacOSXTTS(AbstractTTSEngine):
     @classmethod
     def is_available(cls):
         return (platform.system().lower() == 'darwin' and
-                diagnose.check_executable('say') and
-                diagnose.check_executable('afplay'))
+                diagnose.check_executable('say'))
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
-        cmd = ['say', str(phrase)]
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            fname = f.name
+        cmd = ['say', '-o', fname,
+                      '--file-format=WAVE',
+                      str(phrase)]
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
                                                      for arg in cmd]))
-        with tempfile.TemporaryFile() as f:
+        with tempfile.SpooledTemporaryFile() as f:
             subprocess.call(cmd, stdout=f, stderr=f)
             f.seek(0)
             output = f.read()
             if output:
                 self._logger.debug("Output was: '%s'", output)
 
-    def play(self, filename):
-        cmd = ['afplay', str(filename)]
-        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
-                                                     for arg in cmd]))
-        with tempfile.TemporaryFile() as f:
-            subprocess.call(cmd, stdout=f, stderr=f)
-            f.seek(0)
-            output = f.read()
-            if output:
-                self._logger.debug("Output was: '%s'", output)
+        with open(fname, 'rb') as f:
+            data = f.read()
+        os.remove(fname)
+        return data
 
 
 class PicoTTS(AbstractTTSEngine):
