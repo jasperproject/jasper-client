@@ -212,17 +212,6 @@ class PyAudioDevice(object):
     def play_file(self, filename):
         with open(filename, 'rb') as f:
             self.play_fp(f)
-        return
-        # FIXME: Use platform-independent audio-output here
-        # See issue jasperproject/jasper-client#188
-        cmd = ['aplay', str(filename)]
-        self._logger.debug('Executing %r', cmd)
-        with tempfile.TemporaryFile() as f:
-            subprocess.call(cmd, stdout=f, stderr=f)
-            f.seek(0)
-            output = f.read()
-            if output:
-                self._logger.debug("Output was: '%s'", output)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
