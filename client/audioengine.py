@@ -187,12 +187,15 @@ class PyAudioDevice(object):
             rate=rate,
             output=output,
             input=not output)
-        self._logger.debug("PyAudio stream opened")
+        self._logger.debug("%s stream opened on device '%s' (%d Hz, %d " +
+                           "channel, %d bit)", "output" if output else "input",
+                           self.slug, rate, channels, bits)
         try:
             yield stream
         finally:
             stream.close()
-            self._logger.debug("PyAudio stream closed")
+            self._logger.debug("%s stream closed on device '%s'",
+                               "output" if output else "input", self.slug)
 
     def record(self, chunksize, *args):
         with self._open_stream(*args, output=False) as stream:
