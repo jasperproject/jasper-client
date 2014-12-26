@@ -1,8 +1,6 @@
 # -*- coding: utf-8-*-
 import logging
 import contextlib
-import tempfile
-import subprocess
 import re
 import wave
 import pyaudio
