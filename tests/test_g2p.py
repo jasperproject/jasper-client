@@ -15,7 +15,7 @@ def phonetisaurus_installed():
         return True
 
 
-@unittest.skipUnless(phonetisaurus_installed,
+@unittest.skipUnless(phonetisaurus_installed(),
                      "Phonetisaurus or fst_model not present")
 class TestG2P(unittest.TestCase):
 

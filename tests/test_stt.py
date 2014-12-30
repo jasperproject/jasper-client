@@ -1,9 +1,30 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 import unittest
+import imp
 from client import stt, jasperpath
 
 
+def cmuclmtk_installed():
+    try:
+        imp.find_module('cmuclmtk')
+    except ImportError:
+        return False
+    else:
+        return True
+
+
+def pocketsphinx_installed():
+    try:
+        imp.find_module('pocketsphinx')
+    except ImportError:
+        return False
+    else:
+        return True
+
+
+@unittest.skipUnless(cmuclmtk_installed(), "CMUCLMTK not present")
+@unittest.skipUnless(pocketsphinx_installed(), "Pocketsphinx not present")
 class TestSTT(unittest.TestCase):
 
     def setUp(self):

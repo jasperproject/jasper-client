@@ -90,8 +90,8 @@ class TestVocabulary(unittest.TestCase):
             self.vocab.compile(phrases, force=True)
 
 
-@unittest.skipIf(vocabcompiler.cmuclmtk is None,
-                 "CMUCLMTK not present")
+@unittest.skipUnless(hasattr(vocabcompiler, 'cmuclmtk'),
+                     "CMUCLMTK not present")
 class TestPocketsphinxVocabulary(TestVocabulary):
 
     VOCABULARY = vocabcompiler.PocketsphinxVocabulary
