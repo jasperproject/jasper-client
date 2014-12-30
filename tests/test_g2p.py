@@ -36,7 +36,7 @@ class TestG2P(unittest.TestCase):
             self.assertIn(word, results)
 
 
-class TestPatchedG2P(TestG2P):
+class TestPatchedG2P(unittest.TestCase):
     class DummyProc(object):
         def __init__(self, *args, **kwargs):
             self.returncode = 0
