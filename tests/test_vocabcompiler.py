@@ -90,22 +90,19 @@ class TestVocabulary(unittest.TestCase):
             self.vocab.compile(phrases, force=True)
 
 
-@unittest.skipUnless(hasattr(vocabcompiler, 'cmuclmtk'),
-                     "CMUCLMTK not present")
 class TestPocketsphinxVocabulary(TestVocabulary):
 
     VOCABULARY = vocabcompiler.PocketsphinxVocabulary
 
+    @unittest.skipUnless(hasattr(vocabcompiler, 'cmuclmtk'),
+                         "CMUCLMTK not present")
     def testVocabulary(self):
         super(TestPocketsphinxVocabulary, self).testVocabulary()
         self.assertIsInstance(self.vocab.decoder_kwargs, dict)
         self.assertIn('lm', self.vocab.decoder_kwargs)
         self.assertIn('dict', self.vocab.decoder_kwargs)
 
-
-class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
-
-    def testVocabulary(self):
+    def testPatchedVocabulary(self):
 
         def write_test_vocab(text, output_file):
             with open(output_file, "w") as f:
@@ -135,5 +132,4 @@ class TestPatchedPocketsphinxVocabulary(TestPocketsphinxVocabulary):
             mocked_cmuclmtk.text2vocab = write_test_vocab
             mocked_cmuclmtk.text2lm = write_test_lm
             with mock.patch('client.vocabcompiler.PhonetisaurusG2P', DummyG2P):
-                super(TestPatchedPocketsphinxVocabulary,
-                      self).testVocabulary()
+                self.testVocabulary()
