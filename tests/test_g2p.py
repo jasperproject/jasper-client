@@ -15,22 +15,24 @@ def phonetisaurus_installed():
         return True
 
 
+WORDS = ['GOOD', 'BAD', 'UGLY']
+
+
 @unittest.skipUnless(phonetisaurus_installed(),
                      "Phonetisaurus or fst_model not present")
 class TestG2P(unittest.TestCase):
 
     def setUp(self):
-        self.g2pconverter = g2p.PhonetisaurusG2P(
+        self.g2pconv = g2p.PhonetisaurusG2P(
             **g2p.PhonetisaurusG2P.get_config())
-        self.words = ['GOOD', 'BAD', 'UGLY']
 
     def testTranslateWord(self):
-        for word in self.words:
-            self.assertIn(word, self.g2pconverter.translate(word).keys())
+        for word in WORDS:
+            self.assertIn(word, self.g2pconv.translate(word).keys())
 
     def testTranslateWords(self):
-        results = self.g2pconverter.translate(self.words).keys()
-        for word in self.words:
+        results = self.g2pconv.translate(WORDS).keys()
+        for word in WORDS:
             self.assertIn(word, results)
 
 
@@ -58,14 +60,18 @@ class TestPatchedG2P(TestG2P):
                 with mock.patch.object(g2p.PhonetisaurusG2P, 'get_config',
                                        classmethod(lambda cls: dict(conf +
                                                    [('fst_model', f.name)]))):
-                    super(self.__class__, self).setUp()
+                    self.g2pconv = g2p.PhonetisaurusG2P(
+                        **g2p.PhonetisaurusG2P.get_config())
 
     def testTranslateWord(self):
             with mock.patch('subprocess.Popen',
                             return_value=TestPatchedG2P.DummyProc()):
-                super(self.__class__, self).testTranslateWord()
+                for word in WORDS:
+                    self.assertIn(word, self.g2pconv.translate(word).keys())
 
     def testTranslateWords(self):
             with mock.patch('subprocess.Popen',
                             return_value=TestPatchedG2P.DummyProc()):
-                super(self.__class__, self).testTranslateWords()
+                results = self.g2pconv.translate(WORDS).keys()
+                for word in WORDS:
+                    self.assertIn(word, results)
