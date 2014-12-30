@@ -12,7 +12,6 @@ else:
     from shutil import which as find_executable
 
 import pip.req
-import pip.util
 import jasperpath
 
 logger = logging.getLogger(__name__)
