@@ -39,18 +39,21 @@ class PhonetisaurusG2P(object):
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
             stdoutdata, stderrdata = proc.communicate()
-            if proc.returncode != 0:
-                logger.warning("Command '%s' return with exit status %d",
-                               ' '.join(cmd), proc.returncode)
         except OSError:
             logger.error("Error occured while executing command '%s'",
                          ' '.join(cmd), exc_info=True)
-            stdoutdata, stderrdata = None, None
-        if stderrdata is not None:
+            raise
+
+        if stderrdata:
             for line in stderrdata.splitlines():
                 message = line.strip()
                 if message:
                     logger.debug(message)
+
+        if proc.returncode != 0:
+            logger.error("Command '%s' return with exit status %d",
+                         ' '.join(cmd), proc.returncode)
+            raise OSError("Command execution failed")
 
         result = {}
         if stdoutdata is not None:
