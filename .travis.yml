@@ -4,11 +4,15 @@ language: python
 sudo: false
 python:
     - "2.7"
+cache:
+  directories:
+    - "$HOME/.pip-cache/"
+    - "/home/travis/virtualenv/python2.7"
 install: 
-    - "pip install -r client/requirements.txt"
-    - "pip install python-coveralls"
-    - "pip install coverage"
-    - "pip install flake8"
+    - "pip install -r client/requirements.txt  --download-cache $HOME/.pip-cache"
+    - "pip install python-coveralls --download-cache $HOME/.pip-cache"
+    - "pip install coverage  --download-cache $HOME/.pip-cache"
+    - "pip install flake8  --download-cache $HOME/.pip-cache"
 before_script:
     - "flake8 jasper.py client tests"
 script:
