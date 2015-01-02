@@ -457,7 +457,7 @@ class WitAiSTT(AbstractSTTEngine):
         headers = {'Authorization': 'Bearer %s' % self.token,
                    'accept': 'application/json',
                    'Content-Type': 'audio/wav'}
-        r = requests.post('https://api.wit.ai/speech?v=20140916',
+        r = requests.post('https://api.wit.ai/speech?v=20150101',
                           data=data,
                           headers=headers)
         try:
