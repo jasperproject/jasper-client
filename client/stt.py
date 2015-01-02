@@ -431,7 +431,7 @@ class WitAiSTT(AbstractSTTEngine):
 
     def __init__(self, access_token):
         self._logger = logging.getLogger(__name__)
-        self._token = access_token
+        self.token = access_token
 
     @classmethod
     def get_config(cls):
@@ -452,16 +452,25 @@ class WitAiSTT(AbstractSTTEngine):
     def token(self):
         return self._token
 
+    @token.setter
+    def token(self, value):
+        self._token = value
+        self._headers = {'Authorization': 'Bearer %s' % self.token,
+                         'accept': 'application/json',
+                         'Content-Type': 'audio/wav'}
+
+    @property
+    def headers(self):
+        return self._headers
+
     def transcribe(self, fp):
         data = fp.read()
-        headers = {'Authorization': 'Bearer %s' % self.token,
-                   'accept': 'application/json',
-                   'Content-Type': 'audio/wav'}
         r = requests.post('https://api.wit.ai/speech?v=20150101',
                           data=data,
-                          headers=headers)
+                          headers=self.headers)
         try:
             r.raise_for_status()
+            text = r.json()['_text']
         except requests.exceptions.HTTPError:
             self._logger.critical('Request failed with response: %r',
                                   r.text,
@@ -470,21 +479,18 @@ class WitAiSTT(AbstractSTTEngine):
         except requests.exceptions.RequestException:
             self._logger.critical('Request failed.', exc_info=True)
             return []
+        except ValueError as e:
+            self._logger.critical('Cannot parse response: %s',
+                                  e.args[0])
+            return []
+        except KeyError:
+            self._logger.critical('Cannot parse response.',
+                                  exc_info=True)
+            return []
         else:
-            try:
-                text = r.json()['_text']
-            except ValueError as e:
-                self._logger.debug('Recognition failed with status: %s',
-                                   e.args[0])
-                return []
-            except KeyError:
-                self._logger.critical('Cannot parse response.',
-                                      exc_info=True)
-                return []
-            else:
-                transcribed = [text.upper()]
-                self._logger.info('Transcribed: %r', transcribed)
-                return transcribed
+            transcribed = [text.upper()]
+            self._logger.info('Transcribed: %r', transcribed)
+            return transcribed
 
     @classmethod
     def is_available(cls):
