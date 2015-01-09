@@ -44,16 +44,10 @@ def handle(text, mic, profile):
     joke = getRandomJoke()
 
     mic.say("Knock knock")
-
-    def firstLine(text):
-        mic.say(joke[0])
-
-        def punchLine(text):
-            mic.say(joke[1])
-
-        punchLine(mic.activeListen())
-
-    firstLine(mic.activeListen())
+    mic.active_listen()
+    mic.say(joke[0])
+    mic.active_listen()
+    mic.say(joke[1])
 
 
 def isValid(text):
