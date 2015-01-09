@@ -13,21 +13,13 @@ class Mic:
         self.idx = 0
         self.outputs = []
 
-    def passiveListen(self, PERSONA):
-        return True, "JASPER"
+    def wait_for_keyword(self, keyword="JASPER"):
+        return
 
-    def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True,
-                                 MUSIC=False):
-        return [self.activeListen(THRESHOLD=THRESHOLD, LISTEN=LISTEN,
-                                  MUSIC=MUSIC)]
-
-    def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
-        if not LISTEN:
-            return self.inputs[self.idx - 1]
-
+    def active_listen(self, timeout=3):
         input = self.inputs[self.idx]
         self.idx += 1
-        return input
+        return [input]
 
     def say(self, phrase, OPTIONS=None):
         self.outputs.append(phrase)
