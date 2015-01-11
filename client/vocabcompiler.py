@@ -8,7 +8,13 @@ import os
 import tempfile
 import logging
 import hashlib
+import subprocess
+import tarfile
+import re
+import contextlib
+import shutil
 from abc import ABCMeta, abstractmethod, abstractproperty
+import yaml
 
 import brain
 import jasperpath
@@ -325,6 +331,143 @@ class PocketsphinxVocabulary(AbstractVocabulary):
                     f.write(line)
 
 
+class JuliusVocabulary(AbstractVocabulary):
+    class VoxForgeLexicon(object):
+        def __init__(self, fname):
+            self._dict = {}
+            self.parse(fname)
+
+        @contextlib.contextmanager
+        def open_dict(self, fname, membername='VoxForge/VoxForgeDict'):
+            if tarfile.is_tarfile(fname):
+                tf = tarfile.open(fname)
+                f = tf.extractfile(membername)
+                yield f
+                f.close()
+                tf.close()
+            else:
+                with open(fname) as f:
+                    yield f
+
+        def parse(self, fname):
+            pattern = re.compile(r'\[(.+)\]\W(.+)')
+            with self.open_dict(fname) as f:
+                for line in f:
+                    matchobj = pattern.search(line)
+                    if matchobj:
+                        word, phoneme = [x.strip() for x in matchobj.groups()]
+                        if word in self._dict:
+                            self._dict[word].append(phoneme)
+                        else:
+                            self._dict[word] = [phoneme]
+
+        def translate_word(self, word):
+            if word in self._dict:
+                return self._dict[word]
+            else:
+                return []
+
+    PATH_PREFIX = 'julius-vocabulary'
+
+    @property
+    def dfa_file(self):
+        """
+        Returns:
+            The path of the the julius dfa file as string
+        """
+        return os.path.join(self.path, 'dfa')
+
+    @property
+    def dict_file(self):
+        """
+        Returns:
+            The path of the the julius dict file as string
+        """
+        return os.path.join(self.path, 'dict')
+
+    @property
+    def is_compiled(self):
+        return (super(self.__class__, self).is_compiled and
+                os.access(self.dfa_file, os.R_OK) and
+                os.access(self.dict_file, os.R_OK))
+
+    def _get_grammar(self, phrases):
+        return {'S': [['NS_B', 'WORD_LOOP', 'NS_E']],
+                'WORD_LOOP': [['WORD_LOOP', 'WORD'], ['WORD']]}
+
+    def _get_word_defs(self, lexicon, phrases):
+        word_defs = {'NS_B': [('<s>', 'sil')],
+                     'NS_E': [('</s>', 'sil')],
+                     'WORD': []}
+
+        words = []
+        for phrase in phrases:
+            if ' ' in phrase:
+                for word in phrase.split(' '):
+                    words.append(word)
+            else:
+                words.append(phrase)
+
+        for word in words:
+            for phoneme in lexicon.translate_word(word):
+                word_defs['WORD'].append((word, phoneme))
+        return word_defs
+
+    def _compile_vocabulary(self, phrases):
+        prefix = 'jasper'
+        tmpdir = tempfile.mkdtemp()
+
+        lexicon_file = jasperpath.data('julius-stt', 'VoxForge.tgz')
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'julius' in profile and 'lexicon' in profile['julius']:
+                    lexicon_file = profile['julius']['lexicon']
+
+        lexicon = JuliusVocabulary.VoxForgeLexicon(lexicon_file)
+
+        # Create grammar file
+        tmp_grammar_file = os.path.join(tmpdir,
+                                        os.extsep.join([prefix, 'grammar']))
+        with open(tmp_grammar_file, 'w') as f:
+            grammar = self._get_grammar(phrases)
+            for definition in grammar.pop('S'):
+                f.write("%s: %s\n" % ('S', ' '.join(definition)))
+            for name, definitions in grammar.items():
+                for definition in definitions:
+                    f.write("%s: %s\n" % (name, ' '.join(definition)))
+
+        # Create voca file
+        tmp_voca_file = os.path.join(tmpdir, os.extsep.join([prefix, 'voca']))
+        with open(tmp_voca_file, 'w') as f:
+            for category, words in self._get_word_defs(lexicon,
+                                                       phrases).items():
+                f.write("%% %s\n" % category)
+                for word, phoneme in words:
+                    f.write("%s\t\t\t%s\n" % (word, phoneme))
+
+        # mkdfa.pl
+        olddir = os.getcwd()
+        os.chdir(tmpdir)
+        cmd = ['mkdfa.pl', str(prefix)]
+        with tempfile.SpooledTemporaryFile() as out_f:
+            subprocess.call(cmd, stdout=out_f, stderr=out_f)
+            out_f.seek(0)
+            for line in out_f.read().splitlines():
+                line = line.strip()
+                if line:
+                    self._logger.debug(line)
+        os.chdir(olddir)
+
+        tmp_dfa_file = os.path.join(tmpdir, os.extsep.join([prefix, 'dfa']))
+        tmp_dict_file = os.path.join(tmpdir, os.extsep.join([prefix, 'dict']))
+        shutil.move(tmp_dfa_file, self.dfa_file)
+        shutil.move(tmp_dict_file, self.dict_file)
+
+        shutil.rmtree(tmpdir)
+
+
 def get_phrases_from_module(module):
     """
     Gets phrases from a module.
@@ -373,7 +516,6 @@ def get_all_phrases():
     return sorted(list(set(phrases)))
 
 if __name__ == '__main__':
-    import shutil
     import argparse
 
     parser = argparse.ArgumentParser(description='Vocabcompiler Demo')

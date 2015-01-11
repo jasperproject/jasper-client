@@ -7,6 +7,8 @@ import tempfile
 import logging
 import urllib
 import urlparse
+import re
+import subprocess
 from abc import ABCMeta, abstractmethod
 import requests
 import yaml
@@ -174,6 +176,78 @@ class PocketSphinxSTT(AbstractSTTEngine):
     @classmethod
     def is_available(cls):
         return diagnose.check_python_import('pocketsphinx')
+
+
+class JuliusSTT(AbstractSTTEngine):
+    """
+    A very basic Speech-to-Text engine using Julius.
+    """
+
+    SLUG = 'julius'
+    VOCABULARY_TYPE = vocabcompiler.JuliusVocabulary
+
+    def __init__(self, vocabulary=None, hmmdefs="/usr/share/voxforge/julius/" +
+                 "acoustic_model_files/hmmdefs", tiedlist="/usr/share/" +
+                 "voxforge/julius/acoustic_model_files/tiedlist"):
+        self._logger = logging.getLogger(__name__)
+        self._vocabulary = vocabulary
+        self._hmmdefs = hmmdefs
+        self._tiedlist = tiedlist
+        self._pattern = re.compile(r'sentence(\d+): <s> (.+) </s>')
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'julius' in profile:
+                    if 'hmmdefs' in profile['julius']:
+                        config['hmmdefs'] = profile['julius']['hmmdefs']
+                    if 'tiedlist' in profile['julius']:
+                        config['tiedlist'] = profile['julius']['tiedlist']
+        return config
+
+    def transcribe(self, fp, mode=None):
+        cmd = ['julius',
+               '-quiet',
+               '-nolog',
+               '-input', 'stdin',
+               '-dfa', self._vocabulary.dfa_file,
+               '-v', self._vocabulary.dict_file,
+               '-h', self._hmmdefs,
+               '-hlist', self._tiedlist,
+               '-forcedict']
+        cmd = [str(x) for x in cmd]
+        self._logger.debug('Executing: %r', cmd)
+        transcribed = []
+        with tempfile.SpooledTemporaryFile() as out_f:
+            with tempfile.SpooledTemporaryFile() as err_f:
+                subprocess.call(cmd, stdin=fp, stdout=out_f, stderr=err_f)
+            out_f.seek(0)
+            output = out_f.read()
+            for line in output.splitlines():
+                line = line.strip()
+                if line:
+                    if line.startswith('sentence'):
+                        print(line)
+                        matchobj = self._pattern.search(line)
+                        if matchobj and matchobj.groups(1):
+                            transcribed.append(matchobj.group(2))
+                    self._logger.debug(line)
+        if not transcribed:
+            transcribed.append('')
+        self._logger.info('Transcribed: %r', transcribed)
+        return transcribed
+
+    @classmethod
+    def is_available(cls):
+        return diagnose.check_executable('julius')
 
 
 class GoogleSTT(AbstractSTTEngine):
