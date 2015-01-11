@@ -91,6 +91,35 @@ class PocketSphinxSTT(AbstractSTTEngine):
                                          suffix='.log', delete=False) as f:
             self._logfile = f.name
 
+        self._logger.debug("Initializing PocketSphinx Decoder with hmm_dir " +
+                           "'%s'", hmm_dir)
+
+        # Perform some checks on the hmm_dir so that we can display more
+        # meaningful error messages if neccessary
+        if not os.path.exists(hmm_dir):
+            msg = ("hmm_dir '%s' does not exist! Please make sure that you " +
+                   "have set the correct hmm_dir in your profile.") % hmm_dir
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+        # Lets check if all required files are there. Refer to:
+        # http://cmusphinx.sourceforge.net/wiki/acousticmodelformat
+        # for details
+        missing_hmm_files = []
+        for fname in ('mdef', 'feat.params', 'means', 'noisedict',
+                      'transition_matrices', 'variances'):
+            if not os.path.exists(os.path.join(hmm_dir, fname)):
+                missing_hmm_files.append(fname)
+        mixweights = os.path.exists(os.path.join(hmm_dir, 'mixture_weights'))
+        sendump = os.path.exists(os.path.join(hmm_dir, 'sendump'))
+        if not mixweights and not sendump:
+            # We only need mixture_weights OR sendump
+            missing_hmm_files.append('mixture_weights or sendump')
+        if missing_hmm_files:
+            self._logger.warning("hmm_dir '%s' is missing files: %s. Please " +
+                                 "make sure that you have set the correct " +
+                                 "hmm_dir in your profile.",
+                                 hmm_dir, ', '.join(missing_hmm_files))
+
         self._decoder = ps.Decoder(hmm=hmm_dir, logfn=self._logfile,
                                    **vocabulary.decoder_kwargs)
 
