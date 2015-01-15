@@ -333,13 +333,15 @@ class PocketsphinxVocabulary(AbstractVocabulary):
 
 class JuliusVocabulary(AbstractVocabulary):
     class VoxForgeLexicon(object):
-        def __init__(self, fname):
+        def __init__(self, fname, membername=None):
             self._dict = {}
-            self.parse(fname)
+            self.parse(fname, membername)
 
         @contextlib.contextmanager
-        def open_dict(self, fname, membername='VoxForge/VoxForgeDict'):
+        def open_dict(self, fname, membername=None):
             if tarfile.is_tarfile(fname):
+                if not membername:
+                    raise ValueError('archive membername not set!')
                 tf = tarfile.open(fname)
                 f = tf.extractfile(membername)
                 yield f
@@ -349,9 +351,9 @@ class JuliusVocabulary(AbstractVocabulary):
                 with open(fname) as f:
                     yield f
 
-        def parse(self, fname):
+        def parse(self, fname, membername=None):
             pattern = re.compile(r'\[(.+)\]\W(.+)')
-            with self.open_dict(fname) as f:
+            with self.open_dict(fname, membername=membername) as f:
                 for line in f:
                     matchobj = pattern.search(line)
                     if matchobj:
@@ -418,14 +420,20 @@ class JuliusVocabulary(AbstractVocabulary):
         tmpdir = tempfile.mkdtemp()
 
         lexicon_file = jasperpath.data('julius-stt', 'VoxForge.tgz')
+        lexicon_archive_member = 'VoxForge/VoxForgeDict'
         profile_path = jasperpath.config('profile.yml')
         if os.path.exists(profile_path):
             with open(profile_path, 'r') as f:
                 profile = yaml.safe_load(f)
-                if 'julius' in profile and 'lexicon' in profile['julius']:
-                    lexicon_file = profile['julius']['lexicon']
+                if 'julius' in profile:
+                    if 'lexicon' in profile['julius']:
+                        lexicon_file = profile['julius']['lexicon']
+                    if 'lexicon_archive_member' in profile['julius']:
+                        lexicon_archive_member = \
+                            profile['julius']['lexicon_archive_member']
 
-        lexicon = JuliusVocabulary.VoxForgeLexicon(lexicon_file)
+        lexicon = JuliusVocabulary.VoxForgeLexicon(lexicon_file,
+                                                   lexicon_archive_member)
 
         # Create grammar file
         tmp_grammar_file = os.path.join(tmpdir,
