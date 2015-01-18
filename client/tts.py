@@ -93,9 +93,8 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
                 wav.writeframes(frame)
                 frame = mf.read()
             wav.close()
-            wavread = wave.open(f, mode='rb')
-            data = wavread.readframes()
-            wavread.close()
+            f.seek(0)
+            data = f.read()
         return data
 
 
