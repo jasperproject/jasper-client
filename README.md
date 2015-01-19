@@ -27,8 +27,8 @@ Jasper's core developers are [Shubhro Saha](http://www.princeton.edu/~saha/), [C
 
 For a complete list of code contributors, please see [AUTHORS.md](AUTHORS.md).
 
-## Major Update
-- 2015-01-19; Added a new TTS engine for [Flite (festival-lite)](https://github.com/jasperproject/jasper-client/pull/286) and an experimental STT engine for [Julius ](https://github.com/jasperproject/jasper-client/pull/285)
+## Major Updates
+- 2015-01-19: Added a new TTS engine for [Flite (festival-lite)](https://github.com/jasperproject/jasper-client/pull/286) and an experimental STT engine for [Julius ](https://github.com/jasperproject/jasper-client/pull/285)
 - 2015-01-07: [Added a new STT engine](https://github.com/jasperproject/jasper-client/pull/229) for Wit.ai
 - 2014-11-05: [Added a new TTS engine](https://github.com/jasperproject/jasper-client/pull/229) for MaryTTS
 - 2014-10-13: [Brand-new vocabulary compiler](https://github.com/jasperproject/jasper-client/pull/181) that introduces versioning, so that compilation is only performed when needed.
