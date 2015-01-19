@@ -281,8 +281,11 @@ class FliteTTS(AbstractTTSEngine):
             output = out_f.read().strip()
         if output:
             self._logger.debug("Output was: '%s'", output)
-        self.play(fname)
+
+        with open(fname, 'rb') as f:
+            data = f.read()
         os.remove(fname)
+        return data
 
 
 class MacOSXTTS(AbstractTTSEngine):
