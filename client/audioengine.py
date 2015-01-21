@@ -184,7 +184,8 @@ class PyAudioDevice(object):
             channels=channels,
             rate=rate,
             output=output,
-            input=not output)
+            input=not output,
+            frames_per_buffer=1024 if output else 8192)
         self._logger.debug("%s stream opened on device '%s' (%d Hz, %d " +
                            "channel, %d bit)", "output" if output else "input",
                            self.slug, rate, channels, bits)
