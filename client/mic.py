@@ -260,4 +260,4 @@ class Mic:
             language=''):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
-        self.speaker.say(phrase,language)
+        self.speaker.say(phrase, language)
