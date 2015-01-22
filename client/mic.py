@@ -256,7 +256,7 @@ class Mic:
             return self.active_stt_engine.transcribe(f)
 
     def say(self, phrase,
-            OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+            OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav",language=''):
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
-        self.speaker.say(phrase)
+        self.speaker.say(phrase,language)
