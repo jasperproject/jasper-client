@@ -1,9 +1,9 @@
 # -*- coding: utf-8-*-
 import re
+import copy
 import logging
 import difflib
 import mpd
-from client.mic import Mic
 
 # Standard module stuff
 WORDS = ["MUSIC", "SPOTIFY"]
@@ -77,9 +77,8 @@ class MusicMode(object):
 
         music_stt_engine = mic.active_stt_engine.get_instance('music', phrases)
 
-        self.mic = Mic(mic.speaker,
-                       mic.passive_stt_engine,
-                       music_stt_engine)
+        self.mic = copy.copy(mic)
+        self.mic.active_stt_engine = music_stt_engine
 
     def delegateInput(self, input):
 
@@ -161,15 +160,9 @@ class MusicMode(object):
 
         while True:
 
-            threshold, transcribed = self.mic.passiveListen(self.persona)
-
-            if not transcribed or not threshold:
-                self._logger.info("Nothing has been said or transcribed.")
-                continue
-
+            self.mic.wait_for_keyword(self.persona)
             self.music.pause()
-
-            input = self.mic.activeListen(MUSIC=True)
+            input = self.mic.active_listen()[0]
 
             if input:
                 if "close" in input.lower():
