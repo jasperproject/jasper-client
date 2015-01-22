@@ -450,7 +450,7 @@ class GoogleTTS(AbstractMp3TTSEngine):
                  'th', 'tr', 'vi', 'cy']
         return langs
 
-    def say(self,phrase,language=''):
+    def say(self, phrase, language=''):
         if language == '':
                 language = self.language
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
