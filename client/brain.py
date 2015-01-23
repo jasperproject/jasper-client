@@ -1,7 +1,13 @@
 # -*- coding: utf-8-*-
+import os
+import inspect
+import sys
 import logging
 import pkgutil
 import jasperpath
+
+import requests
+import xml.etree.ElementTree as ET
 
 
 class Brain(object):
@@ -82,5 +88,11 @@ class Brain(object):
                                            module.__name__)
                     finally:
                         return
-        self._logger.debug("No module was able to handle any of these " +
-                           "phrases: %r", texts)
+        self._logger.debug("Handling of phrase was transferred to chatbot")
+        if ('chatbot_application' in self.profile):
+            payload = {'instance': self.profile['chatbot_instance'], 'message': text, 'application': self.profile['chatbot_application']}
+        else:
+            payload = {'instance': self.profile['chatbot_instance'], 'message': text}
+        response = requests.get("http://www.botlibre.com/rest/botlibre/form-chat", params=payload)
+        r = ET.fromstring(response.text)
+        self.mic.say(r[0].text)
