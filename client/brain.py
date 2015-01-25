@@ -87,12 +87,16 @@ class Brain(object):
                         return
         self._logger.debug("Handling of phrase was transferred to chatbot")
         if ('chatbot_application' in self.profile):
-            payload = {'instance': self.profile['chatbot_instance'], 
-                       'message': text, 
-                       'application': self.profile['chatbot_application'
-                      ]}
+            payload = {
+                       'instance': self.profile['chatbot_instance'],
+                       'message': text,
+                       'application': self.profile['chatbot_application']
+                      }
         else:
-            payload = {'instance': self.profile['chatbot_instance'], 'message': text}
+            payload = {
+                       'instance': self.profile['chatbot_instance'],
+                       'message': text
+                      }
         
         response = requests.get("http://www.botlibre.com/" +
                                 "rest/botlibre/form-chat", 
