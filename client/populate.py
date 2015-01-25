@@ -120,7 +120,7 @@ def run():
         print("Unrecognized STT engine. Available implementations: %s"
               % stt_engines.keys())
         profile["stt_engine"] = "sphinx"
-        
+
     # chatbot api
     print("\nPlease enter a chatbot instance from http://botlibre.com. " +
           "This will be used for 'chatty' conversations that do " +
@@ -131,7 +131,6 @@ def run():
         profile['chatbot_instance'] = 165
     else:
         profile['chatbot_instance'] = instance
-    
 
     # write to profile
     print("Writing to profile...")
