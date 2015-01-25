@@ -123,7 +123,7 @@ def handle(text, mic, profile):
         mic.say("Here are some front-page articles. " +
                 all_titles + ". Would you like me to send you these? " +
                 "If so, which?")
-        handleResponse(mic.activeListen())
+        handleResponse(mic.active_listen()[0])
 
     else:
         mic.say("Here are some front-page articles. " + all_titles)

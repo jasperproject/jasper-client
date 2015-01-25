@@ -9,7 +9,7 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose
+from client import tts, stt, jasperpath, diagnose, audioengine
 
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
@@ -96,10 +96,56 @@ class Jasper(object):
                            "to '%s'", tts_engine_slug)
         tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
 
+        # Initialize AudioEngine
+        audio = audioengine.PyAudioEngine()
+
+        # Initialize audio input device
+        devices = [device.slug for device
+                   in audio.get_input_devices()]
+        try:
+            device_slug = self.config['input_device']
+        except KeyError:
+            device_slug = audio.get_default_input_device().slug
+            logger.warning("input_device not specified in profile, " +
+                           "defaulting to '%s' (Possible values: %s)",
+                           device_slug, ', '.join(devices))
+        try:
+            input_device = audio.get_device_by_slug(device_slug)
+            if not input_device.is_input_device:
+                raise audioengine.UnsupportedFormat(
+                    "Audio device with slug '%s' is not an input device"
+                    % input_device.slug)
+        except (audioengine.DeviceException) as e:
+            logger.critical(e.args[0])
+            logger.warning('Valid output devices: %s', ', '.join(devices))
+            raise
+
+        # Initialize audio output device
+        devices = [device.slug for device
+                   in audio.get_output_devices()]
+        try:
+            device_slug = self.config['output_device']
+        except KeyError:
+            device_slug = audio.get_default_output_device().slug
+            logger.warning("output_device not specified in profile, " +
+                           "defaulting to '%s' (Possible values: %s)",
+                           device_slug, ', '.join(devices))
+        try:
+            output_device = audio.get_device_by_slug(device_slug)
+            if not output_device.is_output_device:
+                raise audioengine.UnsupportedFormat(
+                    "Audio device with slug '%s' is not an output device"
+                    % output_device.slug)
+        except (audioengine.DeviceException) as e:
+            logger.critical(e.args[0])
+            logger.warning('Valid output devices: %s', ', '.join(devices))
+            raise
+
         # Initialize Mic
-        self.mic = Mic(tts_engine_class.get_instance(),
+        self.mic = Mic(input_device, output_device,
                        stt_engine_class.get_passive_instance(),
-                       stt_engine_class.get_active_instance())
+                       stt_engine_class.get_active_instance(),
+                       tts_engine_class.get_instance())
 
     def run(self):
         if 'first_name' in self.config:
