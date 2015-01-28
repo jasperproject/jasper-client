@@ -475,7 +475,7 @@ class AttSTT(AbstractSTTEngine):
                        'client_secret': self.app_secret,
                        'scope': 'SPEECH',
                        'grant_type': 'client_credentials'}
-            r = requests.post('https://api.att.com/oauth/token',
+            r = requests.post('https://api.att.com/oauth/v4/token',
                               data=payload,
                               headers=headers)
             self._token = r.json()['access_token']
