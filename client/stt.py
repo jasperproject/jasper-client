@@ -535,6 +535,20 @@ class AttSTT(AbstractSTTEngine):
         return diagnose.check_network_connection()
 
 
+class STTString(str):
+    def setConfidence(self, confidence):
+        self._confidence = confidence
+
+    def getConfidence(self):
+        return self._confidence
+
+    def setEntities(self, entities):
+        self._entities = entities
+
+    def getEntities(self):
+        return self._entities
+
+
 class WitAiSTT(AbstractSTTEngine):
     """
     Speech-To-Text implementation which relies on the Wit.ai Speech API.
@@ -592,7 +606,15 @@ class WitAiSTT(AbstractSTTEngine):
                           headers=self.headers)
         try:
             r.raise_for_status()
-            text = r.json()['_text']
+            result = r.json()
+            text = [ result['_text'].upper() ]
+            if 'outcomes' in result:
+                for outcome in result['outcomes']:
+                    intent = STTString(outcome['intent'])
+                    intent.setConfidence(outcome['confidence'])
+                    intent.setEntities(outcome['entities'])
+                    text.append(intent)
+                    self._logger.info('Found intent %s with confidence %f', intent, intent.getConfidence())
         except requests.exceptions.HTTPError:
             self._logger.critical('Request failed with response: %r',
                                   r.text,
@@ -610,7 +632,7 @@ class WitAiSTT(AbstractSTTEngine):
                                   exc_info=True)
             return []
         else:
-            transcribed = [text.upper()]
+            transcribed = text
             self._logger.info('Transcribed: %r', transcribed)
             return transcribed
 
