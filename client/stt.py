@@ -607,14 +607,15 @@ class WitAiSTT(AbstractSTTEngine):
         try:
             r.raise_for_status()
             result = r.json()
-            text = [ result['_text'].upper() ]
+            text = [result['_text'].upper()]
             if 'outcomes' in result:
                 for outcome in result['outcomes']:
                     intent = STTString(outcome['intent'])
                     intent.setConfidence(outcome['confidence'])
                     intent.setEntities(outcome['entities'])
                     text.append(intent)
-                    self._logger.info('Found intent %s with confidence %f', intent, intent.getConfidence())
+                    self._logger.info('Found intent %s with confidence %f',
+                                      intent, intent.getConfidence())
         except requests.exceptions.HTTPError:
             self._logger.critical('Request failed with response: %r',
                                   r.text,
