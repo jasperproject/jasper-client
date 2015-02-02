@@ -9,6 +9,12 @@ import logging
 import yaml
 import argparse
 
+import locale
+import gettext
+locale.setlocale(locale.LC_ALL, '')
+langs = gettext.translation('messages', localedir='./languages', languages=[])
+langs.install()
+
 from client import tts, stt, jasperpath, diagnose
 
 # Add jasperpath.LIB_PATH to sys.path
@@ -103,10 +109,10 @@ class Jasper(object):
 
     def run(self):
         if 'first_name' in self.config:
-            salutation = ("How can I be of service, %s?"
+            salutation = (_("How can I be of service, %s?")
                           % self.config["first_name"])
         else:
-            salutation = "How can I be of service?"
+            salutation = _("How can I be of service?")
         self.mic.say(salutation)
 
         conversation = Conversation("JASPER", self.mic, self.config)
