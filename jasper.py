@@ -12,7 +12,7 @@ import argparse
 import locale
 import gettext
 locale.setlocale(locale.LC_ALL, '')
-langs = gettext.translation('messages', localedir='./languages', languages=[])
+langs = gettext.translation('messages', localedir='./languages', languages=['de_DE'])
 langs.install()
 
 from client import tts, stt, jasperpath, diagnose
