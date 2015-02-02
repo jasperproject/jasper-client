@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 
+# add additional translations here
+LANGUAGES = ['de_DE']
+
 import os
 import sys
 import shutil
@@ -11,9 +14,6 @@ import argparse
 
 import locale
 import gettext
-locale.setlocale(locale.LC_ALL, '')
-langs = gettext.translation('messages', localedir='./languages', languages=['de_DE'])
-langs.install()
 
 from client import tts, stt, jasperpath, diagnose
 
@@ -85,6 +85,13 @@ class Jasper(object):
         except OSError:
             self._logger.error("Can't open config file: '%s'", new_configfile)
             raise
+
+        if 'lang' in self.config:
+            locale.setlocale(locale.LC_ALL, self.config['lang'])
+        else:
+            locale.setlocale(locale.LC_ALL, '')
+        _langs = gettext.translation('messages', localedir='./languages', languages=LANGUAGES)
+        _langs.install()
 
         try:
             stt_engine_slug = self.config['stt_engine']
