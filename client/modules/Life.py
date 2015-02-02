@@ -2,7 +2,7 @@
 import random
 import re
 
-WORDS = ["MEANING", "OF", "LIFE"]
+WORDS = [_("MEANING"), _("OF"), _("LIFE")]
 
 
 def handle(text, mic, profile):
@@ -16,8 +16,8 @@ def handle(text, mic, profile):
         profile -- contains information related to the user (e.g., phone
                    number)
     """
-    messages = ["It's 42, you idiot.",
-                "It's 42. How many times do I have to tell you?"]
+    messages = [_("It's 42, you idiot."),
+                _("It's 42. How many times do I have to tell you?")]
 
     message = random.choice(messages)
 
@@ -31,4 +31,4 @@ def isValid(text):
         Arguments:
         text -- user-input, typically transcribed speech
     """
-    return bool(re.search(r'\bmeaning of life\b', text, re.IGNORECASE))
+    return bool(re.search(r'\b', _('meaning of life'), r'\b', text, re.IGNORECASE))

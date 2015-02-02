@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jasper VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-02-02 11:43+0100\n"
+"POT-Creation-Date: 2015-02-02 13:21+0100\n"
 "PO-Revision-Date: 2015-02-02 10:50+0100\n"
 "Last-Translator: MakeMeASandwich\n"
 "Language-Team: de_DE <LL@li.org>\n"
@@ -18,30 +18,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: jasper-client/jasper.py:112
+#: jasper-client/jasper.py:119
 #, python-format
 msgid "How can I be of service, %s?"
 msgstr "Wie kann ich helfen, %s?"
 
-#: jasper-client/jasper.py:115
+#: jasper-client/jasper.py:122
 msgid "How can I be of service?"
 msgstr "Wie kann ich helfen?"
 
-#: jasper-client/client/modules/Joke.py:7
+#: jasper-client/client/brain.py:77
+msgid "I'm sorry. I had some trouble with that operation. Please try again later."
+msgstr ""
+
+#: jasper-client/client/conversation.py:49
+msgid "Pardon?"
+msgstr ""
+
+#: jasper-client/client/modules/Joke.py:6
 msgid "JOKE"
 msgstr "WITZ"
 
-#: jasper-client/client/modules/Joke.py:7
+#: jasper-client/client/modules/Joke.py:6
 msgid "KNOCK KNOCK"
 msgstr "KLOPF KLOPF"
 
-#: jasper-client/client/modules/Joke.py:47
+#: jasper-client/client/modules/Joke.py:46
 msgid "Knock knock"
 msgstr "Klopf Klopf"
 
-#: jasper-client/client/modules/Joke.py:67
+#: jasper-client/client/modules/Joke.py:66
 msgid "joke"
 msgstr "witz"
+
+#: jasper-client/client/modules/Life.py:5
+msgid "MEANING"
+msgstr ""
+
+#: jasper-client/client/modules/Life.py:5
+msgid "OF"
+msgstr ""
+
+#: jasper-client/client/modules/Life.py:5
+msgid "LIFE"
+msgstr ""
+
+#: jasper-client/client/modules/Life.py:19
+msgid "It's 42, you idiot."
+msgstr ""
+
+#: jasper-client/client/modules/Life.py:20
+msgid "It's 42. How many times do I have to tell you?"
+msgstr ""
+
+#: jasper-client/client/modules/Life.py:34
+msgid "meaning of life"
+msgstr ""
 
 #: jasper-client/client/modules/Time.py:6
 msgid "TIME"
