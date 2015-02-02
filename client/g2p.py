@@ -12,8 +12,8 @@ import jasperpath
 
 
 class PhonetisaurusG2P(object):
-    PATTERN = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t<s> ' +
-                         r'(?P<pronounciation>.*) </s>', re.MULTILINE)
+    PATTERN = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t(?:<s> )?' +
+                         r'(?P<pronounciation>.*?)(?: </s>)?$', re.MULTILINE)
 
     @classmethod
     def execute(cls, fst_model, input, is_file=False, nbest=None):
