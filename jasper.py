@@ -137,7 +137,7 @@ if __name__ == "__main__":
     try:
         app = Jasper()
     except Exception:
-        logger.exception("Error occured!", exc_info=True)
+        logger.error("Error occured!", exc_info=True)
         sys.exit(1)
 
     app.run()
