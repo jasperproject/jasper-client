@@ -105,7 +105,7 @@ class PyAudioDevice(object):
         self._max_output_channels = info['maxOutputChannels']
         self._max_input_channels = info['maxInputChannels']
         # slugify the name
-        preslug_name = self.RE_PRESLUG.sub('', info['name'])
+        preslug_name = unicode(self.RE_PRESLUG.sub('', info['name']))
         if preslug_name.endswith(': - '):
             preslug_name = info['name']
         self._slug = slugify.slugify(preslug_name)
