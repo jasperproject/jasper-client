@@ -36,7 +36,9 @@ def run():
     profile['gmail_password'] = getpass()
 
     # phone number
-    clean_number = lambda s: re.sub(r'[^0-9]', '', s)
+    def clean_number(s):
+        return re.sub(r'[^0-9]', '', s)
+
     phone_number = clean_number(raw_input("\nPhone number (no country " +
                                           "code). Any dashes or spaces will " +
                                           "be removed for you: "))
