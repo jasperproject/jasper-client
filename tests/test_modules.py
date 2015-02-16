@@ -92,6 +92,5 @@ class TestModules(unittest.TestCase):
         query = "what's the weather like tomorrow"
         inputs = []
         outputs = self.runConversation(query, inputs, Weather)
-        self.assertTrue(
-            "can't see that far ahead" in outputs[0]
-            or "Tomorrow" in outputs[0])
+        self.assertTrue("can't see that far ahead"
+                        in outputs[0] or "Tomorrow" in outputs[0])

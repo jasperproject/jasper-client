@@ -6,13 +6,12 @@ import socket
 import subprocess
 import pkgutil
 import logging
+import pip.req
+import jasperpath
 if sys.version_info < (3, 3):
     from distutils.spawn import find_executable
 else:
     from shutil import which as find_executable
-
-import pip.req
-import jasperpath
 
 logger = logging.getLogger(__name__)
 
