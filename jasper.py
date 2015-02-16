@@ -10,11 +10,10 @@ import yaml
 import argparse
 
 from client import tts, stt, jasperpath, diagnose
+from client.conversation import Conversation
 
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
-
-from client.conversation import Conversation
 
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
 parser.add_argument('--local', action='store_true',
