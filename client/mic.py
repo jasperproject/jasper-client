@@ -37,11 +37,12 @@ class Mic(object):
     # Input methods
     def _get_threshold(self):
         self._logger.debug("Recording silence...")
+        width = self._input_bits / 8
         recording = self._input_device.record(self._input_chunksize,
                                               self._input_bits,
                                               self._input_channels,
                                               self._input_rate)
-        rms = max([audioop.rms(recording.next(), self._input_bits / 8) for i in range(30)])
+        rms = max([audioop.rms(recording.next(), width) for i in range(30)])
         self._logger.debug("Finished recording silence, Threshold is %r", rms)
         return rms
 
@@ -111,8 +112,9 @@ class Mic(object):
                 if len(recording_frames) > (len(frames) + 10):
                     # If we recorded at least 20 frames, check if we're below
                     # threshold again
+                    width = self._input_bits / 8
                     last_frames = recording_frames[-10:]
-                    avg_rms = float(sum([audioop.rms(frame, self._input_bits / 8)
+                    avg_rms = float(sum([audioop.rms(frame, width)
                                          for frame in last_frames]))/10
                     self._logger.debug("Recording's RMS/Threshold ratio: %f",
                                        (avg_rms/self._threshold))
@@ -130,7 +132,8 @@ class Mic(object):
 
     def active_listen(self, timeout=2):
         # record until <timeout> second of silence
-        n = int(round((self._input_rate * (self._input_bits / 8) / self._input_chunksize)*timeout))
+        width = self._input_bits / 8
+        n = int(round((self._input_rate * width / self._input_chunksize)*timeout))
         self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
         frames = []
         for frame in self._input_device.record(self._input_chunksize,
