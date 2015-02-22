@@ -18,7 +18,7 @@ class Mic:
     def active_listen(self, timeout=3):
         input = raw_input("YOU: ")
         self.prev = input
-        return [ input ]
+        return [input]
 
     def listen(self):
         return self.active_listen()
