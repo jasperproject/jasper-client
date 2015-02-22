@@ -41,7 +41,7 @@ class Mic(object):
                                               self._input_bits,
                                               self._input_channels,
                                               self._input_rate)
-        rms = max([audioop.rms(recording.next(), 1) for i in range(30)])
+        rms = max([audioop.rms(recording.next(), self._input_bits / 8) for i in range(30)])
         self._logger.debug("Finished recording silence, Threshold is %r", rms)
         return rms
 
@@ -97,7 +97,7 @@ class Mic(object):
                 return
             frames.append(frame)
             if not recording:
-                if self._threshold < audioop.rms(frame, 1):
+                if self._threshold < audioop.rms(frame, self._input_bits / 8):
                     # Loudness is higher than normal, start recording and use
                     # the last 10 frames to start
                     self._logger.debug("Started recording on device '%s'",
@@ -112,7 +112,7 @@ class Mic(object):
                     # If we recorded at least 20 frames, check if we're below
                     # threshold again
                     last_frames = recording_frames[-10:]
-                    avg_rms = float(sum([audioop.rms(frame, 1)
+                    avg_rms = float(sum([audioop.rms(frame, self._input_bits / 8)
                                          for frame in last_frames]))/10
                     self._logger.debug("Recording's RMS/Threshold ratio: %f",
                                        (avg_rms/self._threshold))
@@ -128,9 +128,9 @@ class Mic(object):
         self.wait_for_keyword(self._keyword)
         return self.active_listen()
 
-    def active_listen(self, timeout=3):
+    def active_listen(self, timeout=2):
         # record until <timeout> second of silence
-        n = int(round((self._input_rate/self._input_chunksize)*timeout))
+        n = int(round((self._input_rate * (self._input_bits / 8) / self._input_chunksize)*timeout))
         self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
         frames = []
         for frame in self._input_device.record(self._input_chunksize,
@@ -139,7 +139,7 @@ class Mic(object):
                                                self._input_rate):
             frames.append(frame)
             if len(frames) > n:
-                avg_rms = float(sum([audioop.rms(frame, 1)
+                avg_rms = float(sum([audioop.rms(frame, self._input_bits / 8)
                                      for frame in frames[-n:]]))/n
                 if avg_rms < self._threshold:
                     break
