@@ -33,7 +33,7 @@ class Mic(object):
         self._input_channels = 1
         self._input_bits = 16
         self._input_chunksize = 1024
-        self._threshold = 2.0**16
+        self._threshold = 2.0**self._input_bits
 
     def _snr(self, frames):
         rms = audioop.rms(b"".join(frames), 2)
