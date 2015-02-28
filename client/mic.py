@@ -93,12 +93,13 @@ class Mic(object):
                                                self._input_bits,
                                                self._input_channels,
                                                self._input_rate):
+            width = self._input_bits / 8
             if keyword_uttered.is_set():
                 self._logger.info("Keyword %s has been uttered", keyword)
                 return
             frames.append(frame)
             if not recording:
-                if self._threshold < audioop.rms(frame, self._input_bits / 8):
+                if self._threshold < audioop.rms(frame, width):
                     # Loudness is higher than normal, start recording and use
                     # the last 10 frames to start
                     self._logger.debug("Started recording on device '%s'",
@@ -112,7 +113,6 @@ class Mic(object):
                 if len(recording_frames) > (len(frames) + 10):
                     # If we recorded at least 20 frames, check if we're below
                     # threshold again
-                    width = self._input_bits / 8
                     last_frames = recording_frames[-10:]
                     avg_rms = float(sum([audioop.rms(frame, width)
                                          for frame in last_frames]))/10
@@ -142,7 +142,7 @@ class Mic(object):
                                                self._input_rate):
             frames.append(frame)
             if len(frames) > n:
-                avg_rms = float(sum([audioop.rms(frame, self._input_bits / 8)
+                avg_rms = float(sum([audioop.rms(frame, width)
                                      for frame in frames[-n:]]))/n
                 if avg_rms < self._threshold:
                     break
