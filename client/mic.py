@@ -6,7 +6,10 @@ import logging
 import tempfile
 import wave
 import audioop
+from collections import deque
+
 import pyaudio
+
 import alteration
 import jasperpath
 
@@ -65,18 +68,19 @@ class Mic:
         frames = []
 
         # stores the lastN score values
-        lastN = [i for i in range(20)]
+        lastN = deque(maxlen=RATE/CHUNK)
 
         # calculate the long run average, and thereby the proper threshold
         for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
 
             data = stream.read(CHUNK)
             frames.append(data)
+            score = self.getScore(data)
 
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
+            if lastN or score > 10:
+                # wait for high enough score, and then save scores
+                lastN.append(score)
+        average = sum(lastN) / len(lastN)
 
         stream.stop_stream()
         stream.close()
@@ -96,12 +100,6 @@ class Mic:
         RATE = 16000
         CHUNK = 1024
 
-        # number of seconds to allow to establish threshold
-        THRESHOLD_TIME = 1
-
-        # number of seconds to listen before forcing restart
-        LISTEN_TIME = 10
-
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,
                                   channels=1,
@@ -109,54 +107,39 @@ class Mic:
                                   input=True,
                                   frames_per_buffer=CHUNK)
 
-        # stores the audio data
-        frames = []
-
-        # stores the lastN score values
-        lastN = [i for i in range(30)]
-
-        # calculate the long run average, and thereby the proper threshold
-        for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
-            data = stream.read(CHUNK)
-            frames.append(data)
-
-            # save this data point as a score
-            lastN.pop(0)
-            lastN.append(self.getScore(data))
-            average = sum(lastN) / len(lastN)
-
         # this will be the benchmark to cause a disturbance over!
-        THRESHOLD = average * THRESHOLD_MULTIPLIER
+        # initialise very high
+        THRESHOLD = 2**16
 
         # save some memory for sound data
-        frames = []
+        frames = deque(maxlen=RATE/CHUNK)
 
-        # flag raised when sound disturbance detected
-        didDetect = False
+        # stores the lastN score values
+        lastN = deque(maxlen=RATE/CHUNK)
+
+        # initial score
+        score = 0
 
         # start passively listening for disturbance above threshold
-        for i in range(0, RATE / CHUNK * LISTEN_TIME):
+        while score < THRESHOLD:
 
             data = stream.read(CHUNK)
             frames.append(data)
             score = self.getScore(data)
 
-            if score > THRESHOLD:
-                didDetect = True
-                break
+            if lastN or score > 10:
+                # wait for high enough score, and then save scores
+                lastN.append(score)
+                if len(lastN) >= lastN.maxlen:
+                    # now we have enough samples, calculate average
+                    average = sum(lastN) / len(lastN)
+                    # this will be the benchmark to cause a disturbance over!
+                    THRESHOLD = average * THRESHOLD_MULTIPLIER
 
-        # no use continuing if no flag raised
-        if not didDetect:
-            print "No disturbance detected"
-            stream.stop_stream()
-            stream.close()
-            return (None, None)
+        # convert frames to list to allow additional appends
+        frames = list(frames)
 
-        # cutoff any recording before this disturbance was detected
-        frames = frames[-20:]
-
-        # otherwise, let's keep recording for few seconds and save the file
+        # let's keep recording for few seconds and save the file
         DELAY_MULTIPLIER = 1
         for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
 
@@ -222,7 +205,7 @@ class Mic:
         frames = []
         # increasing the range # results in longer pause after command
         # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
+        lastN = deque(maxlen=RATE/CHUNK)
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
@@ -230,14 +213,15 @@ class Mic:
             frames.append(data)
             score = self.getScore(data)
 
-            lastN.pop(0)
-            lastN.append(score)
+            if lastN or score > THRESHOLD:
+                # wait for high enough score, and then save scores
+                lastN.append(score)
 
-            average = sum(lastN) / float(len(lastN))
+                average = sum(lastN) / len(lastN)
 
-            # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
-                break
+                # TODO: 0.8 should not be a MAGIC NUMBER!
+                if average < THRESHOLD * 0.8:
+                    break
 
         self.speaker.play(jasperpath.data('audio', 'beep_lo.wav'))
 
