@@ -74,10 +74,8 @@ class AbstractMp3TTSEngine(AbstractTTSEngine):
         mf = mad.MadFile(filename)
         with tempfile.SpooledTemporaryFile() as f:
             wav = wave.open(f, mode='wb')
-            wav.setframerate(mf.samplerate())
-            wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
-            # 4L is the sample width of 32 bit audio
-            wav.setsampwidth(4)
+            #pymad always return signed 16bits stereo data frames
+            wav.setparams((2, 2, mf.samplerate(), 0, 'NONE', ''))
             frame = mf.read()
             while frame is not None:
                 wav.writeframes(frame)
