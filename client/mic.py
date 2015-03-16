@@ -7,7 +7,7 @@ import collections
 import contextlib
 import threading
 import Queue as queue
-from math import log
+import math
 
 import alteration
 
@@ -38,7 +38,7 @@ class Mic(object):
     def _snr(self, frames):
         rms = audioop.rms(b"".join(frames), 2)
         if rms > 0 and self._threshold > 0:
-            return 20.0 * log(rms/self._threshold, 10)
+            return 20.0 * math.log(rms/self._threshold, 10)
         else:
             return 0
 
