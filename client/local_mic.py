@@ -20,5 +20,8 @@ class Mic:
         self.prev = input
         return input
 
+    def listen(self):
+        return [self.active_listen(timeout=3)]
+
     def say(self, phrase, OPTIONS=None):
         print("JASPER: %s" % phrase)
