@@ -610,7 +610,9 @@ class WitAiSTT(AbstractSTTEngine):
                                   exc_info=True)
             return []
         else:
-            transcribed = [text.upper()]
+            transcribed = []
+            if text:
+                transcribed.append(text.upper())
             self._logger.info('Transcribed: %r', transcribed)
             return transcribed
 
