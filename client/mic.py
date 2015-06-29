@@ -7,6 +7,7 @@ import collections
 import contextlib
 import threading
 import Queue as queue
+import math
 
 import alteration
 
@@ -32,18 +33,14 @@ class Mic(object):
         self._input_channels = 1
         self._input_bits = 16
         self._input_chunksize = 1024
-        self._threshold = self._get_threshold()
+        self._threshold = 2.0**16
 
-    # Input methods
-    def _get_threshold(self):
-        self._logger.debug("Recording silence...")
-        recording = self._input_device.record(self._input_chunksize,
-                                              self._input_bits,
-                                              self._input_channels,
-                                              self._input_rate)
-        rms = max([audioop.rms(recording.next(), 1) for i in range(30)])
-        self._logger.debug("Finished recording silence, Threshold is %r", rms)
-        return rms
+    def _snr(self, frames):
+        rms = audioop.rms(b"".join(frames), 2)
+        if rms > 0 and self._threshold > 0:
+            return 20.0 * math.log(rms/self._threshold, 10)
+        else:
+            return 0
 
     @contextlib.contextmanager
     def _write_frames_to_file(self, frames):
@@ -85,7 +82,7 @@ class Mic(object):
             t.daemon = True
             t.start()
 
-        frames = collections.deque([], 10)
+        frames = collections.deque([], 30)
         recording = False
         recording_frames = []
         for frame in self._input_device.record(self._input_chunksize,
@@ -97,39 +94,45 @@ class Mic(object):
                 return
             frames.append(frame)
             if not recording:
-                if self._threshold < audioop.rms(frame, 1):
+                snr = self._snr([frame])
+                if snr >= 10:  # 10dB
                     # Loudness is higher than normal, start recording and use
                     # the last 10 frames to start
                     self._logger.debug("Started recording on device '%s'",
                                        self._input_device.slug)
+                    self._logger.debug("Triggered on SNR of %sdB", snr)
                     recording = True
-                    recording_frames = []
-                    recording_frames.extend(frames)
+                    recording_frames = list(frames)[-10:]
+                elif len(frames) >= frames.maxlen:
+                    # Threshold SNR not reached. Update threshold with
+                    # background noise.
+                    self._threshold = float(audioop.rms("".join(frames), 2))
             else:
                 # We're recording
                 recording_frames.append(frame)
-                if len(recording_frames) > (len(frames) + 10):
+                if len(recording_frames) > 20:
                     # If we recorded at least 20 frames, check if we're below
                     # threshold again
-                    last_frames = recording_frames[-10:]
-                    avg_rms = float(sum([audioop.rms(frame, 1)
-                                         for frame in last_frames]))/10
-                    self._logger.debug("Recording's RMS/Threshold ratio: %f",
-                                       (avg_rms/self._threshold))
-                    if avg_rms < self._threshold:
+                    last_snr = self._snr(recording_frames[-10:])
+                    self._logger.debug(
+                        "Recording's SNR dB: %f", last_snr)
+                    if last_snr <= 3 or len(recording_frames) >= 60:
                         # The loudness of the sound is not at least as high as
-                        # the the threshold, we'll stop recording now
+                        # the the threshold, or we've been waiting too long
+                        # we'll stop recording now
                         recording = False
                         self._logger.debug("Recorded %d frames",
                                            len(recording_frames))
                         frame_queue.put(tuple(recording_frames))
+                        self._threshold = float(
+                            audioop.rms(b"".join(frames), 2))
 
     def listen(self):
         self.wait_for_keyword(self._keyword)
         return self.active_listen()
 
     def active_listen(self, timeout=3):
-        # record until <timeout> second of silence
+        # record until <timeout> second of silence or double <timeout>.
         n = int(round((self._input_rate/self._input_chunksize)*timeout))
         self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
         frames = []
@@ -138,11 +141,9 @@ class Mic(object):
                                                self._input_channels,
                                                self._input_rate):
             frames.append(frame)
-            if len(frames) > n:
-                avg_rms = float(sum([audioop.rms(frame, 1)
-                                     for frame in frames[-n:]]))/n
-                if avg_rms < self._threshold:
-                    break
+            if len(frames) >= 2*n or (
+                    len(frames) > n and self._snr(frames[-n:]) <= 3):
+                break
         self.play_file(jasperpath.data('audio', 'beep_lo.wav'))
         with self._write_frames_to_file(frames) as f:
             return self.active_stt_engine.transcribe(f)
