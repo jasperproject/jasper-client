@@ -123,6 +123,17 @@ def run():
               % stt_engines.keys())
         profile["stt_engine"] = "sphinx"
 
+    # chatbot api
+    print("\nPlease enter a chatbot instance from http://botlibre.com. " +
+          "This will be used for 'chatty' conversations that do " +
+          "not require action.  If no input is provided, Jasper" +
+          "will use the default chatbot instance 165.")
+    instance = raw_input("Instance: ")
+    if (instance == ''):
+        profile['chatbot_instance'] = 165
+    else:
+        profile['chatbot_instance'] = instance
+
     # write to profile
     print("Writing to profile...")
     if not os.path.exists(jasperpath.CONFIG_PATH):
