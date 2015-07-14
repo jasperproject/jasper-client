@@ -577,10 +577,19 @@ class IvonaTTS(AbstractMp3TTSEngine):
 
     SLUG = "ivona-tts"
 
-    def __init__(self, access_key='', secret_key=''):
+    def __init__(self, access_key='', secret_key='', region=None,
+                 voice=None, speech_rate=None, sentence_break=None):
         super(self.__class__, self).__init__()
         self._pyvonavoice = pyvona.Voice(access_key, secret_key)
         self._pyvonavoice.codec = "mp3"
+        if region:
+            self._pyvonavoice.region = region
+        if voice:
+            self._pyvonavoice.voice_name = voice
+        if speech_rate:
+            self._pyvonavoice.speech_rate = speech_rate
+        if sentence_break:
+            self._pyvonavoice.sentence_break = sentence_break
 
     @classmethod
     def get_config(cls):
@@ -599,7 +608,16 @@ class IvonaTTS(AbstractMp3TTSEngine):
                     if 'secret_key' in profile['ivona-tts']:
                         config['secret_key'] = \
                             profile['ivona-tts']['secret_key']
-
+                    if 'region' in profile['ivona-tts']:
+                        config['region'] = profile['ivona-tts']['region']
+                    if 'voice' in profile['ivona-tts']:
+                        config['voice'] = profile['ivona-tts']['voice']
+                    if 'speech_rate' in profile['ivona-tts']:
+                        config['speech_rate'] = \
+                            profile['ivona-tts']['speech_rate']
+                    if 'sentence_break' in profile['ivona-tts']:
+                        config['sentence_break'] = \
+                            profile['ivona-tts']['sentence_break']
         return config
 
     @classmethod
