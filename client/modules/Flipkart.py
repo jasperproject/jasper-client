@@ -20,7 +20,7 @@ def getresults(text, mic):
     mic.say("Top 5 results are")
 
     for a, b in zip(ob.findAll('div', {'class': 'pu-final'}),
-                ob.findAll('a', {'class': 'fk-display-block'})):
+                    ob.findAll('a', {'class': 'fk-display-block'})):
         price = a.text
         title = b.text
         ctr = ctr + 1
