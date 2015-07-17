@@ -1,5 +1,6 @@
 # -*- coding: utf-8-*-
 from mewe import dic
+import re
 
 WORDS = ["FIND", "MEANING", "OF"]
 
