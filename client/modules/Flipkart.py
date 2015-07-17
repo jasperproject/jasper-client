@@ -9,7 +9,8 @@ WORDS = ["SEARCH", "FOR", "ON", "FLIPKART"]
 def getresults(text, mic):
     query = ' '.join(s for s in text.split() if s.upper() not in WORDS)
     query = query.replace(' ', '+')
-    url = "http://www.flipkart.com/search?q=" + str(query) + "&as=off&as-show=on&otracker=start"
+    url = "http://www.flipkart.com/search?q=" + 
+                    str(query) + "&as=off&as-show=on&otracker=start"
 
     page = requests.get(url)
     src = page.text
@@ -18,7 +19,8 @@ def getresults(text, mic):
     ctr = 0
     mic.say("Top 5 results are")
 
-    for a, b in zip(ob.findAll('div', {'class':'pu-final'}),ob.findAll('a', {'class':'fk-display-block'})):
+    for a, b in zip(ob.findAll('div', {'class': 'pu-final'}), 
+                        ob.findAll('a', {'class': 'fk-display-block'})):
         price = a.text
         title = b.text
         ctr = ctr + 1
@@ -33,8 +35,7 @@ def handle(text, mic, profile):
         Arguments:
         text -- user-input, ex - "Search for half girlfriend on flipkart"
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone number)
-   
+        profile -- contains information related to the user
     """
     getresults(text, mic)
 
