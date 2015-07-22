@@ -7,7 +7,7 @@ from dateutil import parser
 WORDS = ["EMAIL", "INBOX"]
 
 
-def getSender(email):
+def get_sender(email):
     """
         Returns the best-guess sender of an email.
 
@@ -24,11 +24,11 @@ def getSender(email):
     return sender
 
 
-def getDate(email):
+def get_date(email):
     return parser.parse(email.get('date'))
 
 
-def getMostRecentDate(emails):
+def get_most_recent_date(emails):
     """
         Returns the most recent date of any email in the list provided.
 
@@ -38,14 +38,14 @@ def getMostRecentDate(emails):
         Returns:
         Date of the most recent email.
     """
-    dates = [getDate(e) for e in emails]
+    dates = [get_date(e) for e in emails]
     dates.sort(reverse=True)
     if dates:
         return dates[0]
     return None
 
 
-def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
+def fetch_unread_emails(profile, since=None, markRead=False, limit=None):
     """
         Fetches a list of unread email objects from a user's Gmail inbox.
 
@@ -76,7 +76,7 @@ def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
             ret, data = conn.fetch(num, '(RFC822)')
             msg = email.message_from_string(data[0][1])
 
-            if not since or getDate(msg) > since:
+            if not since or get_date(msg) > since:
                 msgs.append(msg)
     conn.close()
     conn.logout()
@@ -97,14 +97,14 @@ def handle(text, mic, profile):
                    address)
     """
     try:
-        msgs = fetchUnreadEmails(profile, limit=5)
+        msgs = fetch_unread_emails(profile, limit=5)
 
         if isinstance(msgs, int):
             response = "You have %d unread emails." % msgs
             mic.say(response)
             return
 
-        senders = [getSender(e) for e in msgs]
+        senders = [get_sender(e) for e in msgs]
     except imaplib.IMAP4.error:
         mic.say(
             "I'm sorry. I'm not authenticated to work with your Gmail.")
@@ -128,7 +128,7 @@ def handle(text, mic, profile):
         mic.say(response)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to email.
 

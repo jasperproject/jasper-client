@@ -22,7 +22,7 @@ class Conversation(object):
                           self.persona)
         while True:
             # Print notifications until empty
-            notifications = self.notifier.getAllNotifications()
+            notifications = self.notifier.get_all_notifications()
             for notif in notifications:
                 self._logger.info("Received notification: '%s'", str(notif))
 
