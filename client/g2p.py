@@ -10,13 +10,14 @@ import yaml
 import diagnose
 import jasperpath
 
+import phonetic_helper
 
 class PhonetisaurusG2P(object):
-    PATTERN = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t<s> ' +
-                         r'(?P<pronounciation>.*) </s>', re.MULTILINE)
+    PATTERN = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t(?:<s> )?' +
+                         r'(?P<pronounciation>.*?)(?: </s>)?$', re.MULTILINE)
 
     @classmethod
-    def execute(cls, fst_model, input, is_file=False, nbest=None):
+    def execute(cls, fst_model, fst_is_xsampa, input, is_file=False, nbest=None):
         logger = logging.getLogger(__name__)
 
         cmd = ['phonetisaurus-g2p',
@@ -60,6 +61,8 @@ class PhonetisaurusG2P(object):
             for word, precision, pronounc in cls.PATTERN.findall(stdoutdata):
                 if word not in result:
                     result[word] = []
+                if fst_is_xsampa:
+                    pronounc = phonetic_helper.xsampa2xarpabet("", pronounc.replace(" ", ""))
                 result[word].append(pronounc)
         return result
 
@@ -69,7 +72,8 @@ class PhonetisaurusG2P(object):
         # jasperproject/jasper-client#128 has been merged
 
         conf = {'fst_model': os.path.join(jasperpath.APP_PATH, os.pardir,
-                                          'phonetisaurus', 'g014b2b.fst')}
+                                          'phonetisaurus', 'g014b2b.fst'),
+                                          'fst_is_xsampa': False}
         # Try to get fst_model from config
         profile_path = jasperpath.config('profile.yml')
         if os.path.exists(profile_path):
@@ -79,11 +83,14 @@ class PhonetisaurusG2P(object):
                     if 'fst_model' in profile['pocketsphinx']:
                         conf['fst_model'] = \
                             profile['pocketsphinx']['fst_model']
+                    if 'fst_is_xsampa' in profile['pocketsphinx']:
+                        conf['fst_is_xsampa'] = \
+                            profile['pocketsphinx']['fst_is_xsampa']
                     if 'nbest' in profile['pocketsphinx']:
                         conf['nbest'] = int(profile['pocketsphinx']['nbest'])
         return conf
 
-    def __new__(cls, fst_model=None, *args, **kwargs):
+    def __new__(cls, fst_model=None, fst_is_xsampa=False, *args, **kwargs):
         if not diagnose.check_executable('phonetisaurus-g2p'):
             raise OSError("Can't find command 'phonetisaurus-g2p'! Please " +
                           "check if Phonetisaurus is installed and in your " +
@@ -91,21 +98,23 @@ class PhonetisaurusG2P(object):
         if fst_model is None or not os.access(fst_model, os.R_OK):
             raise OSError(("FST model '%r' does not exist! Can't create " +
                            "instance.") % fst_model)
-        inst = object.__new__(cls, fst_model, *args, **kwargs)
+        inst = object.__new__(cls, fst_model, fst_model, *args, **kwargs)
         return inst
 
-    def __init__(self, fst_model=None, nbest=None):
+    def __init__(self, fst_model=None, fst_is_xsampa=False, nbest=None):
         self._logger = logging.getLogger(__name__)
 
         self.fst_model = os.path.abspath(fst_model)
         self._logger.debug("Using FST model: '%s'", self.fst_model)
+
+        self.fst_is_xsampa = fst_is_xsampa
 
         self.nbest = nbest
         if self.nbest is not None:
             self._logger.debug("Will use the %d best results.", self.nbest)
 
     def _translate_word(self, word):
-        return self.execute(self.fst_model, word, nbest=self.nbest)
+        return self.execute(self.fst_model, self.fst_is_xsampa, word, nbest=self.nbest)
 
     def _translate_words(self, words):
         with tempfile.NamedTemporaryFile(suffix='.g2p', delete=False) as f:
@@ -115,7 +124,7 @@ class PhonetisaurusG2P(object):
             for word in words:
                 f.write("%s\n" % word)
             tmp_fname = f.name
-        output = self.execute(self.fst_model, tmp_fname, is_file=True,
+        output = self.execute(self.fst_model, self.fst_is_xsampa, tmp_fname, is_file=True,
                               nbest=self.nbest)
         os.remove(tmp_fname)
         return output
@@ -138,6 +147,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Phonetisaurus G2P module')
     parser.add_argument('fst_model', action='store',
                         help='Path to the FST Model')
+    parser.add_argument('fst_is_xsampa', action='store_true',
+                        help='Convert XSAMPA to Arpabet (required depending on your model)')
     parser.add_argument('--debug', action='store_true',
                         help='Show debug messages')
     args = parser.parse_args()
@@ -149,7 +160,7 @@ if __name__ == "__main__":
 
     words = ['THIS', 'IS', 'A', 'TEST']
 
-    g2pconv = PhonetisaurusG2P(args.fst_model, nbest=3)
+    g2pconv = PhonetisaurusG2P(args.fst_model, args.fst_is_xsampa, nbest=3)
     output = g2pconv.translate(words)
 
     pp = pprint.PrettyPrinter(indent=2)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 
+# add additional translations here
+LANGUAGES = ['de_DE']
+
 import os
 import sys
 import shutil
@@ -8,6 +11,9 @@ import logging
 
 import yaml
 import argparse
+
+import locale
+import gettext
 
 from client import tts, stt, jasperpath, diagnose
 from client.conversation import Conversation
@@ -79,6 +85,13 @@ class Jasper(object):
             self._logger.error("Can't open config file: '%s'", new_configfile)
             raise
 
+        if 'lang' in self.config:
+            locale.setlocale(locale.LC_ALL, self.config['lang'])
+        else:
+            locale.setlocale(locale.LC_ALL, '')
+        _langs = gettext.translation('messages', localedir='./languages', languages=LANGUAGES)
+        _langs.install()
+
         try:
             stt_engine_slug = self.config['stt_engine']
         except KeyError:
@@ -108,10 +121,10 @@ class Jasper(object):
 
     def run(self):
         if 'first_name' in self.config:
-            salutation = ("How can I be of service, %s?"
+            salutation = (_("How can I be of service, %s?")
                           % self.config["first_name"])
         else:
-            salutation = "How can I be of service?"
+            salutation = _("How can I be of service?")
         self.mic.say(salutation)
 
         conversation = Conversation("JASPER", self.mic, self.config)
