@@ -18,4 +18,4 @@ def clean(input):
         Arguments:
         input -- original speech text to-be modified
     """
-    return detectYears(input)
+    return detect_years(input)
