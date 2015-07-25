@@ -24,7 +24,7 @@ def handle(text, mic, profile):
     mic.say(message)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to the meaning of life.
 
