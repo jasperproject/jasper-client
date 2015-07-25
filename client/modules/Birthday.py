@@ -2,7 +2,7 @@
 import datetime
 import re
 import facebook
-from client.app_utils import getTimezone
+from client.app_utils import get_timezone
 
 WORDS = ["BIRTHDAY"]
 
@@ -57,7 +57,7 @@ def handle(text, mic, profile):
     mic.say(output)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to birthdays.
 

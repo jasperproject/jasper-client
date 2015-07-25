@@ -7,7 +7,7 @@ from dateutil import parser
 WORDS = ["EMAIL", "INBOX"]
 
 
-def getSender(email):
+def get_sender(email):
     """
         Returns the best-guess sender of an email.
 
@@ -24,11 +24,11 @@ def getSender(email):
     return sender
 
 
-def getDate(email):
+def get_date(email):
     return parser.parse(email.get('date'))
 
 
-def getMostRecentDate(emails):
+def get_most_recent_date(emails):
     """
         Returns the most recent date of any email in the list provided.
 
@@ -45,7 +45,7 @@ def getMostRecentDate(emails):
     return None
 
 
-def fetchUnreadEmails(profile, since=None, markRead=False, limit=None):
+def fetch_unread_emails(profile, since=None, markRead=False, limit=None):
     """
         Fetches a list of unread email objects from a user's Gmail inbox.
 
@@ -97,7 +97,7 @@ def handle(text, mic, profile):
                    address)
     """
     try:
-        msgs = fetchUnreadEmails(profile, limit=5)
+        msgs = fetch_unread_emails(profile, limit=5)
 
         if isinstance(msgs, int):
             response = "You have %d unread emails." % msgs
@@ -128,7 +128,7 @@ def handle(text, mic, profile):
         mic.say(response)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to email.
 
