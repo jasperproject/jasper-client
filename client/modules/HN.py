@@ -107,7 +107,7 @@ def handle(text, mic, profile):
                 body += "</ul>"
                 if not app_utils.email_user(profile,
                                             SUBJECT="From the Front Page of " +
-                                                   "Hacker News",
+                                                    "Hacker News",
                                             BODY=body):
                     mic.say("I'm having trouble sending you these articles. " +
                             "Please make sure that your phone number and " +
