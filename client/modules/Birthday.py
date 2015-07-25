@@ -35,7 +35,7 @@ def handle(text, mic, profile):
             "I apologize, there's a problem with that service at the moment.")
         return
 
-    needle = datetime.datetime.now(tz=getTimezone(profile)).strftime("%m/%d")
+    needle = datetime.datetime.now(tz=get_timezone(profile)).strftime("%m/%d")
 
     people = []
     for person in results['data']:

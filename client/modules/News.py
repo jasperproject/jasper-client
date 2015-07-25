@@ -86,7 +86,7 @@ def handle(text, mic, profile):
                         body += article_link
                     else:
                         if not app_utils.email_user(profile, SUBJECT="",
-                                                   BODY=article_link):
+                                                    BODY=article_link):
                             mic.say("I'm having trouble sending you these " +
                                     "articles. Please make sure that your " +
                                     "phone number and carrier are correct " +
@@ -97,8 +97,8 @@ def handle(text, mic, profile):
             if profile['prefers_email']:
                 body += "</ul>"
                 if not app_utils.email_user(profile,
-                                           SUBJECT="Your Top Headlines",
-                                           BODY=body):
+                                            SUBJECT="Your Top Headlines",
+                                            BODY=body):
                     mic.say("I'm having trouble sending you these articles. " +
                             "Please make sure that your phone number and " +
                             "carrier are correct on the dashboard.")

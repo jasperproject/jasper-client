@@ -38,7 +38,7 @@ def get_most_recent_date(emails):
         Returns:
         Date of the most recent email.
     """
-    dates = [getDate(e) for e in emails]
+    dates = [get_date(e) for e in emails]
     dates.sort(reverse=True)
     if dates:
         return dates[0]
@@ -76,7 +76,7 @@ def fetch_unread_emails(profile, since=None, markRead=False, limit=None):
             ret, data = conn.fetch(num, '(RFC822)')
             msg = email.message_from_string(data[0][1])
 
-            if not since or getDate(msg) > since:
+            if not since or get_date(msg) > since:
                 msgs.append(msg)
     conn.close()
     conn.logout()
@@ -104,7 +104,7 @@ def handle(text, mic, profile):
             mic.say(response)
             return
 
-        senders = [getSender(e) for e in msgs]
+        senders = [get_sender(e) for e in msgs]
     except imaplib.IMAP4.error:
         mic.say(
             "I'm sorry. I'm not authenticated to work with your Gmail.")
