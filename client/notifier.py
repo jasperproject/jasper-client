@@ -25,7 +25,7 @@ class Notifier(object):
 
         if 'gmail_address' in profile and 'gmail_password' in profile:
             self.notifiers.append(self.NotificationClient(
-                self.handleEmailNotifications, None))
+                self.handle_email_notifications, None))
         else:
             self._logger.warning('gmail_address or gmail_password not set ' +
                                  'in profile, Gmail notifier will not be used')
@@ -38,21 +38,21 @@ class Notifier(object):
     def gather(self):
         [client.run() for client in self.notifiers]
 
-    def handleEmailNotifications(self, lastDate):
+    def handle_email_notifications(self, lastDate):
         """Places new Gmail notifications in the Notifier's queue."""
-        emails = Gmail.fetchUnreadEmails(self.profile, since=lastDate)
+        emails = Gmail.fetch_unread_emails(self.profile, since=lastDate)
         if emails:
-            lastDate = Gmail.getMostRecentDate(emails)
+            lastDate = Gmail.get_most_recent_date(emails)
 
-        def styleEmail(e):
-            return "New email from %s." % Gmail.getSender(e)
+        def style_email(e):
+            return "New email from %s." % Gmail.get_sender(e)
 
         for e in emails:
-            self.q.put(styleEmail(e))
+            self.q.put(style_email(e))
 
         return lastDate
 
-    def getNotification(self):
+    def get_notification(self):
         """Returns a notification. Note that this function is consuming."""
         try:
             notif = self.q.get(block=False)
@@ -60,7 +60,7 @@ class Notifier(object):
         except Queue.Empty:
             return None
 
-    def getAllNotifications(self):
+    def get_all_notifications(self):
         """
             Return a list of notifications in chronological order.
             Note that this function is consuming, so consecutive calls
@@ -68,9 +68,9 @@ class Notifier(object):
         """
         notifs = []
 
-        notif = self.getNotification()
+        notif = self.get_notification()
         while notif:
             notifs.append(notif)
-            notif = self.getNotification()
+            notif = self.get_notification()
 
         return notifs
