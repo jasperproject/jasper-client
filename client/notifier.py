@@ -38,11 +38,11 @@ class Notifier(object):
     def gather(self):
         [client.run() for client in self.notifiers]
 
-    def handle_email_notifications(self, lastDate):
+    def handle_email_notifications(self, last_date):
         """Places new Gmail notifications in the Notifier's queue."""
-        emails = Gmail.fetch_unread_emails(self.profile, since=lastDate)
+        emails = Gmail.fetch_unread_emails(self.profile, since=last_date)
         if emails:
-            lastDate = Gmail.get_most_recent_date(emails)
+            last_date = Gmail.get_most_recent_date(emails)
 
         def style_email(e):
             return "New email from %s." % Gmail.get_sender(e)
@@ -50,7 +50,7 @@ class Notifier(object):
         for e in emails:
             self.q.put(style_email(e))
 
-        return lastDate
+        return last_date
 
     def get_notification(self):
         """Returns a notification. Note that this function is consuming."""
