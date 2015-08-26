@@ -138,12 +138,11 @@ class CereprocTTS(AbstractTTSEngine):
 
     SLUG = "cereproc-tts"
 
-    def __init__(self, personnality, accountid, password, language):
+    def __init__(self, personnality, accountid, password):
         super(self.__class__, self).__init__()
         self.personnality = personnality
-        self.accountid    = accountid
-        self.password     = password
-        self.language     = language
+        self.accountid = accountid
+        self.password = password
 
     @classmethod
     def is_available(cls):
@@ -168,30 +167,20 @@ class CereprocTTS(AbstractTTSEngine):
                         profile['att-tts']['password']:
 
                     config['personnality'] = profile['att-tts']['personnality']
-                    config['accountid']    = profile['att-tts']['accountid']
-                    config['password']     = profile['att-tts']['password']
-                    config['language']     = profile['att-tts']['language']
-
+                    config['accountid'] = profile['att-tts']['accountid']
+                    config['password'] = profile['att-tts']['password']
 
         return config
 
-    # @property
-    # def language(self):
-    #     language = ['af', 'sq', 'ar', 'hy', 'ca', 'zh-CN', 'zh-TW', 'hr', 'cs',
-    #              'da', 'nl', 'en', 'eo', 'fi', 'fr', 'de', 'el', 'ht', 'hi',
-    #              'hu', 'is', 'id', 'it', 'ja', 'ko', 'la', 'lv', 'mk', 'no',
-    #              'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'es', 'sw', 'sv', 'ta',
-    #              'th', 'tr', 'vi', 'cy']
-    #     return language
-
     def say(self, phrase):
         personnality = self.personnality
-        accountId    = self.accountid
-        password     = self.password
-        language     = self.language
-        soapclient   = Client("https://cerevoice.com/soap/soap_1_1.php?WSDL")
+        accountId = self.accountid
+        password = self.password
+        soapclient = Client("https://cerevoice.com/soap/soap_1_1.php?WSDL")
 
-        reply = soapclient.service.speakExtended(accountId, password, personnality, phrase, "wav", 22050, False, False)
+        reply = soapclient.service.speakExtended(accountId, password,
+                                                 personnality, phrase, "wav",
+                                                 22050, False, False)
 
         if reply.resultCode != 1:
             return False
@@ -713,7 +702,6 @@ def get_default_engine_slug():
     return 'osx-tts' if platform.system().lower() == 'darwin' else 'espeak-tts'
 
 
-
 def get_engine_by_slug(slug=None):
     """
     Returns:
@@ -722,7 +710,6 @@ def get_engine_by_slug(slug=None):
     Raises:
         ValueError if no speaker implementation is supported on this platform
     """
-
     if not slug or type(slug) is not str:
         raise TypeError("Invalid slug '%s'", slug)
 

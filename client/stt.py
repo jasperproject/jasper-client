@@ -277,7 +277,8 @@ class GoogleSTT(AbstractSTTEngine):
 
     To obtain an API key:
     1. Join the Chromium Dev group:
-       https://groups.google.com/a/chromium.org/forum/?fromgroups#!forum/chromium-dev
+       https://groups.google.com/a/chromium.org/forum/?fromgroups#!forum/
+       chromium-dev
     2. Create a project through the Google Developers console:
        https://console.developers.google.com/project
     3. Select your project. In the sidebar, navigate to "APIs & Auth." Activate
