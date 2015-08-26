@@ -78,13 +78,7 @@ class AbstractTTSEngine(object):
     def play(self, filename):
         # FIXME: Use platform-independent audio-output here
         # See issue jasperproject/jasper-client#188
-
-
-
-        cmd = ['aplay', '-D', 'plughw:0,0', str(filename)]
-
-
-
+        cmd = ['aplay', '-D', 'plughw:1,0', str(filename)]
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
                                                      for arg in cmd]))
         with tempfile.TemporaryFile() as f:
@@ -216,7 +210,8 @@ class EspeakTTS(AbstractTTSEngine):
 
     SLUG = "espeak-tts"
 
-    def __init__(self, voice='default+m3', pitch_adjustment=40,words_per_minute=160):
+    def __init__(self, voice='default+m3', pitch_adjustment=40,
+                 words_per_minute=160):
 
         super(self.__class__, self).__init__()
         self.voice = voice
@@ -246,7 +241,8 @@ class EspeakTTS(AbstractTTSEngine):
 
     @classmethod
     def is_available(cls):
-        return (super(cls, cls).is_available() and diagnose.check_executable('espeak'))
+        return (super(cls, cls).is_available() and
+                diagnose.check_executable('espeak'))
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
@@ -730,7 +726,8 @@ def get_engine_by_slug(slug=None):
     if not slug or type(slug) is not str:
         raise TypeError("Invalid slug '%s'", slug)
 
-    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and engine.SLUG == slug, get_engines())
+    selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
+                              engine.SLUG == slug, get_engines())
 
     if len(selected_engines) == 0:
         raise ValueError("No TTS engine found for slug '%s'" % slug)
@@ -753,7 +750,8 @@ def get_engines():
             subclasses.update(get_subclasses(subclass))
         return subclasses
 
-    return [tts_engine for tts_engine in list(get_subclasses(AbstractTTSEngine))
+    return [tts_engine for tts_engine in
+            list(get_subclasses(AbstractTTSEngine))
             if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]
 
 if __name__ == '__main__':
