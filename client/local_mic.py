@@ -8,12 +8,14 @@ implementation, Jasper is always active listening with local_mic.
 
 class Mic:
     prev = None
+    persona = "JASPER"
 
     def __init__(self, speaker, passive_stt_engine, active_stt_engine):
         return
 
     def passiveListen(self, PERSONA):
-        return True, "JASPER"
+        self.persona = PERSONA
+        return True, self.persona
 
     def activeListenToAllOptions(self, THRESHOLD=None, LISTEN=True,
                                  MUSIC=False):
@@ -29,4 +31,4 @@ class Mic:
         return input
 
     def say(self, phrase, OPTIONS=None):
-        print("JASPER: %s" % phrase)
+        print(self.persona + ": %s" % phrase)

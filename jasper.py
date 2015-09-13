@@ -114,7 +114,18 @@ class Jasper(object):
             salutation = "How can I be of service?"
         self.mic.say(salutation)
 
-        conversation = Conversation("JASPER", self.mic, self.config)
+        # Default to 'JASPER' for Persona, if not already defined
+        # in the config file
+        if 'persona' not in self.config or not self.config["persona"]:
+            default_persona = 'JASPER'
+            self._logger.debug("No Persona defined in the config file. " +
+                               "Defaulting to '%s'",
+                               default_persona)
+            self.config["persona"] = default_persona
+        else:
+            self.config["persona"] = self.config["persona"].upper()
+
+        conversation = Conversation(self.mic, self.config)
         conversation.handleForever()
 
 if __name__ == "__main__":
