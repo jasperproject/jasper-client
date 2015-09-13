@@ -28,7 +28,7 @@ class Conversation(object):
             self._logger.debug("Started listening for keyword '%s'",
                                self.profile["persona"])
             threshold, transcribed = self.mic.passiveListen(
-                                        self.profile["persona"])
+                                    self.profile["persona"])
             self._logger.debug("Stopped listening for keyword '%s'",
                                self.profile["persona"])
 
