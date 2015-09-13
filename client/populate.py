@@ -8,6 +8,7 @@ from pytz import timezone
 import feedparser
 import jasperpath
 
+
 def run():
     profile = {}
 
@@ -43,7 +44,6 @@ def run():
             return True
         return False
 
-
     print("Welcome to the profile populator. If, at any step, you'd prefer " +
           "not to enter the requested information, just hit 'Enter' with a " +
           "blank field to continue.")
@@ -61,7 +61,7 @@ def run():
           "languagemodel_persona.lm files in the 'static' folder.")
     print("You can upload the updated keyword file to " +
           "http://www.speech.cs.cmu.edu/tools/lmtool-new.html to recompile " +
-          "the dictionary and language model, then copy the generated files " 
+          "the dictionary and language model, then copy the generated files "
           "to the appropriate locations")
     simple_request('persona', 'Persona')
 
@@ -142,8 +142,9 @@ def run():
         return method == 'E'
 
     print("\nWould you prefer to have notifications sent by")
-    request_with_condition('prefers_email', 'Please choose email (E) or text message (T)',
-                           verify_notification_method, substitute_notification_method)
+    request_with_condition('prefers_email', 'Please choose email (E) or " ' +
+                           'text message (T)', verify_notification_method,
+                           substitute_notification_method)
 
     # stt engine
     stt_engines = ["att", "google", "julius", "sphinx", "witai"]
