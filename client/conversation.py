@@ -6,9 +6,9 @@ from brain import Brain
 
 class Conversation(object):
 
-    def __init__(self, persona, mic, profile):
+    def __init__(self, mic, profile):
         self._logger = logging.getLogger(__name__)
-        self.persona = persona
+        self.persona = profile['persona']
         self.mic = mic
         self.profile = profile
         self.brain = Brain(mic, profile)
