@@ -231,7 +231,11 @@ def run():
     print("\nWriting to profile...")
     if not os.path.exists(jasperpath.CONFIG_PATH):
         os.makedirs(jasperpath.CONFIG_PATH)
-    outputFile = open(jasperpath.config("profile.yml"), "w")
+    profile_path = jasperpath.config("profile.yml")
+    if os.path.exists(profile_path):
+        print("Found an old configuration file. Renaming it with suffix -old")
+        os.rename(profile_path, profile_path+"-old")
+    outputFile = open(profile_path, "w")
     yaml.dump(profile, outputFile, default_flow_style=False)
     print("Done.")
 
