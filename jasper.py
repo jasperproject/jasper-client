@@ -10,6 +10,7 @@ import yaml
 import argparse
 
 from client import tts, stt, jasperpath, diagnose, audioengine, brain
+from client import pluginstore
 from client.conversation import Conversation
 
 # Add jasperpath.LIB_PATH to sys.path
@@ -146,8 +147,21 @@ class Jasper(object):
             logger.warning('Valid output devices: %s', ', '.join(devices))
             raise
 
+        # Load plugins
+        self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        self.plugins.detect_plugins()
+
         # Initialize Brain
         self.brain = brain.Brain()
+        for info in self.plugins.get_plugins_by_category('speechhandler'):
+            try:
+                plugin = info.plugin_class(info, self.config)
+            except:
+                debug = self._logger.getEffectiveLevel() == logging.DEBUG
+                self._logger.warning("Plugin '%s' caused an error!", info.name,
+                                     exc_info=debug)
+            else:
+                self.brain.add_plugin(plugin)
 
         # Initialize Mic
         self.mic = Mic(

@@ -1,11 +1,9 @@
 # -*- coding: utf-8-*-
 import logging
-import pkgutil
 import jasperpath
 
 
 class Brain(object):
-
     def __init__(self):
         """
         Instantiates a new Brain object, which cross-references user
@@ -14,52 +12,16 @@ class Brain(object):
         that accepts a given input.
         """
 
-        self.modules = self.get_modules()
+        self._plugins = []
         self._logger = logging.getLogger(__name__)
 
-    @classmethod
-    def get_modules(cls):
-        """
-        Dynamically loads all the modules in the modules folder and sorts
-        them by the PRIORITY key. If no PRIORITY is defined for a given
-        module, a priority of 0 is assumed.
-        """
+    def add_plugin(self, plugin):
+        self._plugins.append(plugin)
+        self._plugins = sorted(
+            self._plugins, key=lambda p: p.get_priority(), reverse=True)
 
-        logger = logging.getLogger(__name__)
-        locations = [jasperpath.PLUGIN_PATH]
-        logger.debug("Looking for modules in: %s",
-                     ', '.join(["'%s'" % location for location in locations]))
-        modules = []
-        for finder, name, ispkg in pkgutil.walk_packages(locations):
-            try:
-                loader = finder.find_module(name)
-                mod = loader.load_module(name)
-            except:
-                logger.warning("Skipped module '%s' due to an error.", name,
-                               exc_info=True)
-            else:
-                if hasattr(mod, 'WORDS'):
-                    logger.debug("Found module '%s' with words: %r", name,
-                                 mod.WORDS)
-                    modules.append(mod)
-                else:
-                    logger.warning("Skipped module '%s' because it misses " +
-                                   "the WORDS constant.", name)
-        modules.sort(key=lambda mod: mod.PRIORITY if hasattr(mod, 'PRIORITY')
-                     else 0, reverse=True)
-        return modules
-
-    def get_phrases_from_module(self, module):
-        """
-        Gets phrases from a module.
-
-        Arguments:
-            module -- a module reference
-
-        Returns:
-            The list of phrases in this module.
-        """
-        return module.WORDS if hasattr(module, 'WORDS') else []
+    def get_plugins(self):
+        return self._plugins
 
     def get_keyword_phrases(self):
         """
@@ -88,8 +50,8 @@ class Brain(object):
         """
         phrases = []
 
-        for module in self.modules:
-            phrases.extend(self.get_phrases_from_module(module))
+        for plugin in self._plugins:
+            phrases.extend(plugin.get_phrases())
 
         return sorted(list(set(phrases)))
 
@@ -104,12 +66,12 @@ class Brain(object):
         Returns:
             A tuple containing a text and the module that can handle it
         """
-        for module in self.modules:
+        for plugin in self._plugins:
             for text in texts:
-                if module.is_valid(text):
+                if plugin.is_valid(text):
                     self._logger.debug("'%s' is a valid phrase for module " +
-                                       "'%s'", text, module.__name__)
-                    return (module, text)
+                                       "'%s'", text, plugin.info.name)
+                    return (plugin, text)
         self._logger.debug("No module was able to handle any of these " +
                            "phrases: %r", texts)
         return (None, None)
