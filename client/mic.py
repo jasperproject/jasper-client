@@ -260,3 +260,8 @@ class Mic:
         # alter phrase before speaking
         phrase = alteration.clean(phrase)
         self.speaker.say(phrase)
+
+    
+    def play(self, soundFile):
+        self.speaker.play(jasperpath.data('audio', soundFile))    
+        
