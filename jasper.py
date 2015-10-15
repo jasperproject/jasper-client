@@ -9,7 +9,7 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose, audioengine
+from client import tts, stt, jasperpath, diagnose, audioengine, brain
 from client.conversation import Conversation
 
 # Add jasperpath.LIB_PATH to sys.path
@@ -152,7 +152,9 @@ class Jasper(object):
                        stt_engine_class.get_active_instance(),
                        tts_engine_class.get_instance())
 
-        self.conversation = Conversation("JASPER", self.mic, self.config)
+        self.brain = brain.Brain()
+        self.conversation = Conversation("JASPER", self.mic, self.brain,
+                                         self.config)
 
     def run(self):
         if 'first_name' in self.config:

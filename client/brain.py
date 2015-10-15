@@ -6,21 +6,14 @@ import jasperpath
 
 class Brain(object):
 
-    def __init__(self, mic, profile):
+    def __init__(self):
         """
         Instantiates a new Brain object, which cross-references user
         input with a list of modules. Note that the order of brain.modules
-        matters, as the Brain will cease execution on the first module
+        matters, as the Brain will return the first module
         that accepts a given input.
-
-        Arguments:
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone
-                   number)
         """
 
-        self.mic = mic
-        self.profile = profile
         self.modules = self.get_modules()
         self._logger = logging.getLogger(__name__)
 
@@ -63,24 +56,16 @@ class Brain(object):
 
         Arguments:
         text -- user input, typically speech, to be parsed by a module
+
+        Returns:
+            A tuple containing a text and the module that can handle it
         """
         for module in self.modules:
             for text in texts:
                 if module.is_valid(text):
                     self._logger.debug("'%s' is a valid phrase for module " +
                                        "'%s'", text, module.__name__)
-                    try:
-                        module.handle(text, self.mic, self.profile)
-                    except:
-                        self._logger.error('Failed to execute module',
-                                           exc_info=True)
-                        self.mic.say("I'm sorry. I had some trouble with " +
-                                     "that operation. Please try again later.")
-                    else:
-                        self._logger.debug("Handling of phrase '%s' by " +
-                                           "module '%s' completed", text,
-                                           module.__name__)
-                    finally:
-                        return
+                    return (module, text)
         self._logger.debug("No module was able to handle any of these " +
                            "phrases: %r", texts)
+        return (None, None)
