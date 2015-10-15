@@ -1,0 +1,10 @@
+[Plugin]
+Name = clock
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Tells you the current time
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

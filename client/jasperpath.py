@@ -7,7 +7,7 @@ APP_PATH = os.path.normpath(os.path.join(
 
 DATA_PATH = os.path.join(APP_PATH, "static")
 LIB_PATH = os.path.join(APP_PATH, "client")
-PLUGIN_PATH = os.path.join(LIB_PATH, "modules")
+PLUGIN_PATH = os.path.join(APP_PATH, "plugins")
 
 CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG', '~/.jasper'))
 

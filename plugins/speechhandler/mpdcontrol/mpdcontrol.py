@@ -4,60 +4,60 @@ import copy
 import logging
 import difflib
 import mpd
-
-# Standard module stuff
-WORDS = ["MUSIC", "SPOTIFY"]
+from client import plugin
 
 
-def handle(text, mic, profile):
-    """
-    Responds to user-input, typically speech text, by telling a joke.
+class MPDControlPlugin(plugin.SpeechHandlerPlugin):
+    def get_phrases(self):
+        return ["MUSIC", "SPOTIFY"]
 
-    Arguments:
-        text -- user-input, typically transcribed speech
-        mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone
-                   number)
-    """
-    logger = logging.getLogger(__name__)
+    def handle(self, text, mic):
+        """
+        Responds to user-input, typically speech text, by telling a joke.
 
-    kwargs = {}
-    if 'mpdclient' in profile:
-        if 'server' in profile['mpdclient']:
-            kwargs['server'] = profile['mpdclient']['server']
-        if 'port' in profile['mpdclient']:
-            kwargs['port'] = int(profile['mpdclient']['port'])
+        Arguments:
+            text -- user-input, typically transcribed speech
+            mic -- used to interact with the user (for both input and output)
+        """
+        logger = logging.getLogger(__name__)
 
-    logger.debug("Preparing to start music module")
-    try:
-        mpdwrapper = MPDWrapper(**kwargs)
-    except:
-        logger.error("Couldn't connect to MPD server", exc_info=True)
-        mic.say("I'm sorry. It seems that Spotify is not enabled. Please " +
-                "read the documentation to learn how to configure Spotify.")
+        kwargs = {}
+        if 'mpdclient' in self.profile:
+            if 'server' in self.profile['mpdclient']:
+                kwargs['server'] = self.profile['mpdclient']['server']
+            if 'port' in self.profile['mpdclient']:
+                kwargs['port'] = int(self.profile['mpdclient']['port'])
+
+        logger.debug("Preparing to start music module")
+        try:
+            mpdwrapper = MPDWrapper(**kwargs)
+        except:
+            logger.error("Couldn't connect to MPD server", exc_info=True)
+            mic.say("I'm sorry. It seems that Spotify is not enabled. " +
+                    "Please read the documentation to learn how to " +
+                    "configure Spotify.")
+            return
+
+        mic.say("Please give me a moment, I'm loading your Spotify playlists.")
+
+        # FIXME: Make this configurable
+        persona = 'JASPER'
+
+        logger.debug("Starting music mode")
+        music_mode = MusicMode(persona, mic, mpdwrapper)
+        music_mode.handle_forever()
+        logger.debug("Exiting music mode")
+
         return
 
-    mic.say("Please give me a moment, I'm loading your Spotify playlists.")
-
-    # FIXME: Make this configurable
-    persona = 'JASPER'
-
-    logger.debug("Starting music mode")
-    music_mode = MusicMode(persona, mic, mpdwrapper)
-    music_mode.handle_forever()
-    logger.debug("Exiting music mode")
-
-    return
-
-
-def is_valid(text):
-    """
+    def is_valid(self, text):
+        """
         Returns True if the input is related to jokes/humor.
 
         Arguments:
         text -- user-input, typically transcribed speech
-    """
-    return any(word in text.upper() for word in WORDS)
+        """
+        return any(phrase in text.upper() for phrase in self.get_phrases())
 
 
 # The interesting part

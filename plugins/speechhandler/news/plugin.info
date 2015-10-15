@@ -1,0 +1,10 @@
+[Plugin]
+Name = news
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Stay informed what's going on with the News plugin
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

@@ -2,11 +2,10 @@
 import random
 import re
 from client import jasperpath
+from client import plugin
 
-WORDS = ["JOKE", "KNOCK KNOCK"]
 
-
-def get_random_joke(filename=jasperpath.data('text', 'JOKES.txt')):
+def get_jokes(filename=jasperpath.data('text', 'JOKES.txt')):
     jokeFile = open(filename, "r")
     jokes = []
     start = ""
@@ -27,34 +26,34 @@ def get_random_joke(filename=jasperpath.data('text', 'JOKES.txt')):
         end = ""
 
     jokes.append((start, end))
-    joke = random.choice(jokes)
-    return joke
+    return jokes
 
 
-def handle(text, mic, profile):
-    """
+class JokePlugin(plugin.SpeechHandlerPlugin):
+    def get_phrases(self):
+        return ["JOKE", "KNOCK KNOCK"]
+
+    def handle(self, text, mic):
+        """
         Responds to user-input, typically speech text, by telling a joke.
 
         Arguments:
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
-        profile -- contains information related to the user (e.g., phone
-                   number)
-    """
-    joke = get_random_joke()
+        """
+        joke = random.choice(get_jokes())
 
-    mic.say("Knock knock")
-    mic.active_listen()
-    mic.say(joke[0])
-    mic.active_listen()
-    mic.say(joke[1])
+        mic.say("Knock knock")
+        mic.active_listen()
+        mic.say(joke[0])
+        mic.active_listen()
+        mic.say(joke[1])
 
-
-def is_valid(text):
-    """
+    def is_valid(self, text):
+        """
         Returns True if the input is related to jokes/humor.
 
         Arguments:
         text -- user-input, typically transcribed speech
-    """
-    return bool(re.search(r'\bjoke\b', text, re.IGNORECASE))
+        """
+        return bool(re.search(r'\bjoke\b', text, re.IGNORECASE))
