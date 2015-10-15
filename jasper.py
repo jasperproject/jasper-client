@@ -146,13 +146,18 @@ class Jasper(object):
             logger.warning('Valid output devices: %s', ', '.join(devices))
             raise
 
-        # Initialize Mic
-        self.mic = Mic(input_device, output_device,
-                       stt_passive_engine_class.get_passive_instance(),
-                       stt_engine_class.get_active_instance(),
-                       tts_engine_class.get_instance())
-
+        # Initialize Brain
         self.brain = brain.Brain()
+
+        # Initialize Mic
+        self.mic = Mic(
+            input_device, output_device,
+            stt_passive_engine_class.get_instance(
+                'keyword', self.brain.get_keyword_phrases()),
+            stt_engine_class.get_instance(
+                'default', self.brain.get_all_phrases()),
+            tts_engine_class.get_instance())
+
         self.conversation = Conversation("JASPER", self.mic, self.brain,
                                          self.config)
 

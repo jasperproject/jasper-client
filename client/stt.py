@@ -43,16 +43,6 @@ class AbstractSTTEngine(object):
         return instance
 
     @classmethod
-    def get_passive_instance(cls):
-        phrases = vocabcompiler.get_keyword_phrases()
-        return cls.get_instance('keyword', phrases)
-
-    @classmethod
-    def get_active_instance(cls):
-        phrases = vocabcompiler.get_all_phrases()
-        return cls.get_instance('default', phrases)
-
-    @classmethod
     @abstractmethod
     def is_available(cls):
         return True

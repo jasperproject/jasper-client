@@ -31,8 +31,10 @@ class TestSTT(unittest.TestCase):
         self.jasper_clip = jasperpath.data('audio', 'jasper.wav')
         self.time_clip = jasperpath.data('audio', 'time.wav')
 
-        self.passive_stt_engine = stt.PocketSphinxSTT.get_passive_instance()
-        self.active_stt_engine = stt.PocketSphinxSTT.get_active_instance()
+        self.passive_stt_engine = stt.PocketSphinxSTT.get_instance(
+            'unittest-passive', ['JASPER'])
+        self.active_stt_engine = stt.PocketSphinxSTT.get_instance(
+            'unittest-active', ['TIME'])
 
     def testTranscribeJasper(self):
         """

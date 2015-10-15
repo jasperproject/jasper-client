@@ -9,33 +9,6 @@ import mock
 from client import vocabcompiler
 
 
-class TestVocabCompiler(unittest.TestCase):
-
-    def testPhraseExtraction(self):
-        expected_phrases = ['MOCK']
-
-        mock_module = mock.Mock()
-        mock_module.WORDS = ['MOCK']
-
-        with mock.patch('client.brain.Brain.get_modules',
-                        classmethod(lambda cls: [mock_module])):
-            extracted_phrases = vocabcompiler.get_all_phrases()
-        self.assertEqual(expected_phrases, extracted_phrases)
-
-    def testKeywordPhraseExtraction(self):
-        expected_phrases = ['MOCK']
-
-        with tempfile.TemporaryFile() as f:
-            # We can't use mock_open here, because it doesn't seem to work
-            # with the 'for line in f' syntax
-            f.write("MOCK\n")
-            f.seek(0)
-            with mock.patch('%s.open' % vocabcompiler.__name__,
-                            return_value=f, create=True):
-                extracted_phrases = vocabcompiler.get_keyword_phrases()
-        self.assertEqual(expected_phrases, extracted_phrases)
-
-
 class TestVocabulary(unittest.TestCase):
     VOCABULARY = vocabcompiler.DummyVocabulary
 
