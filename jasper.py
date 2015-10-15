@@ -152,6 +152,8 @@ class Jasper(object):
                        stt_engine_class.get_active_instance(),
                        tts_engine_class.get_instance())
 
+        self.conversation = Conversation("JASPER", self.mic, self.config)
+
     def run(self):
         if 'first_name' in self.config:
             salutation = ("How can I be of service, %s?"
@@ -160,8 +162,7 @@ class Jasper(object):
             salutation = "How can I be of service?"
         self.mic.say(salutation)
 
-        conversation = Conversation("JASPER", self.mic, self.config)
-        conversation.handleForever()
+        self.conversation.handleForever()
 
 if __name__ == "__main__":
 
