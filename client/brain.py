@@ -66,7 +66,7 @@ class Brain(object):
         """
         for module in self.modules:
             for text in texts:
-                if module.isValid(text):
+                if module.is_valid(text):
                     self._logger.debug("'%s' is a valid phrase for module " +
                                        "'%s'", text, module.__name__)
                     try:

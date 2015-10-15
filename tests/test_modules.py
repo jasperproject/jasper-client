@@ -28,7 +28,7 @@ class TestModules(unittest.TestCase):
         Returns:
         The server's responses, in a list.
         """
-        self.assertTrue(module.isValid(query))
+        self.assertTrue(module.is_valid(query))
         mic = test_mic.Mic(inputs)
         module.handle(query, mic, self.profile)
         return mic.outputs

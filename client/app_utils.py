@@ -6,7 +6,7 @@ import re
 from pytz import timezone
 
 
-def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
+def send_email(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     """Sends an HTML email."""
     for body_charset in 'US-ASCII', 'ISO-8859-1', 'UTF-8':
         try:
@@ -28,7 +28,7 @@ def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     session.quit()
 
 
-def emailUser(profile, SUBJECT="", BODY=""):
+def email_user(profile, SUBJECT="", BODY=""):
     """
     sends an email.
 
@@ -38,7 +38,7 @@ def emailUser(profile, SUBJECT="", BODY=""):
         SUBJECT -- subject line of the email
         BODY -- body text of the email
     """
-    def generateSMSEmail(profile):
+    def generate_SMS_email(profile):
         """
         Generates an email from a user's phone number based on their carrier.
         """
@@ -59,7 +59,7 @@ def emailUser(profile, SUBJECT="", BODY=""):
             recipient = profile['first_name'] + " " + \
                 profile['last_name'] + " <%s>" % recipient
     else:
-        recipient = generateSMSEmail(profile)
+        recipient = generate_SMS_email(profile)
 
     if not recipient:
         return False
@@ -73,15 +73,15 @@ def emailUser(profile, SUBJECT="", BODY=""):
             user = profile['gmail_address']
             password = profile['gmail_password']
             server = 'smtp.gmail.com'
-        sendEmail(SUBJECT, BODY, recipient, user,
-                  "Jasper <jasper>", password, server)
+        send_email(SUBJECT, BODY, recipient, user,
+                   "Jasper <jasper>", password, server)
 
         return True
     except:
         return False
 
 
-def getTimezone(profile):
+def get_timezone(profile):
     """
     Returns the pytz timezone for a given profile.
 
@@ -95,7 +95,7 @@ def getTimezone(profile):
         return None
 
 
-def generateTinyURL(URL):
+def generate_tiny_URL(URL):
     """
     Generates a compressed URL.
 
@@ -107,7 +107,7 @@ def generateTinyURL(URL):
     return response.read()
 
 
-def isNegative(phrase):
+def is_negative(phrase):
     """
     Returns True if the input phrase has a negative sentiment.
 
@@ -118,7 +118,7 @@ def isNegative(phrase):
                           re.IGNORECASE))
 
 
-def isPositive(phrase):
+def is_positive(phrase):
     """
         Returns True if the input phrase has a positive sentiment.
 
