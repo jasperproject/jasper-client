@@ -1,0 +1,10 @@
+[Plugin]
+Name = festival-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Festival speech synthesizer (requires 'festival'/'text2wave' to be installed)
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

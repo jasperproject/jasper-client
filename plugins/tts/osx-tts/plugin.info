@@ -1,0 +1,10 @@
+[Plugin]
+Name = osx-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = TTS wrapper for the MacOS X built-in 'say' command
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

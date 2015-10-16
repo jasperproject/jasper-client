@@ -1,0 +1,10 @@
+[Plugin]
+Name = mary-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = MARY Text-to-Speech System (MaryTTS)
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

@@ -1,0 +1,10 @@
+[Plugin]
+Name = pico-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = SVox-pico-tts speech synthesizer
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
