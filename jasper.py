@@ -9,7 +9,7 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose, audioengine, brain
+from client import tts, jasperpath, diagnose, audioengine, brain
 from client import pluginstore
 from client.conversation import Conversation
 
@@ -83,18 +83,18 @@ class Jasper(object):
             raise
 
         try:
-            stt_engine_slug = self.config['stt_engine']
+            active_stt_slug = self.config['stt_engine']
         except KeyError:
-            stt_engine_slug = 'sphinx'
-            logger.warning("stt_engine not specified in profile, defaulting " +
-                           "to '%s'", stt_engine_slug)
-        stt_engine_class = stt.get_engine_by_slug(stt_engine_slug)
+            active_stt_slug = 'sphinx'
+            logger.warning("stt_engine not specified in profile, using " +
+                           "defaults.")
+        logger.debug("Using STT engine '%s'", active_stt_slug)
 
         try:
-            slug = self.config['stt_passive_engine']
-            stt_passive_engine_class = stt.get_engine_by_slug(slug)
+            passive_stt_slug = self.config['stt_passive_engine']
         except KeyError:
-            stt_passive_engine_class = stt_engine_class
+            passive_stt_slug = active_stt_slug
+        logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
         try:
             tts_engine_slug = self.config['tts_engine']
@@ -165,13 +165,26 @@ class Jasper(object):
             else:
                 self.brain.add_plugin(plugin)
 
+        active_stt_plugin_info = self.plugins.get_plugin(
+            active_stt_slug, category='stt')
+        active_stt_plugin = active_stt_plugin_info.plugin_class(
+            'default', self.brain.get_all_phrases(), active_stt_plugin_info,
+            self.config)
+
+        if passive_stt_slug != active_stt_slug:
+            passive_stt_plugin_info = self.plugins.get_plugin(
+                passive_stt_slug, category='stt')
+        else:
+            passive_stt_plugin_info = active_stt_plugin_info
+
+        passive_stt_plugin = passive_stt_plugin_info.plugin_class(
+            'keyword', self.brain.get_keyword_phrases(),
+            passive_stt_plugin_info, self.config)
+
         # Initialize Mic
         self.mic = Mic(
             input_device, output_device,
-            stt_passive_engine_class.get_instance(
-                'keyword', self.brain.get_keyword_phrases()),
-            stt_engine_class.get_instance(
-                'default', self.brain.get_all_phrases()),
+            passive_stt_plugin, active_stt_plugin,
             tts_engine_class.get_instance())
 
         self.conversation = Conversation("JASPER", self.mic, self.brain,

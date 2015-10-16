@@ -149,6 +149,7 @@ class PluginStore(object):
         self._translations_dirname = PLUGIN_TRANSLATIONS_DIRNAME
         self._categories_map = {
             'speechhandler': plugin.SpeechHandlerPlugin,
+            'stt': plugin.STTPlugin
         }
 
     def detect_plugins(self):

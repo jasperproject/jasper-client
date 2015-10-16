@@ -1,5 +1,6 @@
 # -*- coding: utf-8-*-
 import abc
+import jasperpath
 
 
 class GenericPlugin(object):
@@ -57,3 +58,32 @@ class SpeechHandlerPlugin(GenericPlugin):
 
     def get_priority(self):
         return 0
+
+
+class STTPlugin(GenericPlugin):
+    def __init__(self, name, phrases, *args, **kwargs):
+        GenericPlugin.__init__(self, *args, **kwargs)
+        vocabulary_type = self.get_vocabulary_type()
+        if vocabulary_type is not None:
+            self._vocabulary = vocabulary_type(
+                name, path=jasperpath.config('vocabularies'))
+            if not self._vocabulary.matches_phrases(phrases):
+                self._vocabulary.compile(phrases)
+        else:
+            self._vocabulary = None
+
+    @property
+    def vocabulary(self):
+        return self._vocabulary
+
+    def get_vocabulary_type(self):
+        return None
+
+    @classmethod
+    @abc.abstractmethod
+    def is_available(cls):
+        return True
+
+    @abc.abstractmethod
+    def transcribe(self, fp):
+        pass
