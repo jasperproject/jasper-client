@@ -1,40 +1,25 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8-*-
 import unittest
-import imp
-from client import stt, jasperpath
+from client import testutils, jasperpath
+from .. import sphinxplugin
 
 
-def cmuclmtk_installed():
-    try:
-        imp.find_module('cmuclmtk')
-    except ImportError:
-        return False
-    else:
-        return True
-
-
-def pocketsphinx_installed():
-    try:
-        imp.find_module('pocketsphinx')
-    except ImportError:
-        return False
-    else:
-        return True
-
-
-@unittest.skipUnless(cmuclmtk_installed(), "CMUCLMTK not present")
-@unittest.skipUnless(pocketsphinx_installed(), "Pocketsphinx not present")
-class TestSTT(unittest.TestCase):
+class TestPocketsphinxSTTPlugin(unittest.TestCase):
 
     def setUp(self):
         self.jasper_clip = jasperpath.data('audio', 'jasper.wav')
         self.time_clip = jasperpath.data('audio', 'time.wav')
 
-        self.passive_stt_engine = stt.PocketSphinxSTT.get_instance(
-            'unittest-passive', ['JASPER'])
-        self.active_stt_engine = stt.PocketSphinxSTT.get_instance(
-            'unittest-active', ['TIME'])
+        try:
+            self.passive_stt_engine = testutils.get_plugin_instance(
+                sphinxplugin.PocketsphinxSTTPlugin,
+                'unittest-passive', ['JASPER'])
+            self.active_stt_engine = testutils.get_plugin_instance(
+                sphinxplugin.PocketSphinxSTTPlugin,
+                'unittest-active', ['TIME'])
+        except ImportError:
+            self.skipTest("Pockersphinx not installed!")
 
     def testTranscribeJasper(self):
         """

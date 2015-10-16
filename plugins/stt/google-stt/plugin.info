@@ -1,0 +1,10 @@
+[Plugin]
+Name = google
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Speech-To-Text implementation which relies on the Google Speech API.
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
