@@ -194,3 +194,15 @@ class PluginStore(object):
         superclass = self._categories_map[category]
         return [info for info in self._plugins.values()
                 if issubclass(info.plugin_class, superclass)]
+
+    def get_plugins(self):
+        return self._plugins.values()
+
+    def get_plugin(self, name, category=None):
+        if category is None:
+            plugins = self.get_plugins()
+        else:
+            plugins = self.get_plugins_by_category(category)
+        for plugin_info in plugins:
+            if plugin_info.name == name:
+                return plugin_info
