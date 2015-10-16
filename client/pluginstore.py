@@ -162,8 +162,9 @@ class PluginStore(object):
                                            root)
                         plugin_info = self.parse_plugin(root)
                     except Exception:
-                        self._logger.warning("Plugin at '%s' skipped!", root,
-                                             exc_info=True)
+                        self._logger.warning(
+                            "Plugin at '%s' skipped!", root,
+                            exc_info=self._logger.isEnabledFor(logging.DEBUG))
                     else:
                         if plugin_info.name in self._plugins:
                             self._logger.warning("Duplicate plugin: %s",
