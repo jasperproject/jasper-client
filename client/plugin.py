@@ -1,5 +1,8 @@
 # -*- coding: utf-8-*-
 import abc
+import tempfile
+import wave
+import mad
 import jasperpath
 import vocabcompiler
 
@@ -96,3 +99,31 @@ class STTPlugin(GenericPlugin):
     @abc.abstractmethod
     def transcribe(self, fp):
         pass
+
+
+class TTSPlugin(GenericPlugin):
+    """
+    Generic parent class for all speakers
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def say(self, phrase, *args):
+        pass
+
+    def mp3_to_wave(self, filename):
+        mf = mad.MadFile(filename)
+        with tempfile.SpooledTemporaryFile() as f:
+            wav = wave.open(f, mode='wb')
+            wav.setframerate(mf.samplerate())
+            wav.setnchannels(1 if mf.mode() == mad.MODE_SINGLE_CHANNEL else 2)
+            # 4L is the sample width of 32 bit audio
+            wav.setsampwidth(4)
+            frame = mf.read()
+            while frame is not None:
+                wav.writeframes(frame)
+                frame = mf.read()
+            wav.close()
+            f.seek(0)
+            data = f.read()
+        return data

@@ -9,7 +9,7 @@ import logging
 import yaml
 import argparse
 
-from client import tts, jasperpath, diagnose, audioengine, brain
+from client import jasperpath, diagnose, audioengine, brain
 from client import pluginstore
 from client.conversation import Conversation
 
@@ -97,12 +97,12 @@ class Jasper(object):
         logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
         try:
-            tts_engine_slug = self.config['tts_engine']
+            tts_slug = self.config['tts_engine']
         except KeyError:
-            tts_engine_slug = tts.get_default_engine_slug()
-            logger.warning("tts_engine not specified in profile, defaulting " +
-                           "to '%s'", tts_engine_slug)
-        tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
+            tts_slug = 'espeak-tts'
+            logger.warning("tts_engine not specified in profile, using" +
+                           "defaults.")
+        logger.debug("Using TTS engine '%s'", tts_slug)
 
         # Initialize AudioEngine
         audio = audioengine.PyAudioEngine()
@@ -181,11 +181,14 @@ class Jasper(object):
             'keyword', self.brain.get_keyword_phrases(),
             passive_stt_plugin_info, self.config)
 
+        tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
+        tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
+
         # Initialize Mic
         self.mic = Mic(
             input_device, output_device,
             passive_stt_plugin, active_stt_plugin,
-            tts_engine_class.get_instance())
+            tts_plugin)
 
         self.conversation = Conversation("JASPER", self.mic, self.brain,
                                          self.config)
