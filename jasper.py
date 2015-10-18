@@ -23,6 +23,8 @@ parser.add_argument('--no-network-check', action='store_true',
                     help='Disable the network connection check')
 parser.add_argument('--diagnose', action='store_true',
                     help='Run diagnose and exit')
+parser.add_argument('--list-plugins', action='store_true',
+                    help='List plugins and exit')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
 args = parser.parse_args()
 
@@ -202,6 +204,18 @@ if __name__ == "__main__":
     if not args.no_network_check and not diagnose.check_network_connection():
         logger.warning("Network not connected. This may prevent Jasper from " +
                        "running properly.")
+
+    if args.list_plugins:
+        pstore = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        pstore.detect_plugins()
+        plugins = pstore.get_plugins()
+        len_name = max(len(info.name) for info in plugins)
+        len_version = max(len(info.version) for info in plugins)
+        for info in plugins:
+            print("%s %s - %s" % (info.name.ljust(len_name),
+                                  ("(v%s)" % info.version).ljust(len_version),
+                                  info.description))
+        sys.exit(1)
 
     if args.diagnose:
         failed_checks = diagnose.run()
