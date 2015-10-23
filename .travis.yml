@@ -8,8 +8,16 @@ cache:
   directories:
     - "$HOME/.pip-cache/"
     - "/home/travis/virtualenv/python2.7"
+addons:
+  apt:
+    packages:
+    - libmad0
+    - libmad0-dev
 install: 
-    - "pip install -r requirements.txt  --download-cache $HOME/.pip-cache"
+    # Install jasper core dependencies
+    - "pip install -r requirements.txt --download-cache $HOME/.pip-cache"
+    - "curl http://spacepants.org/src/pymad/download/pymad-0.6.tar.gz | tar xzvf - && cd pymad-0.6 && python config_unix.py && python setup.py install && cd .."
+    # Install additional testing software
     - "pip install python-coveralls --download-cache $HOME/.pip-cache"
     - "pip install coverage  --download-cache $HOME/.pip-cache"
     - "pip install flake8  --download-cache $HOME/.pip-cache"
