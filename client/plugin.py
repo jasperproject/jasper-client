@@ -1,6 +1,7 @@
 # -*- coding: utf-8-*-
 import abc
 import jasperpath
+import vocabcompiler
 
 
 class GenericPlugin(object):
@@ -63,21 +64,29 @@ class SpeechHandlerPlugin(GenericPlugin):
 class STTPlugin(GenericPlugin):
     def __init__(self, name, phrases, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
-        vocabulary_type = self.get_vocabulary_type()
-        if vocabulary_type is not None:
-            self._vocabulary = vocabulary_type(
-                name, path=jasperpath.config('vocabularies'))
-            if not self._vocabulary.matches_phrases(phrases):
-                self._vocabulary.compile(phrases)
-        else:
-            self._vocabulary = None
+        self._vocabulary_phrases = phrases
+        self._vocabulary_name = name
+        self._vocabulary_compiled = False
+        self._vocabulary_path = None
+
+    def compile_vocabulary(self, compilation_func):
+        if self._vocabulary_compiled:
+            raise RuntimeError("Vocabulary has already been compiled!")
+
+        vocabulary = vocabcompiler.VocabularyCompiler(
+            self.info.name, self._vocabulary_name,
+            path=jasperpath.config('vocabularies'))
+
+        if not vocabulary.matches_phrases(self._vocabulary_phrases):
+            vocabulary.compile(
+                self.profile, compilation_func, self._vocabulary_phrases)
+
+        self._vocabulary_path = vocabulary.path
+        return self._vocabulary_path
 
     @property
-    def vocabulary(self):
-        return self._vocabulary
-
-    def get_vocabulary_type(self):
-        return None
+    def vocabulary_path(self):
+        return self._vocabulary_path
 
     @classmethod
     @abc.abstractmethod
