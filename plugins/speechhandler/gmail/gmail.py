@@ -46,7 +46,7 @@ def get_most_recent_date(emails):
 
 class GmailPlugin(plugin.SpeechHandlerPlugin):
     def get_phrases(self):
-        return ["EMAIL", "INBOX"]
+        return [self.gettext("EMAIL"), self.gettext("INBOX")]
 
     def fetch_unread_emails(self, since=None, markRead=False, limit=None):
         """
@@ -97,34 +97,41 @@ class GmailPlugin(plugin.SpeechHandlerPlugin):
         mic -- used to interact with the user (for both input and output)
         """
         try:
-            msgs = self.fetch_unread_emails(limit=5)
-
-            if isinstance(msgs, int):
-                response = "You have %d unread emails." % msgs
-                mic.say(response)
-                return
-
-            senders = [get_sender(e) for e in msgs]
+            messages = self.fetch_unread_emails(limit=5)
         except imaplib.IMAP4.error:
-            mic.say(
-                "I'm sorry. I'm not authenticated to work with your Gmail.")
+            mic.say(self.gettext(
+                "I'm sorry. I'm not authenticated to work with your Gmail."))
             return
 
+        if isinstance(messages, int):
+            if messages == 0:
+                response = self.gettext("You have no unread emails.")
+            elif messages == 1:
+                response = self.gettext("You have one unread email.")
+            else:
+                response = (self.gettext("You have %d unread emails.") %
+                            messages)
+            mic.say(response)
+            return
+
+        senders = [get_sender(e) for e in messages]
+
         if not senders:
-            mic.say("You have no unread emails.")
+            mic.say(self.gettext("You have no unread emails."))
         elif len(senders) == 1:
-            mic.say("You have one unread email from " + senders[0] + ".")
+            mic.say(self.gettext("You have one unread email from %s.") %
+                    senders[0])
         else:
-            response = "You have %d unread emails" % len(
+            response = self.gettext("You have %d unread emails.") % len(
                 senders)
             unique_senders = list(set(senders))
             if len(unique_senders) > 1:
-                unique_senders[-1] = 'and ' + unique_senders[-1]
-                response += ". Senders include: "
-                response += '...'.join(senders)
+                response += " " + (self.gettext("Senders include %s and %s") %
+                                   ', '.join(unique_senders[:-1]),
+                                   unique_senders[-1])
             else:
-                response += " from " + unique_senders[0]
-
+                response += " " + (self.gettext("They are all from %s.") %
+                                   unique_senders[0])
             mic.say(response)
 
     def is_valid(self, text):
@@ -134,4 +141,4 @@ class GmailPlugin(plugin.SpeechHandlerPlugin):
         Arguments:
         text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\bemail\b', text, re.IGNORECASE))
+        return any(p.lower() in text.lower() for p in self.get_phrases())
