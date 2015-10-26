@@ -46,7 +46,12 @@ class GoogleSTTPlugin(plugin.STTPlugin):
         self._language = None
         self._api_key = None
         self._http = requests.Session()
-        self.language = 'en-us'  # FIXME: Read this from config
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+
+        self.language = language.lower()
         self.api_key = self.profile['keys']['GOOGLE_SPEECH']
 
     @property

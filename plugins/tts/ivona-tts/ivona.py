@@ -1,4 +1,5 @@
 import os
+import json
 import tempfile
 import pyvona
 from client import plugin
@@ -44,12 +45,32 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
         except KeyError:
             sentence_break = None
 
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+
         self._pyvonavoice = pyvona.Voice(access_key, secret_key)
         self._pyvonavoice.codec = "mp3"
         if region is not None:
             self._pyvonavoice.region = region
-        if voice is not None:
-            self._pyvonavoice.voice_name = voice
+
+        # Use an appropriate voice for the chosen language
+        all_voices = json.loads(self._pyvonavoice.list_voices())["Voices"]
+        suitable_voices = [v for v in all_voices if v["Language"] == language]
+
+        if len(suitable_voices) == 0:
+            raise ValueError("Language '%s' not supported" % language)
+        else:
+            if voice is not None and len([v for v in suitable_voices
+                                          if v["Name"] == voice]) > 0:
+                # Use voice from config
+                self._pyvonavoice.voice_name = voice
+            else:
+                # Use any voice for that language
+                voice = suitable_voices[0]["Name"]
+                self._pyvonavoice.voice_name = voice
+
         if speech_rate is not None:
             self._pyvonavoice.speech_rate = speech_rate
         if sentence_break is not None:
