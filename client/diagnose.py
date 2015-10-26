@@ -89,7 +89,7 @@ def check_python_import(package_or_module):
     return found
 
 
-def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
+def get_pip_requirements(fname=os.path.join(jasperpath.APP_PATH,
                                             'requirements.txt')):
     """
     Gets the PIP requirements from a text file. If the files does not exists
@@ -97,7 +97,7 @@ def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
 
     Arguments:
         fname -- (optional) the requirement text file (Default:
-                 "client/requirements.txt")
+                 "requirements.txt")
 
     Returns:
         A list of pip requirement objects or None
