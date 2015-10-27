@@ -9,7 +9,8 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose, audioengine, brain
+from client import jasperpath, diagnose, audioengine, brain
+from client import pluginstore
 from client.conversation import Conversation
 
 # Add jasperpath.LIB_PATH to sys.path
@@ -22,6 +23,8 @@ parser.add_argument('--no-network-check', action='store_true',
                     help='Disable the network connection check')
 parser.add_argument('--diagnose', action='store_true',
                     help='Run diagnose and exit')
+parser.add_argument('--list-plugins', action='store_true',
+                    help='List plugins and exit')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
 args = parser.parse_args()
 
@@ -80,26 +83,26 @@ class Jasper(object):
             raise
 
         try:
-            stt_engine_slug = self.config['stt_engine']
+            active_stt_slug = self.config['stt_engine']
         except KeyError:
-            stt_engine_slug = 'sphinx'
-            logger.warning("stt_engine not specified in profile, defaulting " +
-                           "to '%s'", stt_engine_slug)
-        stt_engine_class = stt.get_engine_by_slug(stt_engine_slug)
+            active_stt_slug = 'sphinx'
+            logger.warning("stt_engine not specified in profile, using " +
+                           "defaults.")
+        logger.debug("Using STT engine '%s'", active_stt_slug)
 
         try:
-            slug = self.config['stt_passive_engine']
-            stt_passive_engine_class = stt.get_engine_by_slug(slug)
+            passive_stt_slug = self.config['stt_passive_engine']
         except KeyError:
-            stt_passive_engine_class = stt_engine_class
+            passive_stt_slug = active_stt_slug
+        logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
         try:
-            tts_engine_slug = self.config['tts_engine']
+            tts_slug = self.config['tts_engine']
         except KeyError:
-            tts_engine_slug = tts.get_default_engine_slug()
-            logger.warning("tts_engine not specified in profile, defaulting " +
-                           "to '%s'", tts_engine_slug)
-        tts_engine_class = tts.get_engine_by_slug(tts_engine_slug)
+            tts_slug = 'espeak-tts'
+            logger.warning("tts_engine not specified in profile, using" +
+                           "defaults.")
+        logger.debug("Using TTS engine '%s'", tts_slug)
 
         # Initialize AudioEngine
         audio = audioengine.PyAudioEngine()
@@ -146,17 +149,46 @@ class Jasper(object):
             logger.warning('Valid output devices: %s', ', '.join(devices))
             raise
 
+        # Load plugins
+        self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        self.plugins.detect_plugins()
+
         # Initialize Brain
         self.brain = brain.Brain()
+        for info in self.plugins.get_plugins_by_category('speechhandler'):
+            try:
+                plugin = info.plugin_class(info, self.config)
+            except:
+                debug = self._logger.getEffectiveLevel() == logging.DEBUG
+                self._logger.warning("Plugin '%s' caused an error!", info.name,
+                                     exc_info=debug)
+            else:
+                self.brain.add_plugin(plugin)
+
+        active_stt_plugin_info = self.plugins.get_plugin(
+            active_stt_slug, category='stt')
+        active_stt_plugin = active_stt_plugin_info.plugin_class(
+            'default', self.brain.get_all_phrases(), active_stt_plugin_info,
+            self.config)
+
+        if passive_stt_slug != active_stt_slug:
+            passive_stt_plugin_info = self.plugins.get_plugin(
+                passive_stt_slug, category='stt')
+        else:
+            passive_stt_plugin_info = active_stt_plugin_info
+
+        passive_stt_plugin = passive_stt_plugin_info.plugin_class(
+            'keyword', self.brain.get_keyword_phrases(),
+            passive_stt_plugin_info, self.config)
+
+        tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
+        tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
 
         # Initialize Mic
         self.mic = Mic(
             input_device, output_device,
-            stt_passive_engine_class.get_instance(
-                'keyword', self.brain.get_keyword_phrases()),
-            stt_engine_class.get_instance(
-                'default', self.brain.get_all_phrases()),
-            tts_engine_class.get_instance())
+            passive_stt_plugin, active_stt_plugin,
+            tts_plugin)
 
         self.conversation = Conversation("JASPER", self.mic, self.brain,
                                          self.config)
@@ -188,6 +220,18 @@ if __name__ == "__main__":
     if not args.no_network_check and not diagnose.check_network_connection():
         logger.warning("Network not connected. This may prevent Jasper from " +
                        "running properly.")
+
+    if args.list_plugins:
+        pstore = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        pstore.detect_plugins()
+        plugins = pstore.get_plugins()
+        len_name = max(len(info.name) for info in plugins)
+        len_version = max(len(info.version) for info in plugins)
+        for info in plugins:
+            print("%s %s - %s" % (info.name.ljust(len_name),
+                                  ("(v%s)" % info.version).ljust(len_version),
+                                  info.description))
+        sys.exit(1)
 
     if args.diagnose:
         failed_checks = diagnose.run()

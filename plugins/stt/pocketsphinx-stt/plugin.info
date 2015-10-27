@@ -1,0 +1,10 @@
+[Plugin]
+Name = sphinx
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Pocketsphinx STT engine
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

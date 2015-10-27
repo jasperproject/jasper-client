@@ -1,17 +1,16 @@
 # -*- coding: utf-8-*-
 import logging
-from notifier import Notifier
+#  from notifier import Notifier
 
 
 class Conversation(object):
-
     def __init__(self, persona, mic, brain, profile):
         self._logger = logging.getLogger(__name__)
         self.persona = persona
         self.mic = mic
         self.profile = profile
         self.brain = brain
-        self.notifier = Notifier(profile)
+        #  self.notifier = Notifier(profile)
 
     def handleForever(self):
         """
@@ -21,17 +20,17 @@ class Conversation(object):
                           self.persona)
         while True:
             # Print notifications until empty
-            notifications = self.notifier.get_all_notifications()
+            """notifications = self.notifier.get_all_notifications()
             for notif in notifications:
-                self._logger.info("Received notification: '%s'", str(notif))
+                self._logger.info("Received notification: '%s'", str(notif))"""
 
             input = self.mic.listen()
 
             if input:
-                module, text = self.brain.query(input)
-                if module and text:
+                plugin, text = self.brain.query(input)
+                if plugin and text:
                     try:
-                        module.handle(input, self.mic, self.profile)
+                        plugin.handle(input, self.mic)
                     except:
                         self._logger.error('Failed to execute module',
                                            exc_info=True)
@@ -40,6 +39,6 @@ class Conversation(object):
                     else:
                         self._logger.debug("Handling of phrase '%s' by " +
                                            "module '%s' completed", text,
-                                           module.__name__)
+                                           plugin.info.name)
             else:
                 self.mic.say("Pardon?")

@@ -9,9 +9,19 @@ import mock
 from client import vocabcompiler
 
 
-class TestVocabulary(unittest.TestCase):
-    VOCABULARY = vocabcompiler.DummyVocabulary
+class StrangeCompilationError(Exception):
+    pass
 
+
+def nop_func(*args):
+    pass
+
+
+def error_func(*args):
+    raise StrangeCompilationError('This is a test.')
+
+
+class TestVocabulary(unittest.TestCase):
     @contextlib.contextmanager
     def do_in_tempdir(self):
         tempdir = tempfile.mkdtemp()
@@ -21,7 +31,8 @@ class TestVocabulary(unittest.TestCase):
     def testVocabulary(self):
         phrases = ['GOOD BAD UGLY']
         with self.do_in_tempdir() as tempdir:
-            self.vocab = self.VOCABULARY(path=tempdir)
+            self.vocab = vocabcompiler.VocabularyCompiler(
+                "unittest", path=tempdir)
             self.assertIsNone(self.vocab.compiled_revision)
             self.assertFalse(self.vocab.is_compiled)
             self.assertFalse(self.vocab.matches_phrases(phrases))
@@ -34,75 +45,27 @@ class TestVocabulary(unittest.TestCase):
             logging.disable(logging.ERROR)
             with self.assertRaises(OSError):
                 with mock.patch('os.makedirs', side_effect=OSError('test')):
-                    self.vocab.compile(phrases)
+                    self.vocab.compile(None, nop_func, phrases)
             with self.assertRaises(OSError):
                 with mock.patch('%s.open' % vocabcompiler.__name__,
                                 create=True,
                                 side_effect=OSError('test')):
-                    self.vocab.compile(phrases)
+                    self.vocab.compile(None, nop_func, phrases)
 
-            class StrangeCompilationError(Exception):
-                pass
-            with mock.patch.object(self.vocab, '_compile_vocabulary',
-                                   side_effect=StrangeCompilationError('test')
-                                   ):
                 with self.assertRaises(StrangeCompilationError):
-                    self.vocab.compile(phrases)
+                    self.vocab.compile(None, error_func, phrases)
+
                 with self.assertRaises(StrangeCompilationError):
                     with mock.patch('os.remove',
                                     side_effect=OSError('test')):
-                        self.vocab.compile(phrases)
+                        self.vocab.compile(None, error_func, phrases)
+
             # Re-enable logging again
             logging.disable(logging.NOTSET)
 
-            self.vocab.compile(phrases)
+            self.vocab.compile(None, nop_func, phrases)
             self.assertIsInstance(self.vocab.compiled_revision, str)
             self.assertTrue(self.vocab.is_compiled)
             self.assertTrue(self.vocab.matches_phrases(phrases))
-            self.vocab.compile(phrases)
-            self.vocab.compile(phrases, force=True)
-
-
-class TestPocketsphinxVocabulary(TestVocabulary):
-
-    VOCABULARY = vocabcompiler.PocketsphinxVocabulary
-
-    @unittest.skipUnless(hasattr(vocabcompiler, 'cmuclmtk'),
-                         "CMUCLMTK not present")
-    def testVocabulary(self):
-        super(TestPocketsphinxVocabulary, self).testVocabulary()
-        self.assertIsInstance(self.vocab.decoder_kwargs, dict)
-        self.assertIn('lm', self.vocab.decoder_kwargs)
-        self.assertIn('dict', self.vocab.decoder_kwargs)
-
-    def testPatchedVocabulary(self):
-
-        def write_test_vocab(text, output_file):
-            with open(output_file, "w") as f:
-                for word in text.split(' '):
-                    f.write("%s\n" % word)
-
-        def write_test_lm(text, output_file, **kwargs):
-            with open(output_file, "w") as f:
-                f.write("TEST")
-
-        class DummyG2P(object):
-            def __init__(self, *args, **kwargs):
-                pass
-
-            @classmethod
-            def get_config(self, *args, **kwargs):
-                return {}
-
-            def translate(self, *args, **kwargs):
-                return {'GOOD': ['G UH D',
-                                 'G UW D'],
-                        'BAD': ['B AE D'],
-                        'UGLY': ['AH G L IY']}
-
-        with mock.patch('client.vocabcompiler.cmuclmtk',
-                        create=True) as mocked_cmuclmtk:
-            mocked_cmuclmtk.text2vocab = write_test_vocab
-            mocked_cmuclmtk.text2lm = write_test_lm
-            with mock.patch('client.vocabcompiler.PhonetisaurusG2P', DummyG2P):
-                self.testVocabulary()
+            self.vocab.compile(None, nop_func, phrases)
+            self.vocab.compile(None, nop_func, phrases, force=True)

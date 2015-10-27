@@ -1,0 +1,10 @@
+[Plugin]
+Name = life
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = What's the meaning of Life?
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

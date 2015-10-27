@@ -1,0 +1,10 @@
+[Plugin]
+Name = gmail
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Listen to Mails from your Google Mail account
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

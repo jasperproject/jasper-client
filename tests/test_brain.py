@@ -6,33 +6,59 @@ import mock
 from client import brain
 
 
+class ExamplePlugin(object):
+    def __init__(self, phrases, priority=0):
+        self.phrases = phrases
+        self.priority = priority
+        self.info = type('', (object,), {'name': 'foo'})()
+
+    def get_phrases(self):
+        return self.phrases
+
+    def get_priority(self):
+        return self.priority
+
+    def is_valid(self, text):
+        return (text in self.phrases)
+
+
 class TestBrain(unittest.TestCase):
-    def testSortByPriority(self):
+    def testPriority(self):
         """Does Brain sort modules by priority?"""
         my_brain = brain.Brain()
-        priorities = filter(lambda m: hasattr(m, 'PRIORITY'), my_brain.modules)
-        target = sorted(priorities, key=lambda m: m.PRIORITY, reverse=True)
-        self.assertEqual(target, priorities)
 
-    def testPriority(self):
-        """Does Brain correctly send query to higher-priority module?"""
-        my_brain = brain.Brain()
-        input_text = ["hacker news"]
-        hn_module = filter(lambda m: m.__name__ == 'HN', my_brain.modules)[0]
-        module, text = my_brain.query(input_text)
-        self.assertIs(module, hn_module)
-        self.assertEqual(input_text[0], text)
+        plugin1 = ExamplePlugin(['MOCK1'], priority=1)
+        plugin2 = ExamplePlugin(['MOCK1'], priority=999)
+        plugin3 = ExamplePlugin(['MOCK2'], priority=998)
+        plugin4 = ExamplePlugin(['MOCK1'], priority=0)
+        plugin5 = ExamplePlugin(['MOCK2'], priority=-3)
+
+        for plugin in (plugin1, plugin2, plugin3, plugin4, plugin5):
+            my_brain.add_plugin(plugin)
+
+        expected_order = [plugin2, plugin3, plugin1, plugin4, plugin5]
+        self.assertEqual(expected_order, my_brain.get_plugins())
+
+        input_texts = ['MOCK1']
+        plugin, output_text = my_brain.query(input_texts)
+        self.assertIs(plugin, plugin2)
+        self.assertEqual(input_texts[0], output_text)
+
+        input_texts = ['MOCK2']
+        plugin, output_text = my_brain.query(input_texts)
+        self.assertIs(plugin, plugin3)
+        self.assertEqual(input_texts[0], output_text)
 
     def testPhraseExtraction(self):
-        expected_phrases = ['MOCK']
+        expected_phrases = ['MOCK1', 'MOCK2']
 
-        mock_module = mock.Mock()
-        mock_module.WORDS = ['MOCK']
+        my_brain = brain.Brain()
 
-        with mock.patch('client.brain.Brain.get_modules',
-                        classmethod(lambda cls: [mock_module])):
-            my_brain = brain.Brain()
-            extracted_phrases = my_brain.get_all_phrases()
+        my_brain.add_plugin(ExamplePlugin(['MOCK2']))
+        my_brain.add_plugin(ExamplePlugin(['MOCK1']))
+
+        extracted_phrases = my_brain.get_all_phrases()
+
         self.assertEqual(expected_phrases, extracted_phrases)
 
     def testKeywordPhraseExtraction(self):

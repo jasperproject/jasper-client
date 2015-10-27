@@ -1,0 +1,10 @@
+[Plugin]
+Name = ivona-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Ivona is a multilingual Text-to-Speech synthesis platform developed by Amazon. Uses the Ivona Speech Cloud Services.
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

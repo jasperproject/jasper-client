@@ -1,0 +1,10 @@
+[Plugin]
+Name = hn
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Check out the latest headlines on Hacker News
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
