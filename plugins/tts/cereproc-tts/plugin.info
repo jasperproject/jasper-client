@@ -1,0 +1,10 @@
+[Plugin]
+Name = cereproc-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = The CereVoice Cloud is a text-to-speech (TTS) software-as-a-service (SAAS) from CereProc. 
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
