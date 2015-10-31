@@ -1,4 +1,4 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import datetime
 import re
 from client.app_utils import get_timezone

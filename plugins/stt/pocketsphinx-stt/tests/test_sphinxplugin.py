@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import unittest
 from client import testutils, jasperpath
 from .. import sphinxplugin

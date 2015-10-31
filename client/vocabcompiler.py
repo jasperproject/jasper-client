@@ -1,4 +1,4 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 """
 Iterates over all the WORDS variables in the modules and creates a
 vocabulary for the respective stt_engine if needed.

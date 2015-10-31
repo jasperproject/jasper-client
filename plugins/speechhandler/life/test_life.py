@@ -1,4 +1,4 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import unittest
 from client import testutils
 from .life import MeaningOfLifePlugin

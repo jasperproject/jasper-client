@@ -1,4 +1,4 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import smtplib
 from email.MIMEText import MIMEText
 import urllib2

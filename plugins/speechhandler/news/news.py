@@ -1,4 +1,4 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import feedparser
 from client import app_utils
 from client import plugin

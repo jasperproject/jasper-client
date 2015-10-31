@@ -1,2 +1,2 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 from .news import NewsPlugin
