@@ -35,7 +35,7 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
             sphinxvocab.compile_vocabulary)
 
         lm_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
-        dict_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
+        dict_path = sphinxvocab.get_dictionary_path(vocabulary_path)
 
         try:
             hmm_dir = self.profile['pocketsphinx']['hmm_dir']
