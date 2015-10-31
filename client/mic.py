@@ -61,7 +61,8 @@ class Mic(object):
                 try:
                     transcribed = self.passive_stt_engine.transcribe(f)
                 except:
-                    pass
+                    dbg = (self._logger.getEffectiveLevel() == logging.DEBUG)
+                    self._logger.error("Transcription failed!", exc_info=dbg)
                 else:
                     if transcribed and any([keyword.lower() in t.lower()
                                             for t in transcribed if t]):

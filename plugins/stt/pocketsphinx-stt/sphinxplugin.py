@@ -35,7 +35,7 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
             sphinxvocab.compile_vocabulary)
 
         lm_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
-        dict_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
+        dict_path = sphinxvocab.get_dictionary_path(vocabulary_path)
 
         try:
             hmm_dir = self.profile['pocketsphinx']['hmm_dir']
@@ -76,8 +76,21 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
                                  "hmm_dir in your profile.",
                                  hmm_dir, ', '.join(missing_hmm_files))
 
-        self._decoder = pocketsphinx.Decoder(hmm=hmm_dir, logfn=self._logfile,
-                                             lm=lm_path, dict=dict_path)
+        self._pocketsphinx_v5 = hasattr(pocketsphinx.Decoder, 'default_config')
+
+        if self._pocketsphinx_v5:
+            # Pocketsphinx v5
+            config = pocketsphinx.Decoder.default_config()
+            config.set_string('-hmm', hmm_dir)
+            config.set_string('-lm', lm_path)
+            config.set_string('-dict', dict_path)
+            print('lm', lm_path)
+            print('dict', dict_path)
+            self._decoder = pocketsphinx.Decoder(config)
+        else:
+            # Pocketsphinx v4 or sooner
+            self._decoder = pocketsphinx.Decoder(
+                hmm=hmm_dir, logfn=self._logfile, lm=lm_path, dict=dict_path)
 
     def __del__(self):
         os.remove(self._logfile)
@@ -99,12 +112,15 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         self._decoder.process_raw(data, False, True)
         self._decoder.end_utt()
 
-        result = self._decoder.get_hyp()
+        if self._pocketsphinx_v5:
+            result = self._decoder.hyp().hypstr
+        else:
+            result = self._decoder.get_hyp()[0]
         with open(self._logfile, 'r+') as f:
             for line in f:
                 self._logger.debug(line.strip())
             f.truncate()
 
-        transcribed = [result[0]]
+        transcribed = [result]
         self._logger.info('Transcribed: %r', transcribed)
         return transcribed

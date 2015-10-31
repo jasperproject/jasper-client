@@ -18,7 +18,7 @@ class WitAiSTTPlugin(plugin.STTPlugin):
     """
 
     def __init__(self, *args, **kwargs):
-        plugin.STTPlugin(self, *args, **kwargs)
+        plugin.STTPlugin.__init__(self, *args, **kwargs)
         self._logger = logging.getLogger(__name__)
         self.token = self.profile['witai-stt']['access_token']
 
