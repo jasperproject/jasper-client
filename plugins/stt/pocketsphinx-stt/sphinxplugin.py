@@ -4,7 +4,12 @@ import tempfile
 from client import plugin
 from . import sphinxvocab
 try:
-    import pocketsphinx
+    try:
+        import pocketsphinx
+    except ValueError:
+        # Fixes a quirky bug when first import doesn't work.
+        # See http://sourceforge.net/p/cmusphinx/bugs/284/ for details.
+        import pocketsphinx
     pocketsphinx_available = True
 except ImportError:
     pocketsphinx = None
