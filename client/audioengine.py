@@ -149,7 +149,17 @@ class PyAudioDevice(object):
             ('%s_channels' % direction): channels,
             'rate': rate
         }
-        return self._engine._pyaudio.is_format_supported(**fmt_info)
+        try:
+            supported = self._engine._pyaudio.is_format_supported(**fmt_info)
+        except ValueError as e:
+            if e.args in (('Sample format not supported', -9994),
+                          ('Invalid sample rate', -9997),
+                          ('Invalid number of channels', -9998)):
+                return False
+            else:
+                raise
+        else:
+            return supported
 
     @contextlib.contextmanager
     def _open_stream(self, bits, channels, rate, output=True):
