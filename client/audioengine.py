@@ -167,14 +167,9 @@ class PyAudioDevice(object):
         is_supported_fmt = self.supports_format(bits, channels, rate,
                                                 output=output)
         if not is_supported_fmt:
-            if output:
-                msg_fmt = ("PyAudioDevice {index} ({name}) doesn't support " +
-                           "output format (Int{bits}, {channels}-channel at" +
-                           " {rate} Hz)")
-            else:
-                msg_fmt = ("PyAudioDevice {index} ({name}) doesn't support " +
-                           "input format (Int{bits}, {channels}-channel at" +
-                           " {rate} Hz)")
+            msg_fmt = ("PyAudioDevice {index} ({name}) doesn't support " +
+                       "%s format (Int{bits}, {channels}-channel at" +
+                       " {rate} Hz)") % ('output' if output else 'input')
             msg = msg_fmt.format(index=self.index,
                                  name=self.name,
                                  bits=bits,
