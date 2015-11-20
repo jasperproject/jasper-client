@@ -130,39 +130,33 @@ class PyAudioDevice(object):
     def is_input_device(self):
         return self._max_input_channels > 0
 
-    def supports_input_format(self, bits, channels, rate):
-        if not self.is_input_device:
-            return False
+    def supports_format(self, bits, channels, rate, output=True):
+        if output:
+            direction = 'output'
+            if not self.is_output_device:
+                return False
+        else:
+            direction = 'input'
+            if not self.is_input_device:
+                return False
         sample_fmt = self._engine._pyaudio_fmt(bits)
         if not sample_fmt:
             return False
-        return self._engine._pyaudio.is_format_supported(
-            input_device=self.index,
-            input_format=sample_fmt,
-            input_channels=channels,
-            rate=rate)
-
-    def supports_output_format(self, bits, channels, rate):
-        if not self.is_output_device:
-            return False
-        sample_fmt = self._engine._pyaudio_fmt(bits)
-        if not sample_fmt:
-            return False
-        return self._engine._pyaudio.is_format_supported(
-            output_device=self.index,
-            output_format=sample_fmt,
-            output_channels=channels,
-            rate=rate)
+        direction = 'output' if output else 'input'
+        fmt_info = {
+            ('%s_device' % direction): self.index,
+            ('%s_format' % direction): sample_fmt,
+            ('%s_channels' % direction): channels,
+            'rate': rate
+        }
+        return self._engine._pyaudio.is_format_supported(**fmt_info)
 
     @contextlib.contextmanager
     def _open_stream(self, bits, channels, rate, output=True):
         # Check if format is supported
-        unsupported_fmt = ((output and not
-                            self.supports_output_format(bits, channels, rate))
-                           or
-                           (not output and not
-                            self.supports_input_format(bits, channels, rate)))
-        if unsupported_fmt:
+        is_supported_fmt = self.supports_format(bits, channels, rate,
+                                                output=output)
+        if not is_supported_fmt:
             if output:
                 msg_fmt = ("PyAudioDevice {index} ({name}) doesn't support " +
                            "output format (Int{bits}, {channels}-channel at" +
