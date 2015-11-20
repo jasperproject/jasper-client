@@ -178,13 +178,17 @@ class PyAudioDevice(object):
             self._logger.critical(msg)
             raise UnsupportedFormat(msg)
         # Everything looks fine, open the stream
-        stream = self._engine._pyaudio.open(
-            format=self._engine._pyaudio_fmt(bits),
-            channels=channels,
-            rate=rate,
-            output=output,
-            input=not output,
-            frames_per_buffer=1024 if output else 8192)
+        direction = ('output' if output else 'input')
+        stream_kwargs = {
+            'format': self._engine._pyaudio_fmt(bits),
+            'channels': channels,
+            'rate': rate,
+            'output': output,
+            'input': not output,
+            ('%s_device_index' % direction): self.index,
+            'frames_per_buffer': 1024 if output else 8192
+        }
+        stream = self._engine._pyaudio.open(**stream_kwargs)
         self._logger.debug("%s stream opened on device '%s' (%d Hz, %d " +
                            "channel, %d bit)", "output" if output else "input",
                            self.slug, rate, channels, bits)
