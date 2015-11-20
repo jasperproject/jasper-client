@@ -255,10 +255,3 @@ class PyAudioDevice(object):
                             print('    %s' % ', '.join(
                                 "(%d Bit %d CH @ %d Hz)" % fmt
                                 for fmt in chunk))
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    audioengine = PyAudioEngine()
-    devices = audioengine.get_devices()
-    for device in devices:
-        device.print_device_info(verbose=True)

@@ -21,11 +21,14 @@ parser.add_argument('--local', action='store_true',
                     help='Use text input instead of a real microphone')
 parser.add_argument('--no-network-check', action='store_true',
                     help='Disable the network connection check')
-parser.add_argument('--diagnose', action='store_true',
-                    help='Run diagnose and exit')
-parser.add_argument('--list-plugins', action='store_true',
-                    help='List plugins and exit')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
+list_info = parser.add_mutually_exclusive_group(required=False)
+list_info.add_argument('--diagnose', action='store_true',
+                       help='Run diagnose and exit')
+list_info.add_argument('--list-plugins', action='store_true',
+                       help='List plugins and exit')
+list_info.add_argument('--list-audio-devices', action='store_true',
+                       help='List audio devices and exit')
 args = parser.parse_args()
 
 if args.local:
@@ -232,8 +235,13 @@ if __name__ == "__main__":
                                   ("(v%s)" % info.version).ljust(len_version),
                                   info.description))
         sys.exit(1)
-
-    if args.diagnose:
+    elif args.list_audio_devices:
+        ae = audioengine.PyAudioEngine()
+        for device in ae.get_devices():
+            device.print_device_info(
+                verbose=(logger.getEffectiveLevel() == logging.DEBUG))
+        sys.exit(0)
+    elif args.diagnose:
         failed_checks = diagnose.run()
         sys.exit(0 if not failed_checks else 1)
 
