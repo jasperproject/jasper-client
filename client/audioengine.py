@@ -6,6 +6,11 @@ import wave
 import pyaudio
 import slugify
 
+STANDARD_SAMPLE_RATES = (
+    8000, 9600, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 88200,
+    96000, 192000
+)
+
 
 class DeviceException(Exception):
     pass
@@ -218,18 +223,42 @@ class PyAudioDevice(object):
         with open(filename, 'rb') as f:
             self.play_fp(f)
 
+    def print_device_info(self, verbose=False):
+        print('[Audio device \'%s\']' % self.slug)
+        print('  ID: %d' % self.index)
+        print('  Name: %s' % self.name)
+        print('  Input device: %s' % ('Yes' if self.is_input_device
+                                      else 'No'))
+        print('  Output device: %s' % ('Yes' if self.is_output_device
+                                       else 'No'))
+        if verbose:
+            for direction in ('input', 'output'):
+                valid = (self.is_output_device
+                         if direction == 'output'
+                         else self.is_input_device)
+                if valid:
+                    print('  Supported %s formats:' % direction)
+                    formats = []
+                    for bits in (8, 16, 24, 32):
+                        for channels in (1, 2):
+                            for rate in STANDARD_SAMPLE_RATES:
+                                args = (bits, channels, rate)
+                                if self.supports_format(
+                                        *args, output=(direction == 'output')):
+                                    formats.append(args)
+                    if len(formats) == 0:
+                        print('    None')
+                    else:
+                        n = 4
+                        for chunk in (formats[i:i+n]
+                                      for i in range(0, len(formats), n)):
+                            print('    %s' % ', '.join(
+                                "(%d Bit %d CH @ %d Hz)" % fmt
+                                for fmt in chunk))
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     audioengine = PyAudioEngine()
     devices = audioengine.get_devices()
-    slug_length = max([len(device.slug) for device in devices])
-    name_length = max([len(device.name) for device in devices])
-    fmt = ('{{index: >2}} {{slug: <{0}}} {{name: <{1}}} {{output: <3}} ' +
-           '{{input: <3}}').format(slug_length, name_length)
-    print(fmt.format(index="ID", slug="SLUG", name="NAME", output="OUT",
-                     input="IN"))
     for device in devices:
-        print(fmt.format(index=device.index, name=device.name,
-                         slug=device.slug,
-                         output="yes" if device.is_output_device else "no",
-                         input="yes" if device.is_input_device else "no"))
+        device.print_device_info(verbose=True)
