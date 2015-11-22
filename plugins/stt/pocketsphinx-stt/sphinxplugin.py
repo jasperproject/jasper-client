@@ -32,6 +32,7 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         plugin.STTPlugin.__init__(self, *args, **kwargs)
 
         self._logger = logging.getLogger(__name__)
+        self._logfile = None
 
         if not pocketsphinx_available:
             raise ImportError("Pocketsphinx not installed!")
@@ -47,10 +48,6 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         except KeyError:
             hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/" + \
                       "hub4wsj_sc_8k"
-
-        with tempfile.NamedTemporaryFile(prefix='psdecoder_',
-                                         suffix='.log', delete=False) as f:
-            self._logfile = f.name
 
         self._logger.debug("Initializing PocketSphinx Decoder with hmm_dir " +
                            "'%s'", hmm_dir)
@@ -94,6 +91,9 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
             self._decoder = pocketsphinx.Decoder(config)
         else:
             # Pocketsphinx v4 or sooner
+            with tempfile.NamedTemporaryFile(prefix='psdecoder_',
+                                             suffix='.log', delete=False) as f:
+                self._logfile = f.name
             self._decoder = pocketsphinx.Decoder(
                 hmm=hmm_dir, logfn=self._logfile, lm=lm_path, dict=dict_path)
 
@@ -122,10 +122,11 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
             result = hyp.hypstr if hyp is not None else ''
         else:
             result = self._decoder.get_hyp()[0]
-        with open(self._logfile, 'r+') as f:
-            for line in f:
-                self._logger.debug(line.strip())
-            f.truncate()
+        if self._logfile is not None:
+            with open(self._logfile, 'r+') as f:
+                for line in f:
+                    self._logger.debug(line.strip())
+                f.truncate()
 
         transcribed = [result] if result != '' else []
         self._logger.info('Transcribed: %r', transcribed)
