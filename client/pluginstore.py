@@ -163,9 +163,10 @@ class PluginStore(object):
                         self._logger.debug("Found plugin candidate at: %s",
                                            root)
                         plugin_info = self.parse_plugin(root)
-                    except Exception:
+                    except Exception as e:
                         self._logger.warning(
-                            "Plugin at '%s' skipped!", root,
+                            "Plugin at '%s' skipped! (Reason: %s)", root,
+                            e.message if hasattr(e, 'message') else 'Unknown',
                             exc_info=self._logger.isEnabledFor(logging.DEBUG))
                     else:
                         if plugin_info.name in self._plugins:
