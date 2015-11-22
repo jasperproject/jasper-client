@@ -118,7 +118,8 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         self._decoder.end_utt()
 
         if self._pocketsphinx_v5:
-            result = self._decoder.hyp().hypstr
+            hyp = self._decoder.hyp()
+            result = hyp.hypstr if hyp is not None else ''
         else:
             result = self._decoder.get_hyp()[0]
         with open(self._logfile, 'r+') as f:
@@ -126,6 +127,6 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
                 self._logger.debug(line.strip())
             f.truncate()
 
-        transcribed = [result]
+        transcribed = [result] if result != '' else []
         self._logger.info('Transcribed: %r', transcribed)
         return transcribed
