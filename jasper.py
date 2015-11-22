@@ -93,6 +93,13 @@ class Jasper(object):
             raise
 
         try:
+            language = self.config['language']
+        except KeyError:
+            logger.warning("language not specified in profile, using 'en-US'")
+        else:
+            logger.info("Using language '%s'", language)
+
+        try:
             audio_engine_slug = self.config['audio_engine']
         except KeyError:
             audio_engine_slug = 'pyaudio'
