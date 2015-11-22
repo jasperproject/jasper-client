@@ -161,10 +161,12 @@ class Jasper(object):
         for info in self.plugins.get_plugins_by_category('speechhandler'):
             try:
                 plugin = info.plugin_class(info, self.config)
-            except:
-                debug = self._logger.getEffectiveLevel() == logging.DEBUG
-                self._logger.warning("Plugin '%s' caused an error!", info.name,
-                                     exc_info=debug)
+            except Exception as e:
+                self._logger.warning(
+                    "Plugin '%s' skipped! (Reason: %s)", info.name,
+                    e.message if hasattr(e, 'message') else 'Unknown',
+                    exc_info=(
+                        self._logger.getEffectiveLevel() == logging.DEBUG))
             else:
                 self.brain.add_plugin(plugin)
 
