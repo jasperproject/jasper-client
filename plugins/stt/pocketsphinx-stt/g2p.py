@@ -6,8 +6,12 @@ import tempfile
 import logging
 
 
-RE_WORDS = re.compile(r'^(?P<word>.+)\t(?P<precision>\d+\.\d+)\t<s> ' +
-                      r'(?P<pronounciation>.*) </s>', re.MULTILINE)
+RE_WORDS = re.compile(r'(?P<word>[a-zA-Z]+)\s+(?P<precision>\d+\.\d+)\s+' +
+                      r'(?:(?P<sep><s>\s+)){0,1}(?P<pronounciation>.+)' +
+                      r'(?(sep)\s+</s>)',
+                      re.MULTILINE)
+RE_ISYMNOTFOUND = re.compile(r'^Symbol: \'(?P<symbol>.+)\' not found in ' +
+                             r'input symbols table')
 
 
 def execute(executable, fst_model, input, is_file=False, nbest=None):
@@ -32,6 +36,15 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
         # we have to use this somehow hacky subprocess.Popen approach.
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
+        while True:
+            nextline = proc.stderr.readline()
+            if nextline == '' and proc.poll() != None:
+                break
+            if len(RE_ISYMNOTFOUND.findall(nextline)) > 0:
+                logger.debug(nextline)
+                proc.kill()
+                raise ValueError('Input symbol not found')
+                return
         stdoutdata, stderrdata = proc.communicate()
     except OSError:
         logger.error("Error occured while executing command '%s'",
@@ -51,10 +64,12 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
 
     result = {}
     if stdoutdata is not None:
-        for word, precision, pronounc in RE_WORDS.findall(stdoutdata):
+        for match in RE_WORDS.finditer(stdoutdata):
+            word = match.group('word')
+            pronounciation = match.group('pronounciation')
             if word not in result:
                 result[word] = []
-            result[word].append(pronounc)
+            result[word].append(pronounciation)
     return result
 
 

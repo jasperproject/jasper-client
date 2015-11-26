@@ -117,14 +117,20 @@ def compile_dictionary(g2pconverter, words, output_file):
     # create the dictionary
     logger = logging.getLogger(__name__)
     logger.debug("Getting phonemes for %d words...", len(words))
-    phonemes = g2pconverter.translate(words)
+    try:
+        phonemes = g2pconverter.translate(words)
+    except ValueError as e:
+        if e.message == 'Input symbol not found':
+            phonemes = g2pconverter.translate([word.lower() for word in words])
+        else:
+            raise e
 
     logger.debug("Creating dict file: '%s'", output_file)
     with open(output_file, "w") as f:
         for word, pronounciations in phonemes.items():
             for i, pronounciation in enumerate(pronounciations, start=1):
                 if i == 1:
-                    line = "%s\t%s\n" % (word, pronounciation)
+                    line = "%s\t%s\n" % (word.upper(), pronounciation)
                 else:
-                    line = "%s(%d)\t%s\n" % (word, i, pronounciation)
+                    line = "%s(%d)\t%s\n" % (word.upper(), i, pronounciation)
                 f.write(line)
