@@ -88,7 +88,6 @@ def compile_languagemodel(text, output_file):
 
     # Create language model from text
     logger.debug("Creating languagemodel file: '%s'", output_file)
-    print("TEXT", text)
     cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
 
     # Get words from vocab file

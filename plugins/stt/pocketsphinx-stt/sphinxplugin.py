@@ -86,8 +86,6 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
             config.set_string('-hmm', hmm_dir)
             config.set_string('-lm', lm_path)
             config.set_string('-dict', dict_path)
-            print('lm', lm_path)
-            print('dict', dict_path)
             self._decoder = pocketsphinx.Decoder(config)
         else:
             # Pocketsphinx v4 or sooner
