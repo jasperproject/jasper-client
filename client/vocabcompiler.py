@@ -7,6 +7,7 @@ vocabulary for the respective stt_engine if needed.
 import os
 import logging
 import hashlib
+import shutil
 
 
 def phrases_to_revision(phrases):
@@ -141,6 +142,7 @@ class VocabularyCompiler(object):
                                    "cleaning up...", exc_info=True)
                 try:
                     os.remove(self.revision_file)
+                    shutil.rmtree(self.path)
                 except OSError:
                     pass
                 raise e
