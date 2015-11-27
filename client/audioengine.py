@@ -215,8 +215,12 @@ class PyAudioDevice(object):
         channels = w.getnchannels()
         bits = w.getsampwidth()*8
         rate = w.getframerate()
+        chunksize = 1024
         with self._open_stream(bits, channels, rate) as stream:
-            stream.write(w.readframes(w.getnframes()))
+            data = w.readframes(chunksize)
+            while data:
+                stream.write(data)
+                data = w.readframes(chunksize)
         w.close()
 
     def play_file(self, filename):
