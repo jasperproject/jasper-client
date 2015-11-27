@@ -1,0 +1,10 @@
+[Plugin]
+Name = pyaudio
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = AudioEngine based on PyAudio/PortAudio.
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/

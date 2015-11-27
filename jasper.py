@@ -86,6 +86,14 @@ class Jasper(object):
             raise
 
         try:
+            audio_engine_slug = self.config['audio_engine']
+        except KeyError:
+            audio_engine_slug = 'pyaudio'
+            logger.info("audio_engine not specified in profile, using " +
+                        "defaults.")
+        logger.debug("Using Audio engine '%s'", audio_engine_slug)
+
+        try:
             active_stt_slug = self.config['stt_engine']
         except KeyError:
             active_stt_slug = 'sphinx'
@@ -107,8 +115,14 @@ class Jasper(object):
                            "defaults.")
         logger.debug("Using TTS engine '%s'", tts_slug)
 
+        # Load plugins
+        self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        self.plugins.detect_plugins()
+
         # Initialize AudioEngine
-        audio = audioengine.PyAudioEngine()
+        ae_info = self.plugins.get_plugin(audio_engine_slug,
+                                          category='audioengine')
+        audio = ae_info.plugin_class(ae_info, self.config)
 
         # Initialize audio input device
         devices = [device.slug for device in audio.get_devices(
@@ -151,10 +165,6 @@ class Jasper(object):
             logger.critical(e.args[0])
             logger.warning('Valid output devices: %s', ', '.join(devices))
             raise
-
-        # Load plugins
-        self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
-        self.plugins.detect_plugins()
 
         # Initialize Brain
         self.brain = brain.Brain()
