@@ -153,7 +153,7 @@ class PyAudioDevice(object):
             return supported
 
     @contextlib.contextmanager
-    def _open_stream(self, bits, channels, rate, output=True):
+    def _open_stream(self, bits, channels, rate, chunksize=1024, output=True):
         # Check if format is supported
         is_supported_fmt = self.supports_format(bits, channels, rate,
                                                 output=output)
@@ -177,7 +177,7 @@ class PyAudioDevice(object):
             'output': output,
             'input': not output,
             ('%s_device_index' % direction): self.index,
-            'frames_per_buffer': 1024 if output else 8192
+            'frames_per_buffer': chunksize if output else chunksize*8  # Hacky
         }
         stream = self._engine._pyaudio.open(**stream_kwargs)
         self._logger.debug("%s stream opened on device '%s' (%d Hz, %d " +
@@ -191,7 +191,8 @@ class PyAudioDevice(object):
                                "output" if output else "input", self.slug)
 
     def record(self, chunksize, *args):
-        with self._open_stream(*args, output=False) as stream:
+        with self._open_stream(*args, chunksize=chunksize,
+                               output=False) as stream:
             while True:
                 try:
                     frame = stream.read(chunksize)
@@ -216,7 +217,8 @@ class PyAudioDevice(object):
         bits = w.getsampwidth()*8
         rate = w.getframerate()
         chunksize = 1024
-        with self._open_stream(bits, channels, rate) as stream:
+        with self._open_stream(bits, channels, rate,
+                               chunksize=chunksize) as stream:
             data = w.readframes(chunksize)
             while data:
                 stream.write(data)
