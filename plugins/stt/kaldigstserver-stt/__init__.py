@@ -1,0 +1,1 @@
+from .kaldigstserverplugin import KaldiGstServerSTTPlugin
