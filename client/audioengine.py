@@ -11,6 +11,10 @@ STANDARD_SAMPLE_RATES = (
     96000, 192000
 )
 
+DEVICE_TYPE_ALL = 'all'
+DEVICE_TYPE_INPUT = 'input'
+DEVICE_TYPE_OUTPUT = 'output'
+
 
 class DeviceException(Exception):
     pass
@@ -46,20 +50,30 @@ class PyAudioEngine(object):
     def __del__(self):
         self._pyaudio.terminate()
 
-    def get_devices(self):
+    def get_devices(self, device_type=DEVICE_TYPE_ALL):
         num_devices = self._pyaudio.get_device_count()
         self._logger.debug('Found %d PyAudio devices', num_devices)
-        return [PyAudioDevice(self, self._pyaudio.get_device_info_by_index(i))
+        devs = [PyAudioDevice(self, self._pyaudio.get_device_info_by_index(i))
                 for i in range(num_devices)]
+        if device_type == DEVICE_TYPE_ALL:
+            return devs
+        else:
+            return [device for device in devs if device_type in device.types]
 
-    def get_default_input_device(self):
+    def get_default_device(self, output=True):
         try:
-            info = self._pyaudio.get_default_input_device_info()
+            if output:
+                info = self._pyaudio.get_default_output_device_info()
+            else:
+                info = self._pyaudio.get_default_input_device_info()
         except IOError:
-            devices = self.get_input_devices()
+            direction = 'output' if output else 'input'
+            devices = self.get_devices(device_type=(
+                DEVICE_TYPE_OUTPUT if output else DEVICE_TYPE_INPUT))
             if len(devices) == 0:
-                self._logger.warning('No input devices available!')
-                raise DeviceNotFound('No input devices available!')
+                msg = 'No %s devices available!' % direction
+                self._logger.warning(msg)
+                raise DeviceNotFound(msg)
             try:
                 device = [d for d in devices if d.slug == 'default'][0]
             except IndexError:
@@ -67,30 +81,6 @@ class PyAudioEngine(object):
             return device
         else:
             return PyAudioDevice(self, info)
-
-    def get_default_output_device(self):
-        try:
-            info = self._pyaudio.get_default_output_device_info()
-        except IOError:
-            devices = self.get_output_devices()
-            if len(devices) == 0:
-                self._logger.warning('No input devices available!')
-                raise DeviceNotFound('No input devices available!')
-            try:
-                device = [d for d in devices if d.slug == 'default'][0]
-            except IndexError:
-                device = devices[0]
-            return device
-        else:
-            return PyAudioDevice(self, info)
-
-    def get_input_devices(self):
-        return [device for device in self.get_devices()
-                if device.is_input_device]
-
-    def get_output_devices(self):
-        return [device for device in self.get_devices()
-                if device.is_output_device]
 
     def get_device_by_slug(self, slug):
         for device in self. get_devices():
@@ -128,22 +118,18 @@ class PyAudioDevice(object):
         return self._index
 
     @property
-    def is_output_device(self):
-        return self._max_output_channels > 0
-
-    @property
-    def is_input_device(self):
-        return self._max_input_channels > 0
+    def types(self):
+        types = []
+        if self._max_input_channels > 0:
+            types.append(DEVICE_TYPE_INPUT)
+        if self._max_output_channels > 0:
+            types.append(DEVICE_TYPE_OUTPUT)
+        return tuple(types)
 
     def supports_format(self, bits, channels, rate, output=True):
-        if output:
-            direction = 'output'
-            if not self.is_output_device:
-                return False
-        else:
-            direction = 'input'
-            if not self.is_input_device:
-                return False
+        req_dev_type = DEVICE_TYPE_OUTPUT if output else DEVICE_TYPE_INPUT
+        if req_dev_type not in self.types:
+            return False
         sample_fmt = self._engine._pyaudio_fmt(bits)
         if not sample_fmt:
             return False
@@ -241,31 +227,30 @@ class PyAudioDevice(object):
         print('[Audio device \'%s\']' % self.slug)
         print('  ID: %d' % self.index)
         print('  Name: %s' % self.name)
-        print('  Input device: %s' % ('Yes' if self.is_input_device
+        print('  Input device: %s' % ('Yes'
+                                      if DEVICE_TYPE_INPUT in self.types
                                       else 'No'))
-        print('  Output device: %s' % ('Yes' if self.is_output_device
+        print('  Output device: %s' % ('Yes'
+                                       if DEVICE_TYPE_OUTPUT in self.types
                                        else 'No'))
         if verbose:
-            for direction in ('input', 'output'):
-                valid = (self.is_output_device
-                         if direction == 'output'
-                         else self.is_input_device)
-                if valid:
-                    print('  Supported %s formats:' % direction)
-                    formats = []
-                    for bits in (8, 16, 24, 32):
-                        for channels in (1, 2):
-                            for rate in STANDARD_SAMPLE_RATES:
-                                args = (bits, channels, rate)
-                                if self.supports_format(
-                                        *args, output=(direction == 'output')):
-                                    formats.append(args)
-                    if len(formats) == 0:
-                        print('    None')
-                    else:
-                        n = 4
-                        for chunk in (formats[i:i+n]
-                                      for i in range(0, len(formats), n)):
-                            print('    %s' % ', '.join(
-                                "(%d Bit %d CH @ %d Hz)" % fmt
-                                for fmt in chunk))
+            for io_type in self.types:
+                direction = 'output' if DEVICE_TYPE_OUTPUT else 'input'
+                print('  Supported %s formats:' % direction)
+                formats = []
+                for bits in (8, 16, 24, 32):
+                    for channels in (1, 2):
+                        for rate in STANDARD_SAMPLE_RATES:
+                            args = (bits, channels, rate)
+                            if self.supports_format(
+                                    *args, output=(direction == 'output')):
+                                formats.append(args)
+                if len(formats) == 0:
+                    print('    None')
+                else:
+                    n = 4
+                    for chunk in (formats[i:i+n]
+                                  for i in range(0, len(formats), n)):
+                        print('    %s' % ', '.join(
+                            "(%d Bit %d CH @ %d Hz)" % fmt
+                            for fmt in chunk))

@@ -111,18 +111,18 @@ class Jasper(object):
         audio = audioengine.PyAudioEngine()
 
         # Initialize audio input device
-        devices = [device.slug for device
-                   in audio.get_input_devices()]
+        devices = [device.slug for device in audio.get_devices(
+            device_type=audioengine.DEVICE_TYPE_INPUT)]
         try:
             device_slug = self.config['input_device']
         except KeyError:
-            device_slug = audio.get_default_input_device().slug
+            device_slug = audio.get_default_device(output=False).slug
             logger.warning("input_device not specified in profile, " +
                            "defaulting to '%s' (Possible values: %s)",
                            device_slug, ', '.join(devices))
         try:
             input_device = audio.get_device_by_slug(device_slug)
-            if not input_device.is_input_device:
+            if audioengine.DEVICE_TYPE_INPUT not in input_device.types:
                 raise audioengine.UnsupportedFormat(
                     "Audio device with slug '%s' is not an input device"
                     % input_device.slug)
@@ -132,18 +132,18 @@ class Jasper(object):
             raise
 
         # Initialize audio output device
-        devices = [device.slug for device
-                   in audio.get_output_devices()]
+        devices = [device.slug for device in audio.get_devices(
+            device_type=audioengine.DEVICE_TYPE_OUTPUT)]
         try:
             device_slug = self.config['output_device']
         except KeyError:
-            device_slug = audio.get_default_output_device().slug
+            device_slug = audio.get_default_device(output=True).slug
             logger.warning("output_device not specified in profile, " +
                            "defaulting to '%s' (Possible values: %s)",
                            device_slug, ', '.join(devices))
         try:
             output_device = audio.get_device_by_slug(device_slug)
-            if not output_device.is_output_device:
+            if audioengine.DEVICE_TYPE_OUTPUT not in output_device.types:
                 raise audioengine.UnsupportedFormat(
                     "Audio device with slug '%s' is not an output device"
                     % output_device.slug)
