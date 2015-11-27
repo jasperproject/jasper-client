@@ -19,6 +19,8 @@ class Mic:
         input = raw_input("YOU: ")
         self.prev = input
         return input
+    # Jasper is always active listening via command line for the local mic.
+    listen = active_listen
 
     def say(self, phrase, OPTIONS=None):
         print("JASPER: %s" % phrase)
