@@ -5,6 +5,7 @@ import wave
 import mad
 import jasperpath
 import vocabcompiler
+import audioengine
 
 
 class GenericPlugin(object):
@@ -20,6 +21,10 @@ class GenericPlugin(object):
     @property
     def info(self):
         return self._plugin_info
+
+
+class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
+    pass
 
 
 class SpeechHandlerPlugin(GenericPlugin):

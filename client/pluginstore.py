@@ -148,6 +148,7 @@ class PluginStore(object):
         self._info_fname = PLUGIN_INFO_FILENAME
         self._translations_dirname = PLUGIN_TRANSLATIONS_DIRNAME
         self._categories_map = {
+            'audioengine': plugin.AudioEnginePlugin,
             'speechhandler': plugin.SpeechHandlerPlugin,
             'tts': plugin.TTSPlugin,
             'stt': plugin.STTPlugin
