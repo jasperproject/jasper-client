@@ -23,7 +23,7 @@ class KaldiGstServerSTTPlugin(plugin.STTPlugin):
         wav.close()
         data = fp.read()
 
-        headers = {'Content-Type': 'audio/l16; rate=%s' % frame_rate}
+        headers = {'Content-Type': 'audio/x-raw-int; rate=%s' % frame_rate}
         r = self._http.post(self._url, data=data, headers=headers)
         try:
             r.raise_for_status()
