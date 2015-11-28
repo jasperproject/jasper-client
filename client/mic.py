@@ -33,6 +33,8 @@ class Mic(object):
         self._input_channels = 1
         self._input_bits = 16
         self._input_chunksize = 1024
+        self._output_chunksize = 1024
+        self._output_padding = False
         self._threshold = 2.0**self._input_bits
 
     def _snr(self, frames):
@@ -151,7 +153,9 @@ class Mic(object):
 
     # Output methods
     def play_file(self, filename):
-        self._output_device.play_file(filename)
+        self._output_device.play_file(filename,
+                                      chunksize=self._output_chunksize,
+                                      add_padding=self._output_padding)
 
     def say(self, phrase):
         altered_phrase = alteration.clean(phrase)

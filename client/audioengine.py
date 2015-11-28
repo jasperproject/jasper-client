@@ -91,23 +91,26 @@ class AudioDevice(object):
                 else:
                     yield frame
 
-    def play_fp(self, fp):
+    def play_fp(self, fp, chunksize=1024, add_padding=False):
         w = wave.open(fp, 'rb')
         channels = w.getnchannels()
         bits = w.getsampwidth()*8
         rate = w.getframerate()
-        chunksize = 1024
         with self.open_stream(bits, channels, rate,
                               chunksize=chunksize) as stream:
             data = w.readframes(chunksize)
+            if add_padding and len(data) > 0:
+                data += b'\00'*(chunksize - len(data))
             while data:
                 stream.write(data)
                 data = w.readframes(chunksize)
+                if add_padding and len(data) > 0:
+                    data += b'\00'*(chunksize - len(data))
         w.close()
 
-    def play_file(self, filename):
+    def play_file(self, filename, *args, **kwargs):
         with open(filename, 'rb') as f:
-            self.play_fp(f)
+            self.play_fp(f, *args, **kwargs)
 
     def print_device_info(self, verbose=False):
         print('[Audio device \'%s\']' % self.slug)
