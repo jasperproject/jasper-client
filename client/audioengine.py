@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import abc
-import logging
 import contextlib
-import re
 import wave
-import pyaudio
 import slugify
 
 STANDARD_SAMPLE_RATES = (
