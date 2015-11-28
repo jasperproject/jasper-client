@@ -78,17 +78,17 @@ def compile_languagemodel(text, output_file):
     Returns:
         A list of all unique words this vocabulary contains.
     """
+    if len(text) == 0:
+        raise ValueError('No text to compile into languagemodel!')
+
     logger = logging.getLogger(__name__)
+
     with tempfile.NamedTemporaryFile(suffix='.vocab', delete=False) as f:
         vocab_file = f.name
 
     # Create vocab file from text
     logger.debug("Creating vocab file: '%s'", vocab_file)
     cmuclmtk.text2vocab(text, vocab_file)
-
-    # Create language model from text
-    logger.debug("Creating languagemodel file: '%s'", output_file)
-    cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
 
     # Get words from vocab file
     logger.debug("Getting words from vocab file and removing it " +
@@ -99,6 +99,15 @@ def compile_languagemodel(text, output_file):
             line = line.strip()
             if not line.startswith('#') and line not in ('<s>', '</s>'):
                 words.append(line)
+
+    if len(words) == 0:
+        logger.warning('Vocab file seems to be empty!')
+
+    # Create language model from text
+    logger.debug("Creating languagemodel file: '%s'", output_file)
+    cmuclmtk.text2lm(text, output_file, vocab_file=vocab_file)
+
+    # Remote the vocab file
     os.remove(vocab_file)
 
     return words
