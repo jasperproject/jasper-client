@@ -80,23 +80,26 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
 
         self._pocketsphinx_v5 = hasattr(pocketsphinx.Decoder, 'default_config')
 
+        with tempfile.NamedTemporaryFile(prefix='psdecoder_',
+                                         suffix='.log', delete=False) as f:
+            self._logfile = f.name
+
         if self._pocketsphinx_v5:
             # Pocketsphinx v5
             config = pocketsphinx.Decoder.default_config()
             config.set_string('-hmm', hmm_dir)
             config.set_string('-lm', lm_path)
             config.set_string('-dict', dict_path)
+            config.set_string('-logfn', self._logfile)
             self._decoder = pocketsphinx.Decoder(config)
         else:
             # Pocketsphinx v4 or sooner
-            with tempfile.NamedTemporaryFile(prefix='psdecoder_',
-                                             suffix='.log', delete=False) as f:
-                self._logfile = f.name
             self._decoder = pocketsphinx.Decoder(
                 hmm=hmm_dir, logfn=self._logfile, lm=lm_path, dict=dict_path)
 
     def __del__(self):
-        os.remove(self._logfile)
+        if self._logfile is not None:
+            os.remove(self._logfile)
 
     def transcribe(self, fp):
         """
