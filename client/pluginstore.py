@@ -3,9 +3,14 @@ import os
 import re
 import logging
 import gettext
-import ConfigParser as configparser
 import imp
 import inspect
+import sys
+if sys.version_info < (3, 0):
+    import ConfigParser as configparser
+else:
+    import configparser
+
 from . import plugin
 
 

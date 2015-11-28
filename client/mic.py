@@ -9,9 +9,8 @@ import threading
 import Queue as queue
 import math
 
-import alteration
-
-import jasperpath
+from . import alteration
+from . import jasperpath
 
 
 class Mic(object):

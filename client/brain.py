@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-import jasperpath
+from . import jasperpath
 
 
 class Brain(object):

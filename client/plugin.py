@@ -3,9 +3,9 @@ import abc
 import tempfile
 import wave
 import mad
-import jasperpath
-import vocabcompiler
-import audioengine
+from . import jasperpath
+from . import vocabcompiler
+from . import audioengine
 
 
 class GenericPlugin(object):
