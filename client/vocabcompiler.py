@@ -112,6 +112,7 @@ class VocabularyCompiler(object):
             The revision of the compiled vocabulary
         """
         revision = phrases_to_revision(phrases)
+        debug = self._logger.getEffectiveLevel() == logging.DEBUG
         if not force and self.compiled_revision == revision:
             self._logger.debug('Compilation not neccessary, compiled ' +
                                'version matches phrases.')
@@ -124,27 +125,34 @@ class VocabularyCompiler(object):
                 os.makedirs(self.path)
             except OSError:
                 self._logger.error("Couldn't create vocabulary dir '%s'",
-                                   self.path, exc_info=True)
+                                   self.path, exc_info=debug)
                 raise
         try:
             with open(self.revision_file, 'w') as f:
                 f.write(revision)
         except (OSError, IOError):
             self._logger.error("Couldn't write revision file in '%s'",
-                               self.revision_file, exc_info=True)
+                               self.revision_file, exc_info=debug)
             raise
         else:
             self._logger.info('Starting compilation...')
             try:
                 compilation_func(config, self.path, phrases)
             except Exception as e:
-                self._logger.error("Fatal compilation Error occured, " +
-                                   "cleaning up...", exc_info=True)
+                msg = "Fatal compilation error occured"
+                if hasattr(e, 'message') and len(e.message) > 0:
+                    msg += ": %s" % e.message
+                self._logger.error(msg, exc_info=debug)
                 try:
                     os.remove(self.revision_file)
                     shutil.rmtree(self.path)
-                except OSError:
-                    pass
+                except EnvironmentError as e:
+                    msg = 'Another error occured while cleaning up'
+                    if e.strerror and e.errno:
+                        msg = '%s: %s (Errno: %d)' % (msg, e.strerror, e.errno)
+                    else:
+                        msg = '%s: %r' % (msg, e.args)
+                    self._logger.error(msg, exc_info=debug)
                 raise e
             else:
                 self._logger.info('Compilation done.')
