@@ -31,7 +31,7 @@ class Conversation(object):
                 if plugin and text:
                     try:
                         plugin.handle(input, self.mic)
-                    except:
+                    except Exception:
                         self._logger.error('Failed to execute module',
                                            exc_info=True)
                         self.mic.say("I'm sorry. I had some trouble with " +
