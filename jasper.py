@@ -84,6 +84,10 @@ class Jasper(object):
         except OSError:
             self._logger.error("Can't open config file: '%s'", new_configfile)
             raise
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as e:
+            self._logger.error("Unable to parse config file: %s %s",
+                               e.problem.strip(), str(e.problem_mark).strip())
+            raise
 
         try:
             audio_engine_slug = self.config['audio_engine']
