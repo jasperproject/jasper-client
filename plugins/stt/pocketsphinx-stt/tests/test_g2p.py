@@ -10,6 +10,8 @@ WORDS = ['GOOD', 'BAD', 'UGLY']
 class DummyProc(object):
     def __init__(self, *args, **kwargs):
         self.returncode = 0
+        self.stderr = mock.Mock()
+        self.stderr.readline = mock.Mock(return_value='')
 
     def communicate(self):
         return ("GOOD\t9.20477\t<s> G UH D </s>\n" +
@@ -21,6 +23,9 @@ class DummyProc(object):
                 "UGLY\t12.572\t<s> AH G L IY </s>\n" +
                 "UGLY\t17.9278\t<s> Y UW G L IY </s>\n" +
                 "UGLY\t18.9617\t<s> AH G L AY </s>\n", "")
+
+    def poll(self):
+        return 1
 
 
 class TestPatchedG2P(unittest.TestCase):
