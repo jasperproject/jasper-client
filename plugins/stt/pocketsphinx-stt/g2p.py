@@ -36,10 +36,10 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
         # we have to use this somehow hacky subprocess.Popen approach.
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-        while True:
+        while proc.poll() is None:
             nextline = proc.stderr.readline()
-            if nextline == '' and proc.poll() != None:
-                break
+            if nextline == '':
+                continue
             if len(RE_ISYMNOTFOUND.findall(nextline)) > 0:
                 logger.debug(nextline)
                 proc.kill()
