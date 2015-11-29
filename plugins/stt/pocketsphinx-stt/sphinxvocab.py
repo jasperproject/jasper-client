@@ -60,6 +60,10 @@ def compile_vocabulary(config, directory, phrases):
     logger.debug('Languagemodel path: %s' % languagemodel_path)
     logger.debug('Dictionary path:    %s' % dictionary_path)
     text = " ".join([("<s> %s </s>" % phrase) for phrase in phrases])
+    # There's some strange issue when text2idngram sometime can't find any
+    # input (although it's there). For a reason beyond me, this can be fixed
+    # by appending a space char to the string.
+    text += ' '
     logger.debug('Compiling languagemodel...')
     vocabulary = compile_languagemodel(text, languagemodel_path)
     logger.debug('Starting dictionary...')
@@ -78,7 +82,7 @@ def compile_languagemodel(text, output_file):
     Returns:
         A list of all unique words this vocabulary contains.
     """
-    if len(text) == 0:
+    if len(text.strip()) == 0:
         raise ValueError('No text to compile into languagemodel!')
 
     logger = logging.getLogger(__name__)
