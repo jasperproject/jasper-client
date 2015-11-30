@@ -20,9 +20,12 @@ class UnclearPlugin(plugin.SpeechHandlerPlugin):
         mic -- used to interact with the user (for both input and output)
         """
 
-        messages = ["I'm sorry, could you repeat that?",
-                    "My apologies, could you try saying that again?",
-                    "Say that again?", "I beg your pardon?"]
+        messages = [
+            self.gettext("I'm sorry, could you repeat that?"),
+            self.gettext("My apologies, could you try saying that again?"),
+            self.gettext("Say that again?"),
+            self.gettext("I beg your pardon?")
+        ]
 
         message = random.choice(messages)
 
