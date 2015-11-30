@@ -59,7 +59,7 @@ def compile_vocabulary(config, directory, phrases):
 
     logger.debug('Languagemodel path: %s' % languagemodel_path)
     logger.debug('Dictionary path:    %s' % dictionary_path)
-    text = " ".join([("<s> %s </s>" % phrase) for phrase in phrases])
+    text = " ".join([("<s> %s </s>" % phrase.upper()) for phrase in phrases])
     # There's some strange issue when text2idngram sometime can't find any
     # input (although it's there). For a reason beyond me, this can be fixed
     # by appending a space char to the string.
