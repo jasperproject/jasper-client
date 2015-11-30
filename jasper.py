@@ -187,6 +187,15 @@ class Jasper(object):
             else:
                 self.brain.add_plugin(plugin)
 
+        if len(self.brain.get_plugins()) == 0:
+            msg = 'No plugins for handling speech found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+        elif len(self.brain.get_all_phrases()) == 0:
+            msg = 'No command phrases found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
