@@ -81,9 +81,16 @@ class STTPlugin(GenericPlugin):
         if self._vocabulary_compiled:
             raise RuntimeError("Vocabulary has already been compiled!")
 
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = None
+        if not language:
+            language = 'en-US'
+
         vocabulary = vocabcompiler.VocabularyCompiler(
             self.info.name, self._vocabulary_name,
-            path=jasperpath.config('vocabularies'))
+            path=jasperpath.config('vocabularies', language))
 
         if not vocabulary.matches_phrases(self._vocabulary_phrases):
             vocabulary.compile(
