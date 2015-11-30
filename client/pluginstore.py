@@ -170,9 +170,15 @@ class PluginStore(object):
                                            root)
                         plugin_info = self.parse_plugin(root)
                     except Exception as e:
+                        if hasattr(e, 'message'):
+                            reason = e.message
+                        elif hasattr(e, 'msg'):
+                            reason = e.msg
+                        else:
+                            reason = 'Unknown'
                         self._logger.warning(
-                            "Plugin at '%s' skipped! (Reason: %s)", root,
-                            e.message if hasattr(e, 'message') else 'Unknown',
+                            "Plugin at '%s' skipped! (Reason: %s)",
+                            root, reason,
                             exc_info=self._logger.isEnabledFor(logging.DEBUG))
                     else:
                         if plugin_info.name in self._plugins:
