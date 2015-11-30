@@ -47,8 +47,7 @@ class PicoTTSPlugin(plugin.TTSPlugin):
             fname = f.name
         cmd = [EXECUTABLE, '--wave', fname]
         if self.language not in self.languages:
-                raise ValueError("Language '%s' not supported by '%s'",
-                                 self.language, self.SLUG)
+                raise ValueError("Language not supported")
         cmd.extend(['-l', self.language])
         cmd.append(phrase)
         logger.debug('Executing %s', ' '.join([pipes.quote(arg)
