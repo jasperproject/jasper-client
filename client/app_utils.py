@@ -114,7 +114,7 @@ def is_negative(phrase):
     Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return bool(re.search(r'\b(no(t)?|don\'t|stop|end)\b', phrase,
+    return bool(re.search(r'\b(no(t)?|don\'t|stop|end|n)\b', phrase,
                           re.IGNORECASE))
 
 
@@ -125,4 +125,6 @@ def is_positive(phrase):
         Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return bool(re.search(r'\b(sure|yes|yeah|go)\b', phrase, re.IGNORECASE))
+    return bool(re.search(r'\b(sure|yes|yeah|go|yup|y)\b',
+                          phrase,
+                          re.IGNORECASE))
