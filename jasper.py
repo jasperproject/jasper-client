@@ -240,7 +240,7 @@ if __name__ == "__main__":
     print("* (c) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis *")
     print("*******************************************************")
 
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.NOTSET)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger()
 
     if not args.no_network_check and not diagnose.check_network_connection():
