@@ -6,8 +6,12 @@ import audioop
 import collections
 import contextlib
 import threading
-import Queue as queue
 import math
+import sys
+if sys.version_info < (3, 0):
+    import Queue as queue
+else:
+    import queue
 
 from . import alteration
 from . import jasperpath
