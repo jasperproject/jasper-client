@@ -187,6 +187,15 @@ class Jasper(object):
             else:
                 self.brain.add_plugin(plugin)
 
+        if len(self.brain.get_plugins()) == 0:
+            msg = 'No plugins for handling speech found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+        elif len(self.brain.get_all_phrases()) == 0:
+            msg = 'No command phrases found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
@@ -231,7 +240,7 @@ if __name__ == "__main__":
     print("* (c) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis *")
     print("*******************************************************")
 
-    logging.basicConfig(level=logging.DEBUG if args.debug else logging.NOTSET)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger()
 
     if not args.no_network_check and not diagnose.check_network_connection():
