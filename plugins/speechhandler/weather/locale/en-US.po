@@ -1,0 +1,243 @@
+# Jasper Weather Plugin
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-12-01 15:10+0100\n"
+"PO-Revision-Date: 2015-12-01 15:10+0100\n"
+"Last-Translator: Jan Holthuis <jan.holthuis@ruhr-uni-bochum.de>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plugins/speechhandler/weather/weather.py:113
+#: plugins/speechhandler/weather/weather.py:230
+msgid "WEATHER"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:114
+msgid "TODAY"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:115
+#: plugins/speechhandler/weather/weather.py:151
+msgid "TOMORROW"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:116
+#: plugins/speechhandler/weather/weather.py:231
+msgid "TEMPERATURE"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:117
+#: plugins/speechhandler/weather/weather.py:155
+#: plugins/speechhandler/weather/weather.py:232
+msgid "FORECAST"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:118
+#: plugins/speechhandler/weather/weather.py:181
+msgid "YES"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:119
+msgid "NO"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:164
+#, python-brace-format
+msgid "Currently {text} at {temp} degrees in {city}."
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:175
+msgid "Do you want to hear the forecast for tomorrow?"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:177
+#, python-format
+msgid "Do you want to hear the forecast for the next %d days?"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:195
+#, python-brace-format
+msgid "Tomorrow in {city}: {text} and temperatures between {temp_low} and {temp_high} degrees."
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:203
+#, python-format
+msgid "Sorry, I don't know what the weather in %s will be like tomorrow."
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:210
+msgid "Tomorrow"
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:214
+#, python-brace-format
+msgid "{text} and temperatures between {temp_low} and {temp_high} degrees."
+msgstr ""
+
+#: plugins/speechhandler/weather/weather.py:219
+#, python-format
+msgid "Weather Forecast for the next %d days: "
+msgstr ""
+
+# YQL weather conditions
+msgid "tornado"
+msgstr ""
+
+msgid "tropical storm"
+msgstr ""
+
+msgid "hurricane"
+msgstr ""
+
+msgid "severe thunderstorms"
+msgstr ""
+
+msgid "thunderstorms"
+msgstr ""
+
+msgid "mixed rain and snow"
+msgstr ""
+
+msgid "mixed rain and sleet"
+msgstr ""
+
+msgid "freezing drizzle"
+msgstr ""
+
+msgid "drizzle"
+msgstr ""
+
+msgid "freezing rain"
+msgstr ""
+
+msgid "showers"
+msgstr ""
+
+msgid "snow flurries"
+msgstr ""
+
+msgid "light snow showers"
+msgstr ""
+
+msgid "blowing snow"
+msgstr ""
+
+msgid "snow"
+msgstr ""
+
+msgid "hail"
+msgstr ""
+
+msgid "sleet"
+msgstr ""
+
+msgid "dust"
+msgstr ""
+
+msgid "foggy"
+msgstr ""
+
+msgid "haze"
+msgstr ""
+
+msgid "smoky"
+msgstr ""
+
+msgid "blustery"
+msgstr ""
+
+msgid "windy"
+msgstr ""
+
+msgid "cold"
+msgstr ""
+
+msgid "cloudy"
+msgstr ""
+
+msgid "mostly cloudy at night"
+msgstr ""
+
+msgid "mostly cloudy at day"
+msgstr ""
+
+msgid "partly cloudy at night"
+msgstr ""
+
+msgid "partly cloudy at day"
+msgstr ""
+
+msgid "clear at night"
+msgstr ""
+
+msgid "sunny"
+msgstr ""
+
+msgid "fair at night"
+msgstr ""
+
+msgid "fair at day"
+msgstr ""
+
+msgid "mixed rain and hail"
+msgstr ""
+
+msgid "hot"
+msgstr ""
+
+msgid "isolated thunderstorms"
+msgstr ""
+
+msgid "scattered thunderstorms"
+msgstr ""
+
+msgid "scattered showers"
+msgstr ""
+
+msgid "heavy snow"
+msgstr ""
+
+msgid "scattered snow showers"
+msgstr ""
+
+msgid "partly cloudy"
+msgstr ""
+
+msgid "thundershowers"
+msgstr ""
+
+msgid "snow showers"
+msgstr ""
+
+msgid "isolated thundershowers"
+msgstr ""
+
+# Weekday names
+msgid "Sunday"
+msgstr ""
+
+msgid "Monday"
+msgstr ""
+
+msgid "Tuesday"
+msgstr ""
+
+msgid "Wednesday"
+msgstr ""
+
+msgid "Thursday"
+msgstr ""
+
+msgid "Friday"
+msgstr ""
+
+msgid "Saturday"
+msgstr ""
