@@ -108,6 +108,26 @@ def get_weather(location, unit="f"):
 
 
 class WeatherPlugin(plugin.SpeechHandlerPlugin):
+    def __init__(self, *args, **kwargs):
+        super(WeatherPlugin, self).__init__(*args, **kwargs)
+        try:
+            self._location = self.profile['weather']['location']
+        except KeyError:
+            raise ValueError('Weather location not configured!')
+
+        try:
+            unit = self.profile['weather']['unit']
+        except KeyError:
+            self._unit = 'f'
+        else:
+            unit = unit.lower()
+            if unit == 'c' or unit == 'celsius':
+                self._unit = 'c'
+            elif unit == 'f' or unit == 'fahrenheit':
+                self._unit = 'f'
+            else:
+                raise ValueError('Invalid unit!')
+
     def get_phrases(self):
         return [
             self.gettext("WEATHER"),
@@ -128,25 +148,8 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             text -- user-input, typically transcribed speech
             mic -- used to interact with the user (for both input and output)
         """
-        try:
-            location = self.profile['weather']['location']
-        except KeyError:
-            mic.say(self.gettext(
-                "You have to configure a location to get weather forecasts."))
-            return
 
-        try:
-            unit = self.profile['weather']['unit']
-        except KeyError:
-            unit = 'f'
-        else:
-            unit = unit.lower()
-            if unit == 'c' or 'celsius' in unit:
-                unit = 'c'
-            else:
-                unit = 'f'
-
-        weather = get_weather(location, unit=unit)
+        weather = get_weather(self._location, unit=self._unit)
 
         if self.gettext('TOMORROW') in text:
             # Tomorrow
