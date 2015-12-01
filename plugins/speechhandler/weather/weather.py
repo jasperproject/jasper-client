@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import collections
 import datetime
+import dateutil
 import requests
 from client import plugin
 
@@ -86,9 +87,8 @@ def get_weather(location, unit="f"):
                      headers={'User-Agent': 'Mozilla/5.0'})
     content = r.json()
     channel = content['query']['results']['weather']['rss']['channel']
-    current_date = datetime.datetime.strptime(
-        channel['item']['condition']['date'],
-        '%a, %d %b %Y %I:%M %p %Z').date()
+    current_date = dateutil.parser.parse(
+        channel['item']['condition']['date']).date()
     forecast = []
 
     for item in channel['item']['forecast']:
