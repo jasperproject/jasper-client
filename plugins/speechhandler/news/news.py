@@ -1,31 +1,48 @@
 # -*- coding: utf-8 -*-
-import feedparser
-from client import app_utils
+import collections
+import urllib
+import urlparse
+import requests
 from client import plugin
-import re
-from semantic.numbers import NumberService
+from client import app_utils
 
-URL = 'http://news.ycombinator.com'
-
-
-class Article:
-
-    def __init__(self, title, URL):
-        self.title = title
-        self.URL = URL
+Article = collections.namedtuple('Article', ['title', 'link'])
 
 
-def get_top_articles(max_results=None):
-    d = feedparser.parse("http://news.google.com/?output=rss")
-
-    count = 0
+def get_top_articles(language='en', num_headlines=5):
+    feed_url = urlparse.urlunsplit(
+        ('http', 'news.google.com', '/news', urllib.urlencode({
+            'ned': language,
+            'output': 'rss',
+        }), ''))
+    r = requests.get(
+        'http://ajax.googleapis.com/ajax/services/feed/load',
+        params={
+            'v': 1.0,
+            'num': num_headlines*2,
+            'q': feed_url,
+        })
+    content = r.json()
     articles = []
-    for item in d['items']:
-        articles.append(Article(item['title'], item['link'].split("&url=")[1]))
-        count += 1
-        if max_results and count > max_results:
-            break
+    if content['responseData'] is None:
+        raise RuntimeError(content['responseDetails'])
+    for entry in content['responseData']['feed']['entries']:
+        # Remove News source
+        title = entry['title'].rsplit(' - ', 1)[0].strip()
+        # Skip headlines that aren't complete
+        if title.endswith('...'):
+            continue
+        # Remove '+++'
+        title = ''.join([s.strip() for s in title.split('+++')])
 
+        try:
+            link = urlparse.parse_qs(
+                urlparse.urlsplit(entry['link']).query)['url'][0]
+        except Exception:
+            link = entry['link']
+        articles.append(Article(title=title, link=link))
+        if len(articles) >= num_headlines:
+            break
     return articles
 
 
@@ -34,7 +51,11 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
         return 3
 
     def get_phrases(self):
-        return ["NEWS", "YES", "NO", "FIRST", "SECOND", "THIRD"]
+        return [
+            self.gettext("NEWS"),
+            self.gettext("HEADLINES"),
+            self.gettext("YES"),
+            self.gettext("NO")]
 
     def handle(self, text, mic):
         """
@@ -46,82 +67,54 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
         """
-        mic.say("Pulling up the news")
-        articles = get_top_articles(max_results=3)
-        titles = [" ".join(x.title.split(" - ")[:-1]) for x in articles]
-        all_titles = "... ".join(str(idx + 1) + ")" +
-                                 title for idx, title in enumerate(titles))
+        mic.say(self.gettext("Pulling up the news..."))
 
-        def handle_response(text):
+        try:
+            lang = self.profile['language'].split('-')[0]
+        except KeyError:
+            lang = 'en'
 
-            def extract_ordinals(text):
-                output = []
-                service = NumberService()
-                for w in text.split():
-                    if w in service.__ordinals__:
-                        output.append(service.__ordinals__[w])
-                return [service.parse(w) for w in output]
+        articles = get_top_articles(language=lang, num_headlines=5)
+        if len(articles) == 0:
+            mic.say(self.gettext(
+                "Sorry, I'm unable to get the latest headlines right now."))
+            return
 
-            chosen_articles = extract_ordinals(text)
-            send_all = not chosen_articles and app_utils.is_positive(text)
+        text = self.gettext('These are the current top headlines...')
+        text += ' '
+        text += '... '.join(
+            '%d) %s' % (i, a.title)
+            for i, a in enumerate(articles, start=1))
+        mic.say(text)
 
-            if send_all or chosen_articles:
-                mic.say("Sure, just give me a moment")
+        if 'gmail_address' not in self.profile:
+            return
 
-                if self.profile['prefers_email']:
-                    body = "<ul>"
+        mic.say(self.gettext('Would you like me to send you these articles?'))
 
-                def format_article(article):
-                    tiny_url = app_utils.generate_tiny_URL(article.URL)
-
-                    if self.profile['prefers_email']:
-                        return "<li><a href=\'%s\'>%s</a></li>" % (
-                            tiny_url, article.title)
-                    else:
-                        return article.title + " -- " + tiny_url
-
-                for idx, article in enumerate(articles):
-                    if send_all or (idx + 1) in chosen_articles:
-                        article_link = format_article(article)
-
-                        if self.profile['prefers_email']:
-                            body += article_link
-                        else:
-                            if not app_utils.email_user(self.profile,
-                                                        SUBJECT="",
-                                                        BODY=article_link):
-                                mic.say("I'm having trouble sending you " +
-                                        "these articles. Please make sure " +
-                                        "that your phone number and carrier " +
-                                        "are correct on the dashboard.")
-                                return
-
-                # if prefers email, we send once, at the end
-                if self.profile['prefers_email']:
-                    body += "</ul>"
-                    if not app_utils.email_user(self.profile,
-                                                SUBJECT="Your Top Headlines",
-                                                BODY=body):
-                        mic.say("I'm having trouble sending you these " +
-                                "articles. Please make sure that your phone " +
-                                "number and carrier are correct on the " +
-                                "dashboard.")
-                        return
-
-                mic.say("All set")
-
+        answers = mic.active_listen()
+        if any(self.gettext('YES') in answer for answer in answers):
+            mic.say(self.gettext("Sure, just give me a moment."))
+            email_text = self.make_email_text(articles)
+            email_sent = app_utils.email_user(
+                self.profile,
+                SUBJECT=self.gettext("Your Top Headlines"),
+                BODY=email_text)
+            if email_sent:
+                mic.say(self.gettext(
+                    "Okay, I've sent you an email."))
             else:
-
-                mic.say("OK I will not send any articles")
-
-        if 'phone_number' in self.profile:
-            mic.say("Here are the current top headlines. " + all_titles +
-                    ". Would you like me to send you these articles? " +
-                    "If so, which?")
-            handle_response(mic.active_listen()[0])
+                mic.say(self.gettext(
+                    "Sorry, I'm having trouble sending you these articles."))
         else:
-            mic.say(
-                "Here are the current top headlines. " + all_titles)
+            mic.say(self.gettext("Okay, I will not send any articles."))
+
+    def make_email_text(self, articles):
+        text = self.gettext('These are the articles you requested:')
+        text += '\n\n'
+        for article in articles:
+            text += '- %s\n  %s\n' % (article.title, article.link)
+        return text
 
     def is_valid(self, text):
         """
@@ -130,4 +123,5 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
         Arguments:
         text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\b(news|headline)\b', text, re.IGNORECASE))
+        return any((word in text) for word in
+                   (self.gettext("NEWS"), self.gettext("HEADLINES")))
