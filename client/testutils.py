@@ -30,9 +30,12 @@ def get_plugin_instance(plugin_class, *extra_args):
         })()
     profile = {
         'prefers_email': False,
-        'location': 'Cape Town',
         'timezone': 'US/Eastern',
-        'phone_number': '012344321'
+        'phone_number': '012344321',
+        'weather': {
+            'location': 'New York',
+            'unit': 'Fahrenheit'
+        }
     }
     args = tuple(extra_args) + (info, profile)
     return plugin_class(*args)
