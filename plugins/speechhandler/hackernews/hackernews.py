@@ -75,7 +75,8 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
         mic.say(self.gettext('Would you like me to send you these articles?'))
 
         answers = mic.active_listen()
-        if any(self.gettext('YES') in answer for answer in answers):
+        if any(self.gettext('YES').upper() in answer.upper()
+               for answer in answers):
             mic.say(self.gettext("Sure, just give me a moment."))
             email_text = self.make_email_text(articles)
             email_sent = app_utils.email_user(
