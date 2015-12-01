@@ -55,8 +55,17 @@ YAHOO_YQL_WEATHER_CONDITION_CODES = {
     44:   'partly cloudy',
     45:   'thundershowers',
     46:   'snow showers',
-    47:   'isolated thundershowers',
-    3200: 'not available',
+    47:   'isolated thundershowers'
+}
+
+WEEKDAY_NAMES = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday'
 }
 
 Weather = collections.namedtuple(
@@ -105,8 +114,9 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             self.gettext("TODAY"),
             self.gettext("TOMORROW"),
             self.gettext("TEMPERATURE"),
-            self.gettext("FORECAST")
-            ]
+            self.gettext("FORECAST"),
+            self.gettext("YES"),
+            self.gettext("NO")]
 
     def handle(self, text, mic):
         """
@@ -199,7 +209,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             if fc.date - weather.date == datetime.timedelta(days=1):
                 date = self.gettext('Tomorrow')
             else:
-                date = fc.date.strftime('%A')
+                date = self.gettext(WEEKDAY_NAMES[int(fc.date.strftime('%w'))])
             forecast_msgs.append("%s: %s" % (date, self.gettext(
                 '{text} and temperatures between {temp_low} and ' +
                 '{temp_high} degrees.').format(
