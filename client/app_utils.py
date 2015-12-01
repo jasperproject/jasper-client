@@ -38,28 +38,28 @@ def email_user(profile, SUBJECT="", BODY=""):
         SUBJECT -- subject line of the email
         BODY -- body text of the email
     """
-    def generate_SMS_email(profile):
-        """
-        Generates an email from a user's phone number based on their carrier.
-        """
-        if profile['carrier'] is None or not profile['phone_number']:
-            return None
+    if not BODY:
+        return False
 
-        return str(profile['phone_number']) + "@" + profile['carrier']
+    body = 'Hello %s,' % profile['first_name']
+    body += '\n\n' + BODY.strip() + '\n\n'
+    body += 'Best Regards,\nJasper\n'
 
-    if profile['prefers_email'] and profile['gmail_address']:
-        # add footer
-        if BODY:
-            BODY = profile['first_name'] + \
-                ",<br><br>Here are your top headlines:" + BODY
-            BODY += "<br>Sent from your Jasper"
+    recipient = None
 
-        recipient = profile['gmail_address']
-        if profile['first_name'] and profile['last_name']:
-            recipient = profile['first_name'] + " " + \
-                profile['last_name'] + " <%s>" % recipient
+    if profile['prefers_email']:
+        if profile['gmail_address']:
+            recipient = profile['gmail_address']
+            if profile['first_name'] and profile['last_name']:
+                recipient = "%s %s <%s>" % (
+                    profile['first_name'],
+                    profile['last_name'],
+                    recipient)
     else:
-        recipient = generate_SMS_email(profile)
+        if profile['carrier'] and profile['phone_number']:
+            recipient = "%s@%s" % (
+                str(profile['phone_number']),
+                profile['carrier'])
 
     if not recipient:
         return False
@@ -73,12 +73,13 @@ def email_user(profile, SUBJECT="", BODY=""):
             user = profile['gmail_address']
             password = profile['gmail_password']
             server = 'smtp.gmail.com'
-        send_email(SUBJECT, BODY, recipient, user,
+        send_email(SUBJECT, body, recipient, user,
                    "Jasper <jasper>", password, server)
 
-        return True
-    except:
+    except Exception:
         return False
+    else:
+        return True
 
 
 def get_timezone(profile):
