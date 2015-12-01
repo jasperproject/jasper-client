@@ -30,7 +30,7 @@ class Conversation(object):
                 plugin, text = self.brain.query(input)
                 if plugin and text:
                     try:
-                        plugin.handle(input, self.mic)
+                        plugin.handle(text, self.mic)
                     except Exception:
                         self._logger.error('Failed to execute module',
                                            exc_info=True)
