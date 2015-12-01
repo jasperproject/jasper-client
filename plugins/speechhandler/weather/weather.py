@@ -151,11 +151,11 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
 
         weather = get_weather(self._location, unit=self._unit)
 
-        if self.gettext('TOMORROW') in text:
+        if self.gettext('TOMORROW').upper() in text.upper():
             # Tomorrow
             self._say_forecast_tomorrow(mic, weather)
             return
-        elif self.gettext('FORECAST') in text:
+        elif self.gettext('FORECAST').upper() in text.upper():
             # Forecast
             if len(weather.forecast) == 1:
                 self._say_forecast_tomorrow(mic, weather)
@@ -181,7 +181,8 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
                                      'for the next %d days?') %
                         len(weather.forecast))
             mic.say(msg)
-            if any(self.gettext('YES') in s for s in mic.active_listen()):
+            if any(self.gettext('YES').upper() in s.upper()
+                   for s in mic.active_listen()):
                 if len(weather.forecast) == 1:
                     self._say_forecast_tomorrow(mic, weather)
                 else:
