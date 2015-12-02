@@ -34,7 +34,7 @@ class Jasper(object):
 
         # FIXME: For backwards compatibility, move old config file to newly
         #        created config dir
-        old_configfile = os.path.join(paths.LIB_PATH, 'profile.yml')
+        old_configfile = os.path.join(paths.PKG_PATH, 'profile.yml')
         new_configfile = paths.config('profile.yml')
         if os.path.exists(old_configfile):
             if os.path.exists(new_configfile):
