@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 import gettext
 
+TEST_PROFILE = {
+    'prefers_email': False,
+    'timezone': 'US/Eastern',
+    'phone_number': '012344321',
+    'weather': {
+        'location': 'New York',
+        'unit': 'Fahrenheit'
+    }
+}
+
 
 class TestMic(object):
     def __init__(self, inputs=[]):
@@ -28,14 +38,5 @@ def get_plugin_instance(plugin_class, *extra_args):
             'en-US': gettext.NullTranslations()
             }
         })()
-    profile = {
-        'prefers_email': False,
-        'timezone': 'US/Eastern',
-        'phone_number': '012344321',
-        'weather': {
-            'location': 'New York',
-            'unit': 'Fahrenheit'
-        }
-    }
-    args = tuple(extra_args) + (info, profile)
+    args = tuple(extra_args) + (info, TEST_PROFILE)
     return plugin_class(*args)
