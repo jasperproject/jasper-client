@@ -14,6 +14,8 @@ from client import brain
 from client import jasperpath
 from client import pluginstore
 from client import conversation
+from client import mic
+from client import local_mic
 
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
 parser.add_argument('--local', action='store_true',
@@ -26,14 +28,9 @@ list_info.add_argument('--list-audio-devices', action='store_true',
                        help='List audio devices and exit')
 args = parser.parse_args()
 
-if args.local:
-    from client import local_mic as mic
-else:
-    from client import mic
-
 
 class Jasper(object):
-    def __init__(self):
+    def __init__(self, use_local_mic=False):
         self._logger = logging.getLogger(__name__)
 
         # Create config dir if it does not exist yet
@@ -221,10 +218,13 @@ class Jasper(object):
         tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
 
         # Initialize Mic
-        self.mic = mic.Mic(
-            input_device, output_device,
-            passive_stt_plugin, active_stt_plugin,
-            tts_plugin, self.config, keyword=keyword)
+        if use_local_mic:
+            self.mic = local_mic.Mic()
+        else:
+            self.mic = mic.Mic(
+                input_device, output_device,
+                passive_stt_plugin, active_stt_plugin,
+                tts_plugin, self.config, keyword=keyword)
 
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     logger = logging.getLogger()
 
     # Run Jasper
-    app = Jasper()
+    app = Jasper(use_local_mic=args.local)
     if args.list_plugins:
         app.list_plugins()
         sys.exit(1)
