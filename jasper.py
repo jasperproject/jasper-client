@@ -11,7 +11,6 @@ import argparse
 
 from client import audioengine
 from client import brain
-from client import diagnose
 from client import jasperpath
 from client import pluginstore
 from client import conversation
@@ -19,12 +18,8 @@ from client import conversation
 parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
 parser.add_argument('--local', action='store_true',
                     help='Use text input instead of a real microphone')
-parser.add_argument('--no-network-check', action='store_true',
-                    help='Disable the network connection check')
 parser.add_argument('--debug', action='store_true', help='Show debug messages')
 list_info = parser.add_mutually_exclusive_group(required=False)
-list_info.add_argument('--diagnose', action='store_true',
-                       help='Run diagnose and exit')
 list_info.add_argument('--list-plugins', action='store_true',
                        help='List plugins and exit')
 list_info.add_argument('--list-audio-devices', action='store_true',
@@ -260,14 +255,6 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger()
-
-    if not args.no_network_check and not diagnose.check_network_connection():
-        logger.warning("Network not connected. This may prevent Jasper from " +
-                       "running properly.")
-
-    if args.diagnose:
-        failed_checks = diagnose.run()
-        sys.exit(0 if not failed_checks else 1)
 
     try:
         app = Jasper()
