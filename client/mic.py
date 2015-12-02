@@ -40,6 +40,21 @@ class Mic(object):
         self._output_padding = False
         self._threshold = 2.0**self._input_bits
 
+    @contextlib.contextmanager
+    def special_mode(self, name, phrases):
+        plugin_info = self.active_stt_engine.info
+        plugin_config = self.active_stt_engine.profile
+
+        original_stt_engine = self.active_stt_engine
+
+        try:
+            mode_stt_engine = plugin_info.plugin_class(
+                name, phrases, plugin_info, plugin_config)
+            self.active_stt_engine = mode_stt_engine
+            yield
+        finally:
+            self.active_stt_engine = original_stt_engine
+
     def _snr(self, frames):
         rms = audioop.rms(b"".join(frames), 2)
         if rms > 0 and self._threshold > 0:
