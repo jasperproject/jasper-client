@@ -54,7 +54,8 @@ def parse_translations(translations_path):
             if not os.path.isdir(os.path.join(translations_path, content)):
                 lang, ext = os.path.splitext(content)
                 if ext == (os.extsep + 'mo') and RE_TRANSLATIONS.match(lang):
-                    with open(os.path.join(translations_path, content), mode="rb") as f:
+                    with open(os.path.join(translations_path, content),
+                              mode="rb") as f:
                         translations[lang] = gettext.GNUTranslations(f)
     if not translations:
         # Untranslated module, assume hardcoded en-US strings
