@@ -187,7 +187,7 @@ class Jasper(object):
             raise
 
         # Initialize Brain
-        self.brain = brain.Brain()
+        self.brain = brain.Brain(self.config)
         for info in self.plugins.get_plugins_by_category('speechhandler'):
             try:
                 plugin = info.plugin_class(info, self.config)

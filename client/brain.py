@@ -4,7 +4,7 @@ from . import jasperpath
 
 
 class Brain(object):
-    def __init__(self):
+    def __init__(self, config):
         """
         Instantiates a new Brain object, which cross-references user
         input with a list of modules. Note that the order of brain.modules
@@ -14,6 +14,7 @@ class Brain(object):
 
         self._plugins = []
         self._logger = logging.getLogger(__name__)
+        self._config = config
 
     def add_plugin(self, plugin):
         self._plugins.append(plugin)
@@ -31,9 +32,17 @@ class Brain(object):
         Returns:
             A list of standard phrases.
         """
+        try:
+            language = self._config['language']
+        except KeyError:
+            language = None
+        if not language:
+            language = 'en-US'
+
         phrases = []
 
-        with open(jasperpath.data('standard_phrases'), mode="r") as f:
+        with open(jasperpath.data('standard_phrases', "%s.txt" % language),
+                  mode="r") as f:
             for line in f:
                 phrase = line.strip()
                 if phrase:
