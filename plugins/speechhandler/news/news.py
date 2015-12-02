@@ -2,33 +2,27 @@
 import collections
 import urllib
 import urlparse
-import requests
+import feedparser
 from client import plugin
 from client import app_utils
+
+FEED_URL = 'https://news.google.de/news/feeds'
 
 Article = collections.namedtuple('Article', ['title', 'link'])
 
 
 def get_top_articles(language='en', num_headlines=5):
-    feed_url = urlparse.urlunsplit(
-        ('http', 'news.google.com', '/news', urllib.urlencode({
+    feed = feedparser.parse("{url}?{query}".format(
+        url=FEED_URL,
+        query=urllib.urlencode({
             'ned': language,
             'output': 'rss',
-        }), ''))
-    r = requests.get(
-        'http://ajax.googleapis.com/ajax/services/feed/load',
-        params={
-            'v': 1.0,
-            'num': num_headlines*2,
-            'q': feed_url,
-        })
-    content = r.json()
+        })))
+
     articles = []
-    if content['responseData'] is None:
-        raise RuntimeError(content['responseDetails'])
-    for entry in content['responseData']['feed']['entries']:
+    for entry in feed.entries:
         # Remove News source
-        title = entry['title'].rsplit(' - ', 1)[0].strip()
+        title = entry.title.rsplit(' - ', 1)[0].strip()
         # Skip headlines that aren't complete
         if title.endswith('...'):
             continue
@@ -37,7 +31,7 @@ def get_top_articles(language='en', num_headlines=5):
 
         try:
             link = urlparse.parse_qs(
-                urlparse.urlsplit(entry['link']).query)['url'][0]
+                urlparse.urlsplit(entry.link).query)['url'][0]
         except Exception:
             link = entry['link']
         articles.append(Article(title=title, link=link))
