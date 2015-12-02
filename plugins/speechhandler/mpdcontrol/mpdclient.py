@@ -2,6 +2,9 @@
 import mpd
 import re
 import difflib
+import collections
+
+Song = collections.namedtuple('Song', ['id', 'title', 'artist', 'album'])
 
 
 def reconnect(func, *default_args, **default_kwargs):
@@ -27,15 +30,6 @@ def reconnect(func, *default_args, **default_kwargs):
             return func(self, *default_args, **default_kwargs)
 
     return wrap
-
-
-class Song(object):
-    def __init__(self, id, title, artist, album):
-
-        self.id = id
-        self.title = title
-        self.artist = artist
-        self.album = album
 
 
 class MPDClient(object):
@@ -68,12 +62,13 @@ class MPDClient(object):
         soup = self.client.playlist()
         for i in range(0, len(soup) / 10):
             index = i * 10
-            id = soup[index].strip()
+            sid = soup[index].strip()
             title = soup[index + 3].strip().upper()
             artist = soup[index + 2].strip().upper()
             album = soup[index + 4].strip().upper()
 
-            self.songs.append(Song(id, title, artist, album))
+            self.songs.append(
+                Song(id=sid, title=title, artist=artist, album=album))
 
             self.song_titles.append(title)
             self.song_artists.append(artist)
