@@ -4,9 +4,8 @@ import logging
 
 
 class Conversation(object):
-    def __init__(self, persona, mic, brain, profile):
+    def __init__(self, mic, brain, profile):
         self._logger = logging.getLogger(__name__)
-        self.persona = persona
         self.mic = mic
         self.profile = profile
         self.brain = brain
@@ -16,8 +15,7 @@ class Conversation(object):
         """
         Delegates user input to the handling function when activated.
         """
-        self._logger.info("Starting to handle conversation with keyword '%s'.",
-                          self.persona)
+        self._logger.debug('Starting to handle conversation.')
         while True:
             # Print notifications until empty
             """notifications = self.notifier.get_all_notifications()

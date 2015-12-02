@@ -122,6 +122,12 @@ class Jasper(object):
                            "defaults.")
         logger.debug("Using TTS engine '%s'", tts_slug)
 
+        try:
+            keyword = self.config['keyword']
+        except KeyError:
+            keyword = 'Jasper'
+        logger.info("Using keyword '%s'", keyword)
+
         # Load plugins
         self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
         self.plugins.detect_plugins()
@@ -209,7 +215,7 @@ class Jasper(object):
             passive_stt_plugin_info = active_stt_plugin_info
 
         passive_stt_plugin = passive_stt_plugin_info.plugin_class(
-            'keyword', self.brain.get_keyword_phrases(),
+            'keyword', self.brain.get_keyword_phrases() + [keyword],
             passive_stt_plugin_info, self.config)
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
@@ -219,10 +225,10 @@ class Jasper(object):
         self.mic = Mic(
             input_device, output_device,
             passive_stt_plugin, active_stt_plugin,
-            tts_plugin)
+            tts_plugin, self.config, keyword=keyword)
 
         self.conversation = conversation.Conversation(
-            "JASPER", self.mic, self.brain, self.config)
+            self.mic, self.brain, self.config)
 
     def run(self):
         if 'first_name' in self.config:

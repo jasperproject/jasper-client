@@ -143,6 +143,7 @@ class Mic(object):
         frames = collections.deque([], 30)
         recording = False
         recording_frames = []
+        self._logger.info("Waiting for keyword '%s'...", keyword)
         for frame in self._input_device.record(self._input_chunksize,
                                                self._input_bits,
                                                self._input_channels,
