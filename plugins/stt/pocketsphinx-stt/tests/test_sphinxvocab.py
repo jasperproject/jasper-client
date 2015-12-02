@@ -47,5 +47,12 @@ class TestPocketsphinxVocabulary(unittest.TestCase):
             mocked_cmuclmtk.text2vocab = write_test_vocab
             mocked_cmuclmtk.text2lm = write_test_lm
             with mock.patch.object(sphinxvocab, 'PhonetisaurusG2P', DummyG2P):
-                with do_in_tempdir() as tempdir:
-                    sphinxvocab.compile_vocabulary({}, tempdir, WORDS.keys())
+                with tempfile.NamedTemporaryFile() as f:
+                    config = {
+                        'pocketsphinx': {
+                            'fst_model': f.name
+                        }
+                    }
+                    with do_in_tempdir() as tempdir:
+                        sphinxvocab.compile_vocabulary(
+                            config, tempdir, WORDS.keys())
