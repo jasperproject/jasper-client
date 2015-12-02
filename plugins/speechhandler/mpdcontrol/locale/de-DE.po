@@ -1,0 +1,134 @@
+# Jasper MPDControl Plugin
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-12-02 17:58+0100\n"
+"PO-Revision-Date: 2015-12-02 17:58+0100\n"
+"Last-Translator: Jan Holthuis <jan.holthuis@ruhr-uni-bochum.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:31
+msgid "MUSIC"
+msgstr "MUSIK"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:31
+msgid "SPOTIFY"
+msgstr "SPOTIFY"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:44
+msgid "Please give me a moment, I'm starting the music mode."
+msgstr "Bitte gib mir einen Moment, ich starte den Musik-Modus."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:114
+msgid "PLAY"
+msgstr "WIEDERGABE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:119
+msgid "PAUSE"
+msgstr "PAUSE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:111
+msgid "STOP"
+msgstr "STOPP"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:48
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:133
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:134
+msgid "NEXT"
+msgstr "WEITER"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:48
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:133
+msgid "PREVIOUS"
+msgstr "ZURÜCK"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:49
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:126
+msgid "LOUDER"
+msgstr "LAUTER"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:49
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:129
+msgid "SOFTER"
+msgstr "LEISER"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:50
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:90
+msgid "PLAYLIST"
+msgstr "WIEDERGABELISTE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:51
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:145
+msgid "CLOSE"
+msgstr "SCHLIESSEN"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:51
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:145
+msgid "EXIT"
+msgstr "BEENDEN"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:60
+msgid "Music mode started!"
+msgstr "Musik-Modus gestartet!"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:79
+msgid "Pardon?"
+msgstr "Wie bitte?"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:84
+msgid "Music Mode stopped!"
+msgstr "Musik-Modus gestoppt!"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:106
+#, python-format
+msgid "Playlist %s loaded."
+msgstr "Wiedergabeliste %s geladen."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:110
+msgid "Sorry, I can't find a playlist with that name."
+msgstr "Tut mir leid, ich kann keine Wiedergabeliste mit diesem Namen finden."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:113
+msgid "Music stopped."
+msgstr "Musik gestoppt."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:118
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:144
+#, python-brace-format
+msgid "Playing {song.title} by {song.artist}..."
+msgstr "Spiele {song.title} von {song.artist}..."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:123
+msgid "Music paused."
+msgstr "Musik pausiert."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:125
+msgid "Music is not playing."
+msgstr "Musik wird z.Z. nicht wiedergegeben."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:127
+msgid "Increasing volume."
+msgstr "Erhöhe Lautstärke."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:130
+msgid "Decreasing volume."
+msgstr "Verringere Lautstärke."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:135
+msgid "Next song"
+msgstr "Nächstes Lied."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:139
+msgid "Previous song"
+msgstr "Vorheriges Lied."
