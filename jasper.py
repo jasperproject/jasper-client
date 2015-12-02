@@ -253,26 +253,16 @@ if __name__ == "__main__":
     print("* (c) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis *")
     print("*******************************************************")
 
+    # Set up logging
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     logger = logging.getLogger()
 
-    try:
-        app = Jasper()
-    except Exception:
-        logger.error("Error occured!",
-                     exc_info=logger.getEffectiveLevel() == logging.DEBUG)
-        sys.exit(1)
-
+    # Run Jasper
+    app = Jasper()
     if args.list_plugins:
         app.list_plugins()
         sys.exit(1)
     elif args.list_audio_devices:
         app.list_audio_devices()
         sys.exit(0)
-
-    try:
-        app.run()
-    except Exception:
-        logger.error("Error occured!",
-                     exc_info=logger.getEffectiveLevel() == logging.DEBUG)
-        sys.exit(2)
+    app.run()
