@@ -84,45 +84,46 @@ class Jasper(object):
         try:
             language = self.config['language']
         except KeyError:
-            logger.warning("language not specified in profile, using 'en-US'")
+            self._logger.warning(
+                "language not specified in profile, using 'en-US'")
         else:
-            logger.info("Using language '%s'", language)
+            self._logger.info("Using language '%s'", language)
 
         try:
             audio_engine_slug = self.config['audio_engine']
         except KeyError:
             audio_engine_slug = 'pyaudio'
-            logger.info("audio_engine not specified in profile, using " +
-                        "defaults.")
-        logger.debug("Using Audio engine '%s'", audio_engine_slug)
+            self._logger.info("audio_engine not specified in profile, using " +
+                              "defaults.")
+        self._logger.debug("Using Audio engine '%s'", audio_engine_slug)
 
         try:
             active_stt_slug = self.config['stt_engine']
         except KeyError:
             active_stt_slug = 'sphinx'
-            logger.warning("stt_engine not specified in profile, using " +
-                           "defaults.")
-        logger.debug("Using STT engine '%s'", active_stt_slug)
+            self._logger.warning("stt_engine not specified in profile, " +
+                                 "using defaults.")
+        self._logger.debug("Using STT engine '%s'", active_stt_slug)
 
         try:
             passive_stt_slug = self.config['stt_passive_engine']
         except KeyError:
             passive_stt_slug = active_stt_slug
-        logger.debug("Using passive STT engine '%s'", passive_stt_slug)
+        self._logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
         try:
             tts_slug = self.config['tts_engine']
         except KeyError:
             tts_slug = 'espeak-tts'
-            logger.warning("tts_engine not specified in profile, using" +
-                           "defaults.")
-        logger.debug("Using TTS engine '%s'", tts_slug)
+            self._logger.warning("tts_engine not specified in profile, using" +
+                                 "defaults.")
+        self._logger.debug("Using TTS engine '%s'", tts_slug)
 
         try:
             keyword = self.config['keyword']
         except KeyError:
             keyword = 'Jasper'
-        logger.info("Using keyword '%s'", keyword)
+        self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
         self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
@@ -140,9 +141,9 @@ class Jasper(object):
             device_slug = self.config['input_device']
         except KeyError:
             device_slug = self.audio.get_default_device(output=False).slug
-            logger.warning("input_device not specified in profile, " +
-                           "defaulting to '%s' (Possible values: %s)",
-                           device_slug, ', '.join(devices))
+            self._logger.warning("input_device not specified in profile, " +
+                                 "defaulting to '%s' (Possible values: %s)",
+                                 device_slug, ', '.join(devices))
         try:
             input_device = self.audio.get_device_by_slug(device_slug)
             if audioengine.DEVICE_TYPE_INPUT not in input_device.types:
@@ -150,8 +151,9 @@ class Jasper(object):
                     "Audio device with slug '%s' is not an input device"
                     % input_device.slug)
         except (audioengine.DeviceException) as e:
-            logger.critical(e.args[0])
-            logger.warning('Valid output devices: %s', ', '.join(devices))
+            self._logger.critical(e.args[0])
+            self._logger.warning('Valid output devices: %s',
+                                 ', '.join(devices))
             raise
 
         # Initialize audio output device
@@ -161,9 +163,9 @@ class Jasper(object):
             device_slug = self.config['output_device']
         except KeyError:
             device_slug = self.audio.get_default_device(output=True).slug
-            logger.warning("output_device not specified in profile, " +
-                           "defaulting to '%s' (Possible values: %s)",
-                           device_slug, ', '.join(devices))
+            self._logger.warning("output_device not specified in profile, " +
+                                 "defaulting to '%s' (Possible values: %s)",
+                                 device_slug, ', '.join(devices))
         try:
             output_device = self.audio.get_device_by_slug(device_slug)
             if audioengine.DEVICE_TYPE_OUTPUT not in output_device.types:
@@ -171,8 +173,9 @@ class Jasper(object):
                     "Audio device with slug '%s' is not an output device"
                     % output_device.slug)
         except (audioengine.DeviceException) as e:
-            logger.critical(e.args[0])
-            logger.warning('Valid output devices: %s', ', '.join(devices))
+            self._logger.critical(e.args[0])
+            self._logger.warning('Valid output devices: %s',
+                                 ', '.join(devices))
             raise
 
         # Initialize Brain
