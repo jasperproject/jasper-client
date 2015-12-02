@@ -48,7 +48,7 @@ class TestBrain(unittest.TestCase):
         self.assertIs(plugin, plugin3)
         self.assertEqual(input_texts[0], output_text)
 
-    def testPhraseExtraction(self):
+    def testPluginPhraseExtraction(self):
         expected_phrases = ['MOCK1', 'MOCK2']
 
         my_brain = brain.Brain()
@@ -56,11 +56,11 @@ class TestBrain(unittest.TestCase):
         my_brain.add_plugin(ExamplePlugin(['MOCK2']))
         my_brain.add_plugin(ExamplePlugin(['MOCK1']))
 
-        extracted_phrases = my_brain.get_all_phrases()
+        extracted_phrases = my_brain.get_plugin_phrases()
 
         self.assertEqual(expected_phrases, extracted_phrases)
 
-    def testKeywordPhraseExtraction(self):
+    def testStandardPhraseExtraction(self):
         expected_phrases = ['MOCK']
 
         my_brain = brain.Brain()
@@ -72,5 +72,5 @@ class TestBrain(unittest.TestCase):
             f.seek(0)
             with mock.patch('%s.open' % brain.__name__,
                             return_value=f, create=True):
-                extracted_phrases = my_brain.get_keyword_phrases()
+                extracted_phrases = my_brain.get_standard_phrases()
         self.assertEqual(expected_phrases, extracted_phrases)

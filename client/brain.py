@@ -23,16 +23,17 @@ class Brain(object):
     def get_plugins(self):
         return self._plugins
 
-    def get_keyword_phrases(self):
+    def get_standard_phrases(self):
         """
-        Gets the keyword phrases from the keywords file in the jasper data dir.
+        Gets the standard phrases (i.e. phrases that occur frequently in
+        normal conversations) from a file in the jasper data dir.
 
         Returns:
-            A list of keyword phrases.
+            A list of standard phrases.
         """
         phrases = []
 
-        with open(jasperpath.data('keyword_phrases'), mode="r") as f:
+        with open(jasperpath.data('standard_phrases'), mode="r") as f:
             for line in f:
                 phrase = line.strip()
                 if phrase:
@@ -40,13 +41,12 @@ class Brain(object):
 
         return phrases
 
-    def get_all_phrases(self):
+    def get_plugin_phrases(self):
         """
-        Gets phrases from all modules.
+        Gets phrases from all plugins.
 
         Returns:
-            A list of phrases in all modules plus additional phrases passed to
-            this function.
+            A list of phrases from all plugins.
         """
         phrases = []
 
@@ -54,6 +54,15 @@ class Brain(object):
             phrases.extend(plugin.get_phrases())
 
         return sorted(list(set(phrases)))
+
+    def get_all_phrases(self):
+        """
+        Gets a combined list consisting of standard phrases and plugin phrases.
+
+        Returns:
+            A list of phrases.
+        """
+        return self.get_standard_phrases() + self.get_plugin_phrases()
 
     def query(self, texts):
         """

@@ -215,7 +215,7 @@ class Jasper(object):
             passive_stt_plugin_info = active_stt_plugin_info
 
         passive_stt_plugin = passive_stt_plugin_info.plugin_class(
-            'keyword', self.brain.get_keyword_phrases() + [keyword],
+            'keyword', self.brain.get_standard_phrases() + [keyword],
             passive_stt_plugin_info, self.config)
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
