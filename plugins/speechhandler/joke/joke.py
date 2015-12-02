@@ -1,37 +1,49 @@
 # -*- coding: utf-8 -*-
+import os
 import random
-import re
-from client import jasperpath
 from client import plugin
 
 
-def get_jokes(filename=jasperpath.data('text', 'JOKES.txt')):
-    jokeFile = open(filename, "r")
+def get_jokes(language='en-US'):
+    filename = os.path.join(os.path.dirname(__file__),
+                            'data',
+                            '%s.txt' % language)
     jokes = []
-    start = ""
-    end = ""
-    for line in jokeFile.readlines():
-        line = line.replace("\n", "")
-
-        if start == "":
-            start = line
-            continue
-
-        if end == "":
-            end = line
-            continue
-
-        jokes.append((start, end))
-        start = ""
-        end = ""
-
-    jokes.append((start, end))
+    found = []
+    with open(filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            found.append(line)
+            if len(found) == 2:
+                jokes.append(tuple(found))
+                found = []
     return jokes
 
 
 class JokePlugin(plugin.SpeechHandlerPlugin):
+    def __init__(self, *args, **kwargs):
+        super(JokePlugin, self).__init__(*args, **kwargs)
+
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+
+        try:
+            self._jokes = get_jokes(language)
+        except IOError as e:
+            if e.errno == 2:
+                self._jokes = []
+            else:
+                raise e
+
+        if len(self._jokes) == 0:
+            raise ValueError('Unsupported language!')
+
     def get_phrases(self):
-        return ["JOKE", "KNOCK KNOCK"]
+        return [self.gettext("JOKE")]
 
     def handle(self, text, mic):
         """
@@ -41,9 +53,9 @@ class JokePlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
         """
-        joke = random.choice(get_jokes())
+        joke = random.choice(self._jokes)
 
-        mic.say("Knock knock")
+        mic.say(self.gettext("Knock knock"))
         mic.active_listen()
         mic.say(joke[0])
         mic.active_listen()
@@ -56,4 +68,4 @@ class JokePlugin(plugin.SpeechHandlerPlugin):
         Arguments:
         text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\bjoke\b', text, re.IGNORECASE))
+        return (self.gettext('JOKE').upper() in text.upper())

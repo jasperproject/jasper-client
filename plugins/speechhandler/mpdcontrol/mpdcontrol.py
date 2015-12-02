@@ -28,7 +28,7 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         self._music = mpdclient.MPDClient(server=server, port=port)
 
     def get_phrases(self):
-        return ["MUSIC", "SPOTIFY"]
+        return [self.gettext('MUSIC'), self.gettext('SPOTIFY')]
 
     def handle(self, text, mic):
         """
@@ -39,14 +39,16 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
             mic -- used to interact with the user (for both input and output)
         """
 
-        mic.say("Please give me a moment, I'm starting the music mode.")
+        _ = self.gettext  # Alias for better readability
+
+        mic.say(_("Please give me a moment, I'm starting the music mode."))
 
         phrases = [
-            'PLAY', 'PAUSE', 'STOP',
-            'NEXT', 'PREVIOUS',
-            'LOUDER', 'SOFTER',
-            'PLAYLIST',
-            'CLOSE', 'EXIT'
+            _('PLAY'), _('PAUSE'), _('STOP'),
+            _('NEXT'), _('PREVIOUS'),
+            _('LOUDER'), _('SOFTER'),
+            _('PLAYLIST'),
+            _('CLOSE'), _('EXIT')
         ]
 
         self._logger.debug('Loading playlists...')
@@ -55,7 +57,7 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         self._logger.debug('Starting music mode...')
         with mic.special_mode('music', phrases):
             self._logger.debug('Music mode started.')
-            mic.say('Music mode started!')
+            mic.say(_('Music mode started!'))
             mode_not_stopped = True
             while mode_not_stopped:
                 mic.wait_for_keyword()
@@ -74,19 +76,20 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
                     text = texts[0].upper()
 
                 if not text:
-                    mic.say('Pardon?')
+                    mic.say(_('Pardon?'))
                     continue
 
                 mode_not_stopped = self.handle_music_command(text, mic)
 
-        mic.say('Music Mode stopped!')
+        mic.say(_('Music Mode stopped!'))
         self._logger.debug("Music mode stopped.")
 
     def handle_music_command(self, command, mic):
-        if 'PLAYLIST' in command:
+        _ = self.gettext  # Alias for better readability
 
+        if _('PLAYLIST').upper() in command:
             # Find playlist name
-            text = command.replace('PLAYLIST', '').strip()
+            text = command.replace(_('PLAYLIST'), '').strip()
             playlists = self._music.get_playlists()
             playlists_upper = [pl.upper() for pl in playlists]
             matches = difflib.get_close_matches(text, playlists_upper)
@@ -100,45 +103,48 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
             if playlist:
                 playback_state = self._music.get_playback_state()
                 self._music.load_playlist(playlist)
-                mic.say('Playlist %s loaded.' % playlist)
+                mic.say(_('Playlist %s loaded.') % playlist)
                 if playback_state == mpdclient.PLAYBACK_STATE_PLAYING:
                     self._music.play()
             else:
-                mic.say("Sorry, I can't find a playlist with that name.")
-        elif 'STOP' in command:
+                mic.say(_("Sorry, I can't find a playlist with that name."))
+        elif _('STOP').upper() in command:
             self._music.stop()
-            mic.say('Music stopped.')
-        elif 'PLAY' in command:
+            mic.say(_('Music stopped.'))
+        elif _('PLAY').upper() in command:
             self._music.play()
             song = self._music.get_current_song()
             if song:
-                mic.say('Playing %s by %s...' % (song.title, song.artist))
-        elif 'PAUSE' in command:
+                mic.say(_('Playing {song.title} by {song.artist}...').format(
+                    song=song))
+        elif _('PAUSE').upper() in command:
             playback_state = self._music.get_playback_state()
             if playback_state == mpdclient.PLAYBACK_STATE_PLAYING:
                 self._music.pause()
-                mic.say('Music paused.')
+                mic.say(_('Music paused.'))
             else:
-                mic.say('Music is not playing.')
-        elif 'LOUDER' in command:
-            mic.say('Increasing volume.')
+                mic.say(_('Music is not playing.'))
+        elif _('LOUDER').upper() in command:
+            mic.say(_('Increasing volume.'))
             self._music.volume(10, relative=True)
-        elif 'SOFTER' in command:
-            mic.say('Decreasing volume.')
+        elif _('SOFTER').upper() in command:
+            mic.say(_('Decreasing volume.'))
             self._music.volume(-10, relative=True)
-        elif any(cmd in command for cmd in ('NEXT', 'PREVIOUS')):
-            if 'NEXT' in command:
-                mic.say('Next song')
+        elif any(cmd.upper() in command for cmd in (
+                _('NEXT'), _('PREVIOUS'))):
+            if _('NEXT').upper() in command:
+                mic.say(_('Next song'))
                 self._music.play()  # backwards necessary to get mopidy to work
                 self._music.next()
             else:
-                mic.say('Previous song')
+                mic.say(_('Previous song'))
                 self._music.play()  # backwards necessary to get mopidy to work
                 self._music.previous()
             song = self._music.get_current_song()
             if song:
-                mic.say('Playing %s by %s...' % (song.title, song.artist))
-        elif any(cmd in command for cmd in ('CLOSE', 'EXIT')):
+                mic.say(_('Playing {song.title} by {song.artist}...').format(
+                    song=song))
+        elif any(cmd.upper() in command for cmd in (_('CLOSE'), _('EXIT'))):
             return False
 
         return True

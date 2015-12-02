@@ -1,0 +1,28 @@
+# Jasper Meaning of Life Plugin 
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-10-30 19:00+0100\n"
+"PO-Revision-Date: 2015-10-30 19:00+0100\n"
+"Last-Translator: Jan Holthuis <jan.holthuis@ruhr-uni-bochum.de>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: life/life.py:8
+msgid "MEANING OF LIFE"
+msgstr ""
+
+#: life/life.py:20
+msgid "It's 42, you idiot."
+msgstr ""
+
+#: life/life.py:21
+msgid "It's 42. How many times do I have to tell you?"
+msgstr ""

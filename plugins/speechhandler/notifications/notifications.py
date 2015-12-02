@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import re
 import facebook
 from client import plugin
 
 
 class NotificationsPlugin(plugin.SpeechHandlerPlugin):
     def get_phrases(self):
-        return ["FACEBOOK", "NOTIFICATION"]
+        return [self.gettext("FACEBOOK"), self.gettext("NOTIFICATION")]
 
     def handle(self, text, mic):
         """
@@ -25,16 +24,17 @@ class NotificationsPlugin(plugin.SpeechHandlerPlugin):
         try:
             results = graph.request("me/notifications")
         except facebook.GraphAPIError:
-            mic.say("I have not been authorized to query your Facebook. If " +
-                    "you would like to check your notifications in the " +
-                    "future, please visit the Jasper dashboard.")
+            mic.say(self.gettext(
+                "I have not been authorized to query your Facebook. If " +
+                "you would like to check your notifications in the " +
+                "future, please visit the Jasper dashboard."))
             return
         except:
-            mic.say("I apologize, there's a problem with that service at " +
-                    "the moment.")
+            mic.say(self.gettext(
+                "I apologize, I can't access Facebook at the moment."))
 
         if not len(results['data']):
-            mic.say("You have no Facebook notifications. ")
+            mic.say(self.gettext("You have no Facebook notifications."))
             return
 
         updates = []
@@ -42,8 +42,16 @@ class NotificationsPlugin(plugin.SpeechHandlerPlugin):
             updates.append(notification['title'])
 
         count = len(results['data'])
-        mic.say("You have " + str(count) +
-                " Facebook notifications. " + " ".join(updates) + ". ")
+        if count == 0:
+            mic.say(self.gettext("You have no Facebook notifications."))
+        elif count == 1:
+            mic.say(self.gettext("You have one Facebook notification."))
+        else:
+            mic.say(
+                self.gettext("You have %d Facebook notifications.") % count)
+
+        if count > 0:
+            mic.say("%s." % " ".join(updates))
 
         return
 
@@ -54,5 +62,4 @@ class NotificationsPlugin(plugin.SpeechHandlerPlugin):
         Arguments:
         text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\bnotification|Facebook\b', text,
-                              re.IGNORECASE))
+        return any(p.lower() in text.lower() for p in self.get_phrases())

@@ -60,11 +60,25 @@ class CereprocTTSPlugin(plugin.TTSPlugin):
             raise ValueError("Cereproc password not configured!")
 
         try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+
+        try:
             voice = self.profile['cereproc-tts']['voice']
         except KeyError:
-            voice = 'Adam'
+            voice = None
 
-        if not any(voice == name for name, language in VOICES):
+        if voice is None:
+            for name, lang in VOICES:
+                if language == lang:
+                    voice = name
+                    break
+        else:
+            if not any(voice == name for name, language in VOICES):
+                voice = None
+
+        if voice is None:
             raise ValueError('Invalid voice!')
 
         self._voice = voice
@@ -75,7 +89,7 @@ class CereprocTTSPlugin(plugin.TTSPlugin):
     def say(self, phrase):
         reply = self._soapclient.service.speakExtended(
             self._account_id, self._password, self._voice,
-            phrase, "wav", 22050, False, False)
+            phrase.decode('utf-8'), "wav", 22050, False, False)
 
         if reply.resultCode != 1:
             return False

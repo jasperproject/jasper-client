@@ -93,6 +93,13 @@ class Jasper(object):
             raise
 
         try:
+            language = self.config['language']
+        except KeyError:
+            logger.warning("language not specified in profile, using 'en-US'")
+        else:
+            logger.info("Using language '%s'", language)
+
+        try:
             audio_engine_slug = self.config['audio_engine']
         except KeyError:
             audio_engine_slug = 'pyaudio'
@@ -231,13 +238,7 @@ class Jasper(object):
             self.mic, self.brain, self.config)
 
     def run(self):
-        if 'first_name' in self.config:
-            salutation = ("How can I be of service, %s?"
-                          % self.config["first_name"])
-        else:
-            salutation = "How can I be of service?"
-        self.mic.say(salutation)
-
+        self.conversation.greet()
         self.conversation.handleForever()
 
 if __name__ == "__main__":

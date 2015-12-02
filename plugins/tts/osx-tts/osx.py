@@ -20,21 +20,26 @@ class MacOSXTTSPlugin(plugin.TTSPlugin):
     """
     Uses the OS X built-in 'say' command
     """
+    def __init__(self, *args, **kwargs):
+        plugin.TTSPlugin.__init__(self, *args, **kwargs)
+        self._logger = logging.getLogger(__name__)
+        self._logger.warning("This TTS plugin doesn't have multilanguage " +
+                             "support!")
+
     def say(self, phrase):
-        logger = logging.getLogger(__name__)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
         cmd = [EXECUTABLE, '-o', fname,
                            '--file-format=WAVE',
                            str(phrase)]
-        logger.debug('Executing %s', ' '.join([pipes.quote(arg)
-                                               for arg in cmd]))
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
+                                                     for arg in cmd]))
         with tempfile.SpooledTemporaryFile() as f:
             subprocess.call(cmd, stdout=f, stderr=f)
             f.seek(0)
             output = f.read()
             if output:
-                logger.debug("Output was: '%s'", output)
+                self._logger.debug("Output was: '%s'", output)
 
         with open(fname, 'rb') as f:
             data = f.read()

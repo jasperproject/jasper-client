@@ -2,6 +2,8 @@ import logging
 import requests
 from client import plugin
 
+SUPPORTED_LANGUAGES = ['en-US', 'es-US']
+
 
 class AttSTTPlugin(plugin.STTPlugin):
     """
@@ -24,6 +26,16 @@ class AttSTTPlugin(plugin.STTPlugin):
         self._token = None
         self.app_key = self.profile['att-stt']['app_key']
         self.app_secret = self.profile['att-stt']['app_secret']
+
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+
+        if language not in SUPPORTED_LANGUAGES:
+            raise ValueError("Language '%s' not supported" % language)
+
+        self.language = language
 
     @property
     def token(self):
@@ -82,9 +94,11 @@ class AttSTTPlugin(plugin.STTPlugin):
                 return transcribed
 
     def _get_response(self, data):
-        headers = {'authorization': 'Bearer %s' % self.token,
-                   'accept': 'application/json',
-                   'content-type': 'audio/wav'}
+        headers = {'Authorization': 'Bearer %s' % self.token,
+                   'Accept': 'application/json',
+                   'Content-Type': 'audio/wav',
+                   'Content-Language': self.language,
+                   'X-SpeechContext': 'Generic'}
         return requests.post('https://api.att.com/speech/v3/speechToText',
                              data=data,
                              headers=headers)

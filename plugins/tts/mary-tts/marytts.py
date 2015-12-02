@@ -21,7 +21,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         try:
             server = self.profile['mary-tts']['server']
         except KeyError:
-            server = 'mary.dfki.de'
+            server = 'marytts.phonetik.uni-muenchen.de'
         self.server = server
 
         try:
@@ -30,34 +30,59 @@ class MaryTTSPlugin(plugin.TTSPlugin):
             port = 59125
         self.port = port
 
-        try:
-            voice = self.profile['mary-tts']['voice']
-        except KeyError:
-            voice = "dfki-spike"
-        self.voice = voice
-
-        self.language = 'en_GB'  # FIXME
-
         self.netloc = '{server}:{port}'.format(server=self.server,
                                                port=self.port)
         self.session = requests.Session()
 
-    @property
-    def languages(self):
+        available_voices = self.get_voices()
+
         try:
-            r = self.session.get(self._makeurl('/locales'))
+            orig_language = self.profile['language']
+        except:
+            orig_language = 'en_US'
+
+        language = orig_language.replace('-', '_')
+        if language not in available_voices:
+            language = language.split('_')[0]
+        if language not in available_voices:
+            raise ValueError("Language '%s' ('%s') not supported" %
+                             (language, orig_language))
+        self.language = language
+
+        self._logger.info('Available voices:', ', '.join(
+            available_voices[language]))
+
+        try:
+            voice = self.profile['mary-tts']['voice']
+        except KeyError:
+            voice = None
+
+        if voice is not None and voice in available_voices[language]:
+            self.voice = voice
+        else:
+            self.voice = available_voices[language][0]
+            if voice is not None:
+                self._logger.info("Voice '%s' not found, using '%s' instead.",
+                                  voice, self.voice)
+
+    def get_voices(self):
+        voices = {}
+        try:
+            r = self.session.get(self._makeurl('/voices'))
             r.raise_for_status()
         except requests.exceptions.RequestException:
             self._logger.critical("Communication with MaryTTS server at %s " +
                                   "failed.", self.netloc)
             raise
-        return r.text.splitlines()
-
-    @property
-    def voices(self):
-        r = self.session.get(self._makeurl('/voices'))
-        r.raise_for_status()
-        return [line.split()[0] for line in r.text.splitlines()]
+        for line in r.text.splitlines():
+            parts = line.strip().split()
+            if len(parts) > 2:
+                name = parts[0]
+                lang = parts[1]
+                if lang not in voices:
+                    voices[lang] = []
+                voices[lang].append(name)
+        return voices
 
     def _makeurl(self, path, query={}):
         query_s = urllib.urlencode(query)
@@ -65,11 +90,6 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         return urlparse.urlunsplit(urlparts)
 
     def say(self, phrase):
-        if self.language not in self.languages:
-            raise ValueError("Language '%s' not supported" % self.language)
-
-        if self.voice not in self.voices:
-            raise ValueError("Voice '%s' not supported" % self.voice)
         query = {'OUTPUT_TYPE': 'AUDIO',
                  'AUDIO': 'WAVE_FILE',
                  'INPUT_TYPE': 'TEXT',
