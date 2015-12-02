@@ -7,7 +7,7 @@ try:
 except:
     pass
 
-from client import jasperpath
+from client import paths
 from .g2p import PhonetisaurusG2P
 
 
@@ -52,7 +52,7 @@ def compile_vocabulary(config, directory, phrases):
     try:
         fst_model = config['pocketsphinx']['fst_model']
     except KeyError:
-        fst_model = os.path.join(jasperpath.APP_PATH, os.pardir,
+        fst_model = os.path.join(paths.APP_PATH, os.pardir,
                                  'phonetisaurus', 'g014b2b.fst')
 
     g2pconverter = PhonetisaurusG2P(executable, fst_model, nbest)

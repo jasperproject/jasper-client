@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
-from . import jasperpath
+from . import paths
 from . import i18n
 #  from notifier import Notifier
 
 
 class Conversation(i18n.GettextMixin):
     def __init__(self, mic, brain, profile):
-        translations = i18n.parse_translations(jasperpath.data('locale'))
+        translations = i18n.parse_translations(paths.data('locale'))
         i18n.GettextMixin.__init__(self, translations, profile)
         self._logger = logging.getLogger(__name__)
         self.mic = mic

@@ -14,7 +14,7 @@ else:
     import queue
 
 from . import alteration
-from . import jasperpath
+from . import paths
 
 
 def get_config_value(config, name, default):
@@ -193,7 +193,7 @@ class Mic(object):
     def active_listen(self, timeout=3):
         # record until <timeout> second of silence or double <timeout>.
         n = int(round((self._input_rate/self._input_chunksize)*timeout))
-        self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
+        self.play_file(paths.data('audio', 'beep_hi.wav'))
         frames = []
         for frame in self._input_device.record(self._input_chunksize,
                                                self._input_bits,
@@ -203,7 +203,7 @@ class Mic(object):
             if len(frames) >= 2*n or (
                     len(frames) > n and self._snr(frames[-n:]) <= 3):
                 break
-        self.play_file(jasperpath.data('audio', 'beep_lo.wav'))
+        self.play_file(paths.data('audio', 'beep_lo.wav'))
         with self._write_frames_to_file(frames) as f:
             return self.active_stt_engine.transcribe(f)
 

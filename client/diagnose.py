@@ -12,7 +12,7 @@ if sys.version_info < (3, 3):
 else:
     from shutil import which as find_executable
 
-from . import jasperpath
+from . import paths
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ def check_python_import(package_or_module):
     return found
 
 
-def get_pip_requirements(fname=os.path.join(jasperpath.APP_PATH,
+def get_pip_requirements(fname=os.path.join(paths.APP_PATH,
                                             'requirements.txt')):
     """
     Gets the PIP requirements from a text file. If the files does not exists
@@ -169,7 +169,7 @@ def run():
         else:
             logger.debug("PIP package '%s' found", req.name)
 
-    for fname in [os.path.join(jasperpath.APP_PATH, os.pardir, "phonetisaurus",
+    for fname in [os.path.join(paths.APP_PATH, os.pardir, "phonetisaurus",
                                "g014b2b.fst")]:
         logger.debug("Checking file '%s'...", fname)
         if not os.access(fname, os.R_OK):

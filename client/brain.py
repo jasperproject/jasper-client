@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from . import jasperpath
+from . import paths
 
 
 class Brain(object):
@@ -41,7 +41,7 @@ class Brain(object):
 
         phrases = []
 
-        with open(jasperpath.data('standard_phrases', "%s.txt" % language),
+        with open(paths.data('standard_phrases', "%s.txt" % language),
                   mode="r") as f:
             for line in f:
                 phrase = line.strip()

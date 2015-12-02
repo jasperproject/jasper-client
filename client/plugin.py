@@ -3,7 +3,7 @@ import abc
 import tempfile
 import wave
 import mad
-from . import jasperpath
+from . import paths
 from . import vocabcompiler
 from . import audioengine
 from . import i18n
@@ -73,7 +73,7 @@ class STTPlugin(GenericPlugin):
 
         vocabulary = vocabcompiler.VocabularyCompiler(
             self.info.name, self._vocabulary_name,
-            path=jasperpath.config('vocabularies', language))
+            path=paths.config('vocabularies', language))
 
         if not vocabulary.matches_phrases(self._vocabulary_phrases):
             vocabulary.compile(

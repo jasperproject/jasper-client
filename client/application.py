@@ -6,7 +6,7 @@ import yaml
 
 from . import audioengine
 from . import brain
-from . import jasperpath
+from . import paths
 from . import pluginstore
 from . import conversation
 from . import mic
@@ -18,24 +18,24 @@ class Jasper(object):
         self._logger = logging.getLogger(__name__)
 
         # Create config dir if it does not exist yet
-        if not os.path.exists(jasperpath.CONFIG_PATH):
+        if not os.path.exists(paths.CONFIG_PATH):
             try:
-                os.makedirs(jasperpath.CONFIG_PATH)
+                os.makedirs(paths.CONFIG_PATH)
             except OSError:
                 self._logger.error("Could not create config dir: '%s'",
-                                   jasperpath.CONFIG_PATH, exc_info=True)
+                                   paths.CONFIG_PATH, exc_info=True)
                 raise
 
         # Check if config dir is writable
-        if not os.access(jasperpath.CONFIG_PATH, os.W_OK):
+        if not os.access(paths.CONFIG_PATH, os.W_OK):
             self._logger.critical("Config dir %s is not writable. Jasper " +
                                   "won't work correctly.",
-                                  jasperpath.CONFIG_PATH)
+                                  paths.CONFIG_PATH)
 
         # FIXME: For backwards compatibility, move old config file to newly
         #        created config dir
-        old_configfile = os.path.join(jasperpath.LIB_PATH, 'profile.yml')
-        new_configfile = jasperpath.config('profile.yml')
+        old_configfile = os.path.join(paths.LIB_PATH, 'profile.yml')
+        new_configfile = paths.config('profile.yml')
         if os.path.exists(old_configfile):
             if os.path.exists(new_configfile):
                 self._logger.warning("Deprecated profile file found: '%s'. " +
@@ -110,7 +110,7 @@ class Jasper(object):
         self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
-        self.plugins = pluginstore.PluginStore([jasperpath.PLUGIN_PATH])
+        self.plugins = pluginstore.PluginStore([paths.PLUGIN_PATH])
         self.plugins.detect_plugins()
 
         # Initialize AudioEngine
