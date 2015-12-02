@@ -234,6 +234,20 @@ class Jasper(object):
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
 
+    def list_plugins(self):
+        plugins = self.plugins.get_plugins()
+        len_name = max(len(info.name) for info in plugins)
+        len_version = max(len(info.version) for info in plugins)
+        for info in plugins:
+            print("%s %s - %s" % (info.name.ljust(len_name),
+                                  ("(v%s)" % info.version).ljust(len_version),
+                                  info.description))
+
+    def list_audio_devices(self):
+        for device in self.audio.get_devices():
+            device.print_device_info(
+                verbose=(self._logger.getEffectiveLevel() == logging.DEBUG))
+
     def run(self):
         self.conversation.greet()
         self.conversation.handleForever()
@@ -263,18 +277,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if args.list_plugins:
-        plugins = app.plugins.get_plugins()
-        len_name = max(len(info.name) for info in plugins)
-        len_version = max(len(info.version) for info in plugins)
-        for info in plugins:
-            print("%s %s - %s" % (info.name.ljust(len_name),
-                                  ("(v%s)" % info.version).ljust(len_version),
-                                  info.description))
+        app.list_plugins()
         sys.exit(1)
     elif args.list_audio_devices:
-        for device in app.audio.get_devices():
-            device.print_device_info(
-                verbose=(logger.getEffectiveLevel() == logging.DEBUG))
+        app.list_audio_devices()
         sys.exit(0)
 
     try:
