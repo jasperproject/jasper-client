@@ -8,6 +8,28 @@ from client import plugin
 
 
 class MPDControlPlugin(plugin.SpeechHandlerPlugin):
+    def __init__(self, *args, **kwargs):
+        super(MPDControlPlugin, self).__init__(*args, **kwargs)
+
+        self._logger = logging.getLogger(__name__)
+
+        try:
+            server = self.profile['mpdclient']['server']
+        except KeyError:
+            server = 'localhost'
+
+        try:
+            port = int(self.profile['mpdclient']['port'])
+        except (KeyError, ValueError) as e:
+            port = 6600
+            if isinstance(e, ValueError):
+                self._logger.warning(
+                    "Configured port is invalid, using %d instead",
+                    port)
+
+        self._mpdserver = server
+        self._mpdport = port
+
     def get_phrases(self):
         return ["MUSIC", "SPOTIFY"]
 
@@ -19,20 +41,11 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
             text -- user-input, typically transcribed speech
             mic -- used to interact with the user (for both input and output)
         """
-        logger = logging.getLogger(__name__)
-
-        kwargs = {}
-        if 'mpdclient' in self.profile:
-            if 'server' in self.profile['mpdclient']:
-                kwargs['server'] = self.profile['mpdclient']['server']
-            if 'port' in self.profile['mpdclient']:
-                kwargs['port'] = int(self.profile['mpdclient']['port'])
-
-        logger.debug("Preparing to start music module")
+        self._logger.debug("Preparing to start music module")
         try:
-            mpdwrapper = MPDWrapper(**kwargs)
+            mpdwrapper = MPDWrapper(server=self._mpdserver, port=self._mpdport)
         except:
-            logger.error("Couldn't connect to MPD server", exc_info=True)
+            self._logger.error("Couldn't connect to MPD server", exc_info=True)
             mic.say("I'm sorry. It seems that Spotify is not enabled. " +
                     "Please read the documentation to learn how to " +
                     "configure Spotify.")
@@ -43,10 +56,10 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         # FIXME: Make this configurable
         persona = 'JASPER'
 
-        logger.debug("Starting music mode")
+        self._logger.debug("Starting music mode")
         music_mode = MusicMode(persona, mic, mpdwrapper)
         music_mode.handle_forever()
-        logger.debug("Exiting music mode")
+        self._logger.debug("Exiting music mode")
 
         return
 
