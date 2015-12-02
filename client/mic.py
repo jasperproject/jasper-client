@@ -90,7 +90,9 @@ class Mic(object):
                 finally:
                     frame_queue.task_done()
 
-    def wait_for_keyword(self, keyword):
+    def wait_for_keyword(self, keyword=None):
+        if not keyword:
+            keyword = self._keyword
         frame_queue = queue.Queue()
         keyword_uttered = threading.Event()
 
