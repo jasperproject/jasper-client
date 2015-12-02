@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import copy
+import difflib
 import logging
 from client import plugin
 from . import mpdclient
@@ -25,8 +25,7 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
                     "Configured port is invalid, using %d instead",
                     port)
 
-        self._mpdserver = server
-        self._mpdport = port
+        self._music = mpdclient.MPDClient(server=server, port=port)
 
     def get_phrases(self):
         return ["MUSIC", "SPOTIFY"]
@@ -39,28 +38,110 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
             text -- user-input, typically transcribed speech
             mic -- used to interact with the user (for both input and output)
         """
-        self._logger.debug("Preparing to start music module")
-        try:
-            mpdwrapper = mpdclient.MPDClient(server=self._mpdserver,
-                                             port=self._mpdport)
-        except:
-            self._logger.error("Couldn't connect to MPD server", exc_info=True)
-            mic.say("I'm sorry. It seems that Spotify is not enabled. " +
-                    "Please read the documentation to learn how to " +
-                    "configure Spotify.")
-            return
 
-        mic.say("Please give me a moment, I'm loading your Spotify playlists.")
+        mic.say("Please give me a moment, I'm starting the music mode.")
 
-        # FIXME: Make this configurable
-        persona = 'JASPER'
+        phrases = [
+            'PLAY', 'PAUSE', 'STOP',
+            'NEXT', 'PREVIOUS',
+            'LOUDER', 'SOFTER',
+            'PLAYLIST',
+            'CLOSE', 'EXIT'
+        ]
 
-        self._logger.debug("Starting music mode")
-        music_mode = MusicMode(persona, mic, mpdwrapper)
-        music_mode.handle_forever()
-        self._logger.debug("Exiting music mode")
+        self._logger.debug('Loading playlists...')
+        phrases.extend([pl.upper() for pl in self._music.get_playlists()])
 
-        return
+        self._logger.debug('Starting music mode...')
+        with mic.special_mode('music', phrases):
+            self._logger.debug('Music mode started.')
+            mic.say('Music mode started!')
+            mode_not_stopped = True
+            while mode_not_stopped:
+                mic.wait_for_keyword()
+
+                # Pause if necessary
+                playback_state = self._music.get_playback_state()
+                if playback_state == mpdclient.PLAYBACK_STATE_PLAYING:
+                    self._music.pause()
+                    texts = mic.active_listen()
+                    self._music.play()
+                else:
+                    texts = mic.active_listen()
+
+                text = ''
+                if texts:
+                    text = texts[0].upper()
+
+                if not text:
+                    mic.say('Pardon?')
+                    continue
+
+                mode_not_stopped = self.handle_music_command(text, mic)
+
+        mic.say('Music Mode stopped!')
+        self._logger.debug("Music mode stopped.")
+
+    def handle_music_command(self, command, mic):
+        if 'PLAYLIST' in command:
+
+            # Find playlist name
+            text = command.replace('PLAYLIST', '').strip()
+            playlists = self._music.get_playlists()
+            playlists_upper = [pl.upper() for pl in playlists]
+            matches = difflib.get_close_matches(text, playlists_upper)
+            if len(matches) > 0:
+                playlist_index = playlists_upper.index(matches[0])
+                playlist = playlists[playlist_index]
+            else:
+                playlist = None
+
+            # Load playlist
+            if playlist:
+                playback_state = self._music.get_playback_state()
+                self._music.load_playlist(playlist)
+                mic.say('Playlist %s loaded.' % playlist)
+                if playback_state == mpdclient.PLAYBACK_STATE_PLAYING:
+                    self._music.play()
+            else:
+                mic.say("Sorry, I can't find a playlist with that name.")
+        elif 'STOP' in command:
+            self._music.stop()
+            mic.say('Music stopped.')
+        elif 'PLAY' in command:
+            self._music.play()
+            song = self._music.get_current_song()
+            if song:
+                mic.say('Playing %s by %s...' % (song.title, song.artist))
+        elif 'PAUSE' in command:
+            playback_state = self._music.get_playback_state()
+            if playback_state == mpdclient.PLAYBACK_STATE_PLAYING:
+                self._music.pause()
+                mic.say('Music paused.')
+            else:
+                mic.say('Music is not playing.')
+        elif 'LOUDER' in command:
+            mic.say('Increasing volume.')
+            self._music.volume(10, relative=True)
+        elif 'SOFTER' in command:
+            mic.say('Decreasing volume.')
+            self._music.volume(-10, relative=True)
+        elif any(cmd in command for cmd in ('NEXT', 'PREVIOUS')):
+            if 'NEXT' in command:
+                mic.say('Next song')
+                self._music.play()  # backwards necessary to get mopidy to work
+                self._music.next()
+            else:
+                mic.say('Previous song')
+                self._music.play()  # backwards necessary to get mopidy to work
+                self._music.previous()
+            song = self._music.get_current_song()
+            if song:
+                mic.say('Playing %s by %s...' % (song.title, song.artist))
+        elif any(cmd in command for cmd in ('CLOSE', 'EXIT')):
+            return False
+
+        return True
 
     def is_valid(self, text):
         """
@@ -70,117 +151,3 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         """
         return any(phrase in text.upper() for phrase in self.get_phrases())
-
-
-# The interesting part
-class MusicMode(object):
-
-    def __init__(self, PERSONA, mic, mpdwrapper):
-        self._logger = logging.getLogger(__name__)
-        self.persona = PERSONA
-        # self.mic - we're actually going to ignore the mic they passed in
-        self.music = mpdwrapper
-
-        # index spotify playlists into new dictionary and language models
-        phrases = ["STOP", "CLOSE", "PLAY", "PAUSE", "NEXT", "PREVIOUS",
-                   "LOUDER", "SOFTER", "LOWER", "HIGHER", "VOLUME",
-                   "PLAYLIST"]
-        phrases.extend(self.music.get_soup_playlist())
-
-        music_stt_engine = mic.active_stt_engine.get_instance('music', phrases)
-
-        self.mic = copy.copy(mic)
-        self.mic.active_stt_engine = music_stt_engine
-
-    def delegate_input(self, input):
-
-        command = input.upper()
-
-        # check if input is meant to start the music module
-        if "PLAYLIST" in command:
-            command = command.replace("PLAYLIST", "")
-        elif "STOP" in command:
-            self.mic.say("Stopping music")
-            self.music.stop()
-            return
-        elif "PLAY" in command:
-            self.mic.say("Playing %s" % self.music.current_song())
-            self.music.play()
-            return
-        elif "PAUSE" in command:
-            self.mic.say("Pausing music")
-            # not pause because would need a way to keep track of pause/play
-            # state
-            self.music.stop()
-            return
-        elif any(ext in command for ext in ["LOUDER", "HIGHER"]):
-            self.mic.say("Louder")
-            self.music.volume(interval=10)
-            self.music.play()
-            return
-        elif any(ext in command for ext in ["SOFTER", "LOWER"]):
-            self.mic.say("Softer")
-            self.music.volume(interval=-10)
-            self.music.play()
-            return
-        elif "NEXT" in command:
-            self.mic.say("Next song")
-            self.music.play()  # backwards necessary to get mopidy to work
-            self.music.next()
-            self.mic.say("Playing %s" % self.music.current_song())
-            return
-        elif "PREVIOUS" in command:
-            self.mic.say("Previous song")
-            self.music.play()  # backwards necessary to get mopidy to work
-            self.music.previous()
-            self.mic.say("Playing %s" % self.music.current_song())
-            return
-
-        # SONG SELECTION... requires long-loading dictionary and language model
-        # songs = self.music.fuzzy_songs(query = command.replace("PLAY", ""))
-        # if songs:
-        #     self.mic.say("Found songs")
-        #     self.music.play(songs = songs)
-
-        #     print("SONG RESULTS")
-        #     print("============")
-        #     for song in songs:
-        #         print("Song: %s Artist: %s" % (song.title, song.artist))
-
-        #     self.mic.say("Playing %s" % self.music.current_song())
-
-        # else:
-        #     self.mic.say("No songs found. Resuming current song.")
-        #     self.music.play()
-
-        # PLAYLIST SELECTION
-        playlists = self.music.fuzzy_playlists(query=command)
-        if playlists:
-            self.mic.say("Loading playlist %s" % playlists[0])
-            self.music.play(playlist_name=playlists[0])
-            self.mic.say("Playing %s" % self.music.current_song())
-        else:
-            self.mic.say("No playlists found. Resuming current song.")
-            self.music.play()
-
-        return
-
-    def handle_forever(self):
-
-        self.music.play()
-        self.mic.say("Playing %s" % self.music.current_song())
-
-        while True:
-
-            self.mic.wait_for_keyword(self.persona)
-            self.music.pause()
-            input = self.mic.active_listen()[0]
-
-            if input:
-                if "close" in input.lower():
-                    self.mic.say("Closing Spotify")
-                    return
-                self.delegate_input(input)
-            else:
-                self.mic.say("Pardon?")
-                self.music.play()
