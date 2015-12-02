@@ -32,9 +32,9 @@ list_info.add_argument('--list-audio-devices', action='store_true',
 args = parser.parse_args()
 
 if args.local:
-    from client.local_mic import Mic
+    from client import local_mic as mic
 else:
-    from client.mic import Mic
+    from client import mic
 
 
 class Jasper(object):
@@ -226,7 +226,7 @@ class Jasper(object):
         tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
 
         # Initialize Mic
-        self.mic = Mic(
+        self.mic = mic.Mic(
             input_device, output_device,
             passive_stt_plugin, active_stt_plugin,
             tts_plugin, self.config, keyword=keyword)
