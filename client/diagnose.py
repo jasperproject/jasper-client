@@ -6,7 +6,6 @@ import socket
 import subprocess
 import pkgutil
 import logging
-import pip.req
 if sys.version_info < (3, 3):
     from distutils.spawn import find_executable
 else:
@@ -90,30 +89,6 @@ def check_python_import(package_or_module):
     return found
 
 
-def get_pip_requirements(fname=os.path.join(paths.APP_PATH,
-                                            'requirements.txt')):
-    """
-    Gets the PIP requirements from a text file. If the files does not exists
-    or is not readable, it returns None
-
-    Arguments:
-        fname -- (optional) the requirement text file (Default:
-                 "requirements.txt")
-
-    Returns:
-        A list of pip requirement objects or None
-    """
-    logger = logging.getLogger(__name__)
-    if os.access(fname, os.R_OK):
-        reqs = list(pip.req.parse_requirements(fname))
-        logger.debug("Found %d PIP requirements in file '%s'", len(reqs),
-                     fname)
-        return reqs
-    else:
-        logger.debug("PIP requirements file '%s' not found or not readable",
-                     fname)
-
-
 def get_git_revision():
     """
     Gets the current git revision hash as hex string. If the git executable is
@@ -160,14 +135,6 @@ def run():
         if not check_executable(executable):
             logger.warning("Executable '%s' is missing in $PATH", executable)
             failed_checks += 1
-
-    for req in get_pip_requirements():
-        logger.debug("Checking PIP package '%s'...", req.name)
-        if not req.check_if_exists():
-            logger.warning("PIP package '%s' is missing", req.name)
-            failed_checks += 1
-        else:
-            logger.debug("PIP package '%s' found", req.name)
 
     for fname in [os.path.join(paths.APP_PATH, os.pardir, "phonetisaurus",
                                "g014b2b.fst")]:
