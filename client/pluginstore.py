@@ -132,7 +132,8 @@ class PluginInfo(object):
 class PluginStore(object):
     def __init__(self, plugin_dirs):
         self._logger = logging.getLogger(__name__)
-        self._plugin_dirs = plugin_dirs
+        self._plugin_dirs = [os.path.abspath(os.path.expanduser(d))
+                             for d in plugin_dirs]
         self._plugins = {}
         self._info_fname = PLUGIN_INFO_FILENAME
         self._translations_dirname = PLUGIN_TRANSLATIONS_DIRNAME
