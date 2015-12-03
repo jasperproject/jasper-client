@@ -1,7 +1,7 @@
 import os
 import tempfile
 import gtts
-from client import plugin
+from jasper import plugin
 
 
 class GoogleTTSPlugin(plugin.TTSPlugin):

@@ -7,7 +7,7 @@ import logging
 import tempfile
 import shutil
 import subprocess
-from client import paths
+from jasper import paths
 
 
 class VoxForgeLexicon(object):

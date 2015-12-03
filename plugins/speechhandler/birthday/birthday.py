@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
 import facebook
-from client.app_utils import get_timezone
-from client import plugin
+from jasper import app_utils
+from jasper import plugin
 
 
 class BirthdayPlugin(plugin.SpeechHandlerPlugin):
@@ -37,7 +37,7 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
             return
 
         needle = datetime.datetime.now(
-            tz=get_timezone(self.profile)).strftime("%m/%d")
+            tz=app_utils.get_timezone(self.profile)).strftime("%m/%d")
 
         people = []
         for person in results['data']:

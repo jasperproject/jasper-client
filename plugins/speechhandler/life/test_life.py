@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from client import testutils
+from jasper import testutils
 from .life import MeaningOfLifePlugin
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import random
-from client import plugin
+from jasper import plugin
 
 
 def get_jokes(language='en-US'):

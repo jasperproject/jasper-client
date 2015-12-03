@@ -4,8 +4,8 @@ import pipes
 import re
 import subprocess
 import tempfile
-from client import diagnose
-from client import plugin
+from jasper import diagnose
+from jasper import plugin
 
 if not diagnose.check_executable('espeak'):
     raise ImportError("espeak executable not found!")
