@@ -110,7 +110,11 @@ class Jasper(object):
         self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
-        self.plugins = pluginstore.PluginStore([paths.PLUGIN_PATH])
+        plugin_directories = [
+            paths.config('plugins'),
+            paths.PLUGIN_PATH
+        ]
+        self.plugins = pluginstore.PluginStore(plugin_directories)
         self.plugins.detect_plugins()
 
         # Initialize AudioEngine
