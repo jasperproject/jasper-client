@@ -7,7 +7,6 @@ try:
 except:
     pass
 
-from client import paths
 from .g2p import PhonetisaurusG2P
 
 
@@ -54,13 +53,20 @@ def compile_vocabulary(config, directory, phrases):
     except KeyError:
         fst_model = None
 
+    try:
+        fst_model_alphabet = config['pocketsphinx']['fst_model_alphabet']
+    except KeyError:
+        fst_model_alphabet = 'arpabet'
+
     if not fst_model:
         raise ValueError('FST model not specified!')
 
     if not os.path.exists(fst_model):
         raise OSError('FST model does not exist!')
 
-    g2pconverter = PhonetisaurusG2P(executable, fst_model, nbest)
+    g2pconverter = PhonetisaurusG2P(executable, fst_model,
+                                    fst_model_alphabet=fst_model_alphabet,
+                                    nbest=nbest)
 
     logger.debug('Languagemodel path: %s' % languagemodel_path)
     logger.debug('Dictionary path:    %s' % dictionary_path)
