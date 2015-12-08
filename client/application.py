@@ -192,7 +192,7 @@ class Jasper(object):
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
-            'default', self.brain.get_all_phrases(), active_stt_plugin_info,
+            'default', self.brain.get_plugin_phrases(), active_stt_plugin_info,
             self.config)
 
         if passive_stt_slug != active_stt_slug:
