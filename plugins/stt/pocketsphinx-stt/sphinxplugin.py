@@ -46,10 +46,7 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         lm_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
         dict_path = sphinxvocab.get_dictionary_path(vocabulary_path)
 
-        hmm_dir = self.config.get('pocketsphinx', 'hmm_dir')
-        if not hmm_dir:
-            hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/" + \
-                      "hub4wsj_sc_8k"
+        hmm_dir = self.config.get('pocketsphinx-stt', 'hmm_dir')
 
         self._logger.debug("Initializing PocketSphinx Decoder with hmm_dir " +
                            "'%s'", hmm_dir)

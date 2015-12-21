@@ -27,10 +27,7 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
         voice = self.config.get('ivona-tts', 'voice')
         speech_rate = self.config.get('ivona-tts', 'speech_rate')
         sentence_break = self.config.get('ivona-tts', 'sentence_break')
-
         language = self.config.get('language')
-        if not language:
-            language = 'en-US'
 
         self._pyvonavoice = pyvona.Voice(access_key, secret_key)
         self._pyvonavoice.codec = "mp3"

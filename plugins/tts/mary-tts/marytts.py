@@ -18,15 +18,9 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
         self._logger = logging.getLogger(__name__)
-        server = self.config.get('mary-tts', 'server')
-        if not server:
-            server = 'marytts.phonetik.uni-muenchen.de'
-        self.server = server
 
-        port = self.config.get('mary-tts', 'port')
-        if not port:
-            port = 59125
-        self.port = port
+        self.server = self.config.get('mary-tts', 'server')
+        self.port = int(self.config.get('mary-tts', 'port'))
 
         self.netloc = '{server}:{port}'.format(server=self.server,
                                                port=self.port)

@@ -84,6 +84,7 @@ setuptools.setup(
             'data/standard_phrases/*.txt',
             '../plugins/*/*/*.py',
             '../plugins/*/*/plugin.info',
+            '../plugins/*/*/defaults.cfg',
             '../plugins/*/*/*.txt',
             '../plugins/*/*/locale/*.po',
             '../plugins/*/*/locale/*.mo',

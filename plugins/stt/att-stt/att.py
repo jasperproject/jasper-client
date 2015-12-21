@@ -28,8 +28,6 @@ class AttSTTPlugin(plugin.STTPlugin):
         self.app_secret = self.config.get('att-stt', 'app_secret')
 
         language = self.config.get('language')
-        if not language:
-            language = 'en-US'
 
         if language not in SUPPORTED_LANGUAGES:
             raise ValueError("Language '%s' not supported" % language)

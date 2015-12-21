@@ -23,8 +23,6 @@ class WitAiSTTPlugin(plugin.STTPlugin):
         self.token = self.config.get('witai-stt', 'access_token')
 
         language = self.config.get('language')
-        if not language:
-            language = 'en-US'
         if language.split('-')[0] != 'en':
             raise ValueError("Languages other than English are not supported")
 

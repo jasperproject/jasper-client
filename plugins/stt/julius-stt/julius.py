@@ -31,13 +31,7 @@ class JuliusSTTPlugin(plugin.STTPlugin):
         self._dict_file = juliusvocab.get_dict_path(vocabulary_path)
 
         hmmdefs = self.config.get('julius', 'hmmdefs')
-        if not hmmdefs:
-            hmmdefs = "/usr/share/voxforge/julius/acoustic_model_files/hmmdefs"
-
         tiedlist = self.config.get('julius', 'tiedlist')
-        if not tiedlist:
-            tiedlist = "/usr/share/voxforge/julius/acoustic_model_files/" + \
-                       "tiedlist"
 
         self._hmmdefs = hmmdefs
         self._tiedlist = tiedlist

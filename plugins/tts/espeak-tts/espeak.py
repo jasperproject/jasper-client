@@ -33,18 +33,14 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        orig_language = self.config.get('language')
-        if not orig_language:
-            orig_language = 'en-US'
-        language = orig_language.split('-')[0]
+        language = self.config.get('language').split('-')[0]
 
         available_voices = self.get_voices()
         matching_voices = [v for v in available_voices
                            if v.language.startswith(language)]
 
         if len(matching_voices) == 0:
-            raise ValueError("Language '%s' ('%s') not supported" %
-                             (language, orig_language))
+            raise ValueError("Language '%s' not supported" % language)
 
         self._logger.info('Available voices: %s', ', '.join(
             v.name for v in matching_voices))
@@ -62,15 +58,10 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
             self.voice = matching_voices[0].name
         self._logger.info("Using voice '%s'.", self.voice)
 
-        pitch_adjustment = self.config.get('espeak-tts', 'pitch_adjustment')
-        if not pitch_adjustment:
-            pitch_adjustment = 40
-        self.pitch_adjustment = pitch_adjustment
-
-        words_per_minute = self.config.get('espeak-tts', 'words_per_minute')
-        if not words_per_minute:
-            words_per_minute = 160
-        self.words_per_minute = words_per_minute
+        self.pitch_adjustment = self.config.get('espeak-tts',
+                                                'pitch_adjustment')
+        self.words_per_min = self.config.get('espeak-tts',
+                                             'words_per_minute')
 
     def get_voices(self):
         output = subprocess.check_output(['espeak', '--voices'])
@@ -88,8 +79,8 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
     def say(self, phrase):
         with tempfile.SpooledTemporaryFile() as out_f:
             cmd = ['espeak', '-v', self.voice,
-                             '-p', self.pitch_adjustment,
-                             '-s', self.words_per_minute,
+                             '-p', self.pitch_adjust,
+                             '-s', self.words_per_min,
                              '--stdout',
                              phrase]
             cmd = [str(x) for x in cmd]

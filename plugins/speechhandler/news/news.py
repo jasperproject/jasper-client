@@ -63,11 +63,7 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
         """
         mic.say(self.gettext("Pulling up the news..."))
 
-        lang = self.config.get('language')
-        if not lang:
-            lang = 'en'
-        else:
-            lang = lang.split('-')[0]
+        lang = self.config.get('language').split('-')[0]
 
         articles = get_top_articles(language=lang, num_headlines=5)
         if len(articles) == 0:

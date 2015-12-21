@@ -11,20 +11,8 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        server = self.config.get('mpdclient', 'server')
-        if not server:
-            server = 'localhost'
-
-        port = self.config.get('mpdclient', 'port')
-        if port:
-            try:
-                port = int(port)
-            except ValueError:
-                port = None
-                self._logger.warning(
-                    "Configured port is invalid, using defaults.")
-        if not port:
-            port = 6600
+        server = self.config.get('mpdcontrol', 'server')
+        port = int(self.config.get('mpdcontrol', 'port'))
 
         self._music = mpdclient.MPDClient(server=server, port=port)
 

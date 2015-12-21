@@ -11,10 +11,7 @@ class KaldiGstServerSTTPlugin(plugin.STTPlugin):
         self._logger = logging.getLogger(__name__)
         self._http = requests.Session()
 
-        url = self.config.get('kaldigstserver-stt', 'url')
-        if not url:
-            url = 'http://localhost:8888/client/dynamic/recognize'
-        self._url = url
+        self._url = self.config.get('kaldigstserver-stt', 'url')
 
     def transcribe(self, fp):
         wav = wave.open(fp, 'rb')

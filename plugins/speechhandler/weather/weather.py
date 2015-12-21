@@ -114,17 +114,13 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
         if not self._location:
             raise ValueError('Weather location not configured!')
 
-        unit = self.config.get('weather', 'unit')
-        if not unit:
+        unit = self.config.get('weather', 'unit').lower()
+        if unit == 'c' or unit == 'celsius':
+            self._unit = 'c'
+        elif unit == 'f' or unit == 'fahrenheit':
             self._unit = 'f'
         else:
-            unit = unit.lower()
-            if unit == 'c' or unit == 'celsius':
-                self._unit = 'c'
-            elif unit == 'f' or unit == 'fahrenheit':
-                self._unit = 'f'
-            else:
-                raise ValueError('Invalid unit!')
+            raise ValueError('Invalid unit!')
 
     def get_phrases(self):
         return [

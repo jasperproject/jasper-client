@@ -1,5 +1,5 @@
 [Plugin]
-Name = sphinx
+Name = pocketsphinx-stt
 Version = 1.0.0
 License = MIT
 URL = http://jasperproject.github.io/

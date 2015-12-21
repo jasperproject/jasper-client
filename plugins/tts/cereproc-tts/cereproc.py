@@ -58,9 +58,6 @@ class CereprocTTSPlugin(plugin.TTSPlugin):
             raise ValueError("Cereproc password not configured!")
 
         language = self.config.get('language')
-        if not language:
-            language = 'en-US'
-
         voice = self.config.get('cereproc-tts', 'voice')
 
         if voice is None:
