@@ -80,7 +80,7 @@ msgstr "Morgen"
 #: plugins/speechhandler/weather/weather.py:214
 #, python-brace-format
 msgid "{text} and temperatures between {temp_low} and {temp_high} degrees."
-msgstr "{text} und Temperaturen zweischen {temp_low} und {temp_high} Grad."
+msgstr "{text} und Temperaturen zwischen {temp_low} und {temp_high} Grad."
 
 #: plugins/speechhandler/weather/weather.py:219
 #, python-format
