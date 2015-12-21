@@ -7,7 +7,7 @@ from . import paths
 
 
 class Configuration(object):
-    def __init__(self):
+    def __init__(self, filenames):
         self._logger = logging.getLogger(__name__)
         self._data = {}
 
@@ -26,20 +26,8 @@ class Configuration(object):
                                   "won't work correctly.",
                                   paths.CONFIG_PATH)
 
-        new_configfile = paths.config('profile.cfg')
-
-        # Read config
-        self._logger.debug("Trying to read config file: '%s'", new_configfile)
         self._cp = configparser.RawConfigParser()
-        try:
-            self._cp.read(new_configfile)
-        except OSError:
-            self._logger.error("Can't open config file: '%s'", new_configfile)
-            raise
-        except configparser.Error:
-            self._logger.error("Unable to parse config file: '%s'",
-                               new_configfile)
-            raise
+        self._cp.read(filenames)
 
     def get(self, *args):
         if len(args) == 2:
