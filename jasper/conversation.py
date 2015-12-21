@@ -19,9 +19,10 @@ class Conversation(i18n.GettextMixin):
         #  self.notifier = Notifier(config)
 
     def greet(self):
-        if 'first_name' in self.config:
+        first_name = self.config.get('first_name')
+        if first_name:
             salutation = (self.gettext("How can I be of service, %s?")
-                          % self.config["first_name"])
+                          % first_name)
         else:
             salutation = self.gettext("How can I be of service?")
         self.mic.say(salutation)

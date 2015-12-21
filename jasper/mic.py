@@ -19,14 +19,16 @@ from . import paths
 
 def get_config_value(config, name, default):
     logger = logging.getLogger(__name__)
-    try:
-        value = int(config['audio'][name])
-    except KeyError:
+    value = config.get('audio', name)
+    if not value:
         logger.debug('%s not configured, using default.', name)
         value = None
-    except ValueError:
-        logger.debug('%s is not an integer, using default.', name)
-        value = None
+    else:
+        try:
+            value = int(value)
+        except ValueError:
+            logger.debug('%s is not an integer, using default.', name)
+            value = None
     return value if value else default
 
 
@@ -53,12 +55,7 @@ class Mic(object):
                                                  1024)
         self._output_chunksize = get_config_value(config, 'output_chunksize',
                                                   1024)
-        try:
-            output_padding = config['audio']['output_padding']
-        except KeyError:
-            self._logger.debug('output_padding not configured,' +
-                               'using default.')
-            output_padding = None
+        output_padding = config.get('audio', 'output_padding')
         if output_padding and output_padding.lower() in ('true', 'yes', 'on'):
             self._output_padding = True
         else:

@@ -23,7 +23,7 @@ class Notifier(object):
         self.config = config
         self.notifiers = []
 
-        if 'gmail_address' in config and 'gmail_password' in config:
+        if all(config.get('gmail_address'), config.get('gmail_password')):
             self.notifiers.append(self.NotificationClient(
                 self.handle_email_notifications, None))
         else:

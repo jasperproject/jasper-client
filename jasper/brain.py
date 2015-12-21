@@ -32,10 +32,7 @@ class Brain(object):
         Returns:
             A list of standard phrases.
         """
-        try:
-            language = self._config['language']
-        except KeyError:
-            language = None
+        language = self._config.get('language')
         if not language:
             language = 'en-US'
 

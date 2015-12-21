@@ -28,9 +28,8 @@ class GettextMixin(object):
         self.__get_translations()
 
     def __get_translations(self):
-        try:
-            language = self.__config['language']
-        except KeyError:
+        language = self.__config.get('language')
+        if not language:
             language = 'en-US'
 
         if language not in self.__translations:

@@ -41,45 +41,48 @@ def email_user(config, SUBJECT="", BODY=""):
     if not BODY:
         return False
 
-    body = 'Hello %s,' % config['first_name']
+    body = 'Hello %s,' % config.get('first_name')
     body += '\n\n' + BODY.strip() + '\n\n'
     body += 'Best Regards,\nJasper\n'
 
     recipient = None
 
-    if config['prefers_email']:
-        if config['gmail_address']:
-            recipient = config['gmail_address']
-            if config['first_name'] and config['last_name']:
+    if config.get('prefers_email'):
+        if config.get('gmail_address'):
+            recipient = config.get('gmail_address')
+            if config.get('first_name') and config('last_name'):
                 recipient = "%s %s <%s>" % (
-                    config['first_name'],
-                    config['last_name'],
+                    config.get('first_name'),
+                    config.get('last_name'),
                     recipient)
     else:
-        if config['carrier'] and config['phone_number']:
+        if config.get('carrier') and config('phone_number'):
             recipient = "%s@%s" % (
-                str(config['phone_number']),
-                config['carrier'])
+                str(config.get('phone_number')),
+                config.get('carrier'))
 
     if not recipient:
         return False
 
-    try:
-        if 'mailgun' in config:
-            user = config['mailgun']['username']
-            password = config['mailgun']['password']
-            server = 'smtp.mailgun.org'
-        else:
-            user = config['gmail_address']
-            password = config['gmail_password']
-            server = 'smtp.gmail.com'
-        send_email(SUBJECT, body, recipient, user,
-                   "Jasper <jasper>", password, server)
+    user = config.get('mailgun', 'username')
+    password = config.get('mailgun', 'password')
+    server = 'smtp.mailgun.org'
 
-    except Exception:
-        return False
-    else:
-        return True
+    if not all(user, password, server):
+        user = config.get('gmail_address')
+        password = config.get('gmail_password')
+        server = 'smtp.gmail.com'
+
+    if all(user, password, server):
+        try:
+            send_email(SUBJECT, body, recipient, user,
+                       "Jasper <jasper>", password, server)
+        except Exception:
+            pass
+        else:
+            return True
+
+    return False
 
 
 def get_timezone(config):
@@ -91,7 +94,7 @@ def get_timezone(config):
                    address)
     """
     try:
-        return timezone(config['timezone'])
+        return timezone(config.get('timezone'))
     except:
         return None
 
