@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import ConfigParser as configparser
 
+from . import parser
 from .. import paths
 
 
@@ -26,7 +26,7 @@ class Configuration(object):
                                   "won't work correctly.",
                                   paths.CONFIG_PATH)
 
-        self._cp = configparser.RawConfigParser()
+        self._cp = parser.ConfigParser()
         self._cp.read(filenames)
 
     def get(self, *args):
@@ -38,6 +38,6 @@ class Configuration(object):
             raise ValueError('Invalid number of arguments')
         try:
             value = self._cp.get(section, option)
-        except configparser.Error:
+        except parser.configparser.Error:
             value = None
         return value
