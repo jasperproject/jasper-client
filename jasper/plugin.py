@@ -65,8 +65,6 @@ class STTPlugin(GenericPlugin):
             raise RuntimeError("Vocabulary has already been compiled!")
 
         language = self.config.get('language')
-        if not language:
-            language = 'en-US'
 
         vocabulary = vocabcompiler.VocabularyCompiler(
             self.info.name, self._vocabulary_name,

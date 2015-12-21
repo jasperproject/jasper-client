@@ -29,8 +29,6 @@ class GettextMixin(object):
 
     def __get_translations(self):
         language = self.__config.get('language')
-        if not language:
-            language = 'en-US'
 
         if language not in self.__translations:
             raise ValueError('Unsupported Language!')

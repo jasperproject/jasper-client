@@ -77,6 +77,7 @@ setuptools.setup(
     packages=[APPNAME],
     package_data={
         APPNAME: [
+            'data/defaults.cfg',
             'data/audio/*.wav',
             'data/locale/*.po',
             'data/locale/*.mo',

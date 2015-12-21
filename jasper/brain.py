@@ -33,8 +33,6 @@ class Brain(object):
             A list of standard phrases.
         """
         language = self._config.get('language')
-        if not language:
-            language = 'en-US'
 
         phrases = []
 

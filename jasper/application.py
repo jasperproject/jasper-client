@@ -20,24 +20,12 @@ class Jasper(object):
         self.config.read_defaults([paths.data('defaults.cfg')])
 
         language = self.config.get('language')
-        if not language:
-            self._logger.warning(
-                "language not specified in profile, using 'en-US'")
-        else:
-            self._logger.info("Using language '%s'", language)
+        self._logger.info("Using language '%s'", language)
 
         audio_engine_slug = self.config.get('audio_engine')
-        if not audio_engine_slug:
-            audio_engine_slug = 'pyaudio'
-            self._logger.info("audio_engine not specified in profile, using " +
-                              "defaults.")
         self._logger.debug("Using Audio engine '%s'", audio_engine_slug)
 
         active_stt_slug = self.config.get('stt_engine')
-        if not active_stt_slug:
-            active_stt_slug = 'sphinx'
-            self._logger.warning("stt_engine not specified in profile, " +
-                                 "using defaults.")
         self._logger.debug("Using STT engine '%s'", active_stt_slug)
 
         passive_stt_slug = self.config.get('stt_passive_engine')
@@ -46,15 +34,9 @@ class Jasper(object):
         self._logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
         tts_slug = self.config.get('tts_engine')
-        if not tts_slug:
-            tts_slug = 'espeak-tts'
-            self._logger.warning("tts_engine not specified in profile, using" +
-                                 "defaults.")
         self._logger.debug("Using TTS engine '%s'", tts_slug)
 
         keyword = self.config.get('keyword')
-        if not keyword:
-            keyword = 'Jasper'
         self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
