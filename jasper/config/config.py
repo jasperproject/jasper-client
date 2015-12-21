@@ -31,8 +31,8 @@ class Configuration(object):
 
         self._cp.read(filenames)
 
-    def read_defaults(self, filenames):
-        self._defaults.read(filenames)
+    def read_defaults(self, *args, **kwargs):
+        self._defaults.read(*args, **kwargs)
 
     def get(self, *args):
         if len(args) == 2:

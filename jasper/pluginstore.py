@@ -93,6 +93,10 @@ class PluginInfo(object):
         self._plugins_class = value
 
     @property
+    def default_config_file(self):
+        return os.path.join(self._path, 'defaults.cfg')
+
+    @property
     def translations(self):
         return self._translations
 
