@@ -49,25 +49,19 @@ class CereprocTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
-        try:
-            self._account_id = self.config['cereproc-tts']['account_id']
-        except KeyError:
+        self._account_id = self.config.get('cereproc-tts', 'account_id')
+        if not self._account_id:
             raise ValueError("Cereproc account ID not configured!")
 
-        try:
-            self._password = self.config['cereproc-tts']['password']
-        except KeyError:
+        self._password = self.config.get('cereproc-tts', 'password')
+        if not self._password:
             raise ValueError("Cereproc password not configured!")
 
-        try:
-            language = self.config['language']
-        except KeyError:
+        language = self.config.get('language')
+        if not language:
             language = 'en-US'
 
-        try:
-            voice = self.config['cereproc-tts']['voice']
-        except KeyError:
-            voice = None
+        voice = self.config.get('cereproc-tts', 'voice')
 
         if voice is None:
             for name, lang in VOICES:

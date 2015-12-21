@@ -26,9 +26,8 @@ class JokePlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(JokePlugin, self).__init__(*args, **kwargs)
 
-        try:
-            language = self.config['language']
-        except KeyError:
+        language = self.config.get('language')
+        if not language:
             language = 'en-US'
 
         try:

@@ -93,14 +93,12 @@ def compile_vocabulary(directory, phrases, config):
     prefix = 'jasper'
     tmpdir = tempfile.mkdtemp()
 
-    lexicon_file = paths.data('julius-stt', 'VoxForge.tgz')
-    lexicon_archive_member = 'VoxForge/VoxForgeDict'
-    if 'julius' in config:
-        if 'lexicon' in config['julius']:
-            lexicon_file = config['julius']['lexicon']
-        if 'lexicon_archive_member' in config['julius']:
-            lexicon_archive_member = \
-                config['julius']['lexicon_archive_member']
+    lexicon_file = config.get('julius', 'lexicon')
+    if not lexicon_file:
+        lexicon_file = paths.data('julius-stt', 'VoxForge.tgz')
+    lexicon_archive_member = config.get('julius', 'lexicon_archive_member')
+    if not lexicon_archive_member:
+        lexicon_archive_member = 'VoxForge/VoxForgeDict'
 
     lexicon = VoxForgeLexicon(lexicon_file, lexicon_archive_member)
 

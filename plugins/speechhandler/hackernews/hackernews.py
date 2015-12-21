@@ -27,9 +27,8 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(HackerNewsPlugin, self).__init__(*args, **kwargs)
 
-        try:
-            self._num_headlines = self.config['hacker-news']['num-headlines']
-        except KeyError:
+        self._num_headlines = self.config.get('hacker-news', 'num-headlines')
+        if not self._num_headlines:
             self._num_headlines = 3
 
     def get_priority(self):
@@ -69,7 +68,7 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
             for i, a in enumerate(articles, start=1))
         mic.say(text)
 
-        if 'gmail_address' not in self.config:
+        if not self.config.get('gmail_address'):
             return
 
         mic.say(self.gettext('Would you like me to send you these articles?'))

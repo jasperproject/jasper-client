@@ -13,7 +13,7 @@ class GoogleTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
         try:
-            orig_language = self.config['language']
+            orig_language = self.config.get('language')
         except:
             orig_language = 'en-US'
 

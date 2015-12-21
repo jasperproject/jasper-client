@@ -22,9 +22,8 @@ class PicoTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
-        try:
-            language = self.config['language']
-        except KeyError:
+        language = self.config.get('language')
+        if not language:
             language = 'en-US'
 
         available_languages = self.get_languages()

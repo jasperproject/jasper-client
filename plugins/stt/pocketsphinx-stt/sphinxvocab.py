@@ -39,24 +39,18 @@ def compile_vocabulary(config, directory, phrases):
     languagemodel_path = get_languagemodel_path(directory)
     dictionary_path = get_dictionary_path(directory)
 
-    try:
-        executable = config['pocketsphinx']['phonetisaurus_executable']
-    except KeyError:
+    executable = config.get('pocketsphinx', 'phonetisaurus_executable')
+    if not executable:
         executable = 'phonetisaurus-g2p'
 
-    try:
-        nbest = config['pocketsphinx']['nbest']
-    except KeyError:
+    nbest = config.get('pocketsphinx', 'nbest')
+    if not nbest:
         nbest = 3
 
-    try:
-        fst_model = config['pocketsphinx']['fst_model']
-    except KeyError:
-        fst_model = None
+    fst_model = config.get('pocketsphinx', 'fst_model')
 
-    try:
-        fst_model_alphabet = config['pocketsphinx']['fst_model_alphabet']
-    except KeyError:
+    fst_model_alphabet = config.get('pocketsphinx', 'fst_model_alphabet')
+    if not fst_model_alphabet:
         fst_model_alphabet = 'arpabet'
 
     if not fst_model:

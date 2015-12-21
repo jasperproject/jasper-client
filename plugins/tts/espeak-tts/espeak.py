@@ -33,9 +33,8 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        try:
-            orig_language = self.config['language']
-        except KeyError:
+        orig_language = self.config.get('language')
+        if not orig_language:
             orig_language = 'en-US'
         language = orig_language.split('-')[0]
 
@@ -50,10 +49,7 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
         self._logger.info('Available voices: %s', ', '.join(
             v.name for v in matching_voices))
 
-        try:
-            voice = self.config['espeak-tts']['voice']
-        except KeyError:
-            voice = None
+        voice = self.config.get('espeak-tts', 'voice')
 
         if voice is not None and len([v for v in matching_voices
                                       if v.name == voice]) > 0:
@@ -66,15 +62,13 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
             self.voice = matching_voices[0].name
         self._logger.info("Using voice '%s'.", self.voice)
 
-        try:
-            pitch_adjustment = self.config['espeak-tts']['pitch_adjustment']
-        except KeyError:
+        pitch_adjustment = self.config.get('espeak-tts', 'pitch_adjustment')
+        if not pitch_adjustment:
             pitch_adjustment = 40
         self.pitch_adjustment = pitch_adjustment
 
-        try:
-            words_per_minute = self.config['espeak-tts']['words_per_minute']
-        except KeyError:
+        words_per_minute = self.config.get('espeak-tts', 'words_per_minute')
+        if not words_per_minute:
             words_per_minute = 160
         self.words_per_minute = words_per_minute
 

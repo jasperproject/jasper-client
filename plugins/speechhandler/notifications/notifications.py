@@ -17,7 +17,7 @@ class NotificationsPlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
         """
-        oauth_access_token = self.config['keys']['FB_TOKEN']
+        oauth_access_token = self.config.get('keys', 'FB_TOKEN')
 
         graph = facebook.GraphAPI(oauth_access_token)
 

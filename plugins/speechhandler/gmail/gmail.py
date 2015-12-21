@@ -62,8 +62,8 @@ class GmailPlugin(plugin.SpeechHandlerPlugin):
         """
         conn = imaplib.IMAP4_SSL('imap.gmail.com')
         conn.debug = 0
-        conn.login(self.config['gmail_address'],
-                   self.config['gmail_password'])
+        conn.login(self.config.get('gmail_address'),
+                   self.config.get('gmail_password'))
         conn.select(readonly=(not markRead))
 
         msgs = []

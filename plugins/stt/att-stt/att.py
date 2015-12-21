@@ -24,12 +24,11 @@ class AttSTTPlugin(plugin.STTPlugin):
         plugin.STTPlugin.__init__(self, *args, **kwargs)
         self._logger = logging.getLogger(__name__)
         self._token = None
-        self.app_key = self.config['att-stt']['app_key']
-        self.app_secret = self.config['att-stt']['app_secret']
+        self.app_key = self.config.get('att-stt', 'app_key')
+        self.app_secret = self.config.get('att-stt', 'app_secret')
 
-        try:
-            language = self.config['language']
-        except KeyError:
+        language = self.config.get('language')
+        if not language:
             language = 'en-US'
 
         if language not in SUPPORTED_LANGUAGES:

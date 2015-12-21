@@ -30,14 +30,12 @@ class JuliusSTTPlugin(plugin.STTPlugin):
         self._dfa_file = juliusvocab.get_dfa_path(vocabulary_path)
         self._dict_file = juliusvocab.get_dict_path(vocabulary_path)
 
-        try:
-            hmmdefs = self.config['julius']['hmmdefs']
-        except KeyError:
+        hmmdefs = self.config.get('julius', 'hmmdefs')
+        if not hmmdefs:
             hmmdefs = "/usr/share/voxforge/julius/acoustic_model_files/hmmdefs"
 
-        try:
-            tiedlist = self.config['julius']['tiedlist']
-        except KeyError:
+        tiedlist = self.config.get('julius', 'tiedlist')
+        if not tiedlist:
             tiedlist = "/usr/share/voxforge/julius/acoustic_model_files/" + \
                        "tiedlist"
 

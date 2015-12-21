@@ -46,9 +46,8 @@ class PocketsphinxSTTPlugin(plugin.STTPlugin):
         lm_path = sphinxvocab.get_languagemodel_path(vocabulary_path)
         dict_path = sphinxvocab.get_dictionary_path(vocabulary_path)
 
-        try:
-            hmm_dir = self.config['pocketsphinx']['hmm_dir']
-        except KeyError:
+        hmm_dir = self.config.get('pocketsphinx', 'hmm_dir')
+        if not hmm_dir:
             hmm_dir = "/usr/local/share/pocketsphinx/model/hmm/en_US/" + \
                       "hub4wsj_sc_8k"
 
