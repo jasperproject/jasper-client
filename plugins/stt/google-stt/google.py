@@ -47,12 +47,12 @@ class GoogleSTTPlugin(plugin.STTPlugin):
         self._api_key = None
         self._http = requests.Session()
         try:
-            language = self.profile['language']
+            language = self.config['language']
         except KeyError:
             language = 'en-US'
 
         self.language = language.lower()
-        self.api_key = self.profile['keys']['GOOGLE_SPEECH']
+        self.api_key = self.config['keys']['GOOGLE_SPEECH']
 
     @property
     def request_url(self):

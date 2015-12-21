@@ -64,7 +64,7 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
         mic.say(self.gettext("Pulling up the news..."))
 
         try:
-            lang = self.profile['language'].split('-')[0]
+            lang = self.config['language'].split('-')[0]
         except KeyError:
             lang = 'en'
 
@@ -81,7 +81,7 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
             for i, a in enumerate(articles, start=1))
         mic.say(text)
 
-        if 'gmail_address' not in self.profile:
+        if 'gmail_address' not in self.config:
             return
 
         mic.say(self.gettext('Would you like me to send you these articles?'))
@@ -92,7 +92,7 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
             mic.say(self.gettext("Sure, just give me a moment."))
             email_text = self.make_email_text(articles)
             email_sent = app_utils.email_user(
-                self.profile,
+                self.config,
                 SUBJECT=self.gettext("Your Top Headlines"),
                 BODY=email_text)
             if email_sent:

@@ -88,19 +88,19 @@ def get_word_defs(lexicon, phrases):
     return word_defs
 
 
-def compile_vocabulary(directory, phrases, profile):
+def compile_vocabulary(directory, phrases, config):
     logger = logging.getLogger(__name__)
     prefix = 'jasper'
     tmpdir = tempfile.mkdtemp()
 
     lexicon_file = paths.data('julius-stt', 'VoxForge.tgz')
     lexicon_archive_member = 'VoxForge/VoxForgeDict'
-    if 'julius' in profile:
-        if 'lexicon' in profile['julius']:
-            lexicon_file = profile['julius']['lexicon']
-        if 'lexicon_archive_member' in profile['julius']:
+    if 'julius' in config:
+        if 'lexicon' in config['julius']:
+            lexicon_file = config['julius']['lexicon']
+        if 'lexicon_archive_member' in config['julius']:
             lexicon_archive_member = \
-                profile['julius']['lexicon_archive_member']
+                config['julius']['lexicon_archive_member']
 
     lexicon = VoxForgeLexicon(lexicon_file, lexicon_archive_member)
 

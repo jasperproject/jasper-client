@@ -28,12 +28,12 @@ def send_email(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     session.quit()
 
 
-def email_user(profile, SUBJECT="", BODY=""):
+def email_user(config, SUBJECT="", BODY=""):
     """
     sends an email.
 
     Arguments:
-        profile -- contains information related to the user (e.g., email
+        config -- contains information related to the user (e.g., email
                    address)
         SUBJECT -- subject line of the email
         BODY -- body text of the email
@@ -41,37 +41,37 @@ def email_user(profile, SUBJECT="", BODY=""):
     if not BODY:
         return False
 
-    body = 'Hello %s,' % profile['first_name']
+    body = 'Hello %s,' % config['first_name']
     body += '\n\n' + BODY.strip() + '\n\n'
     body += 'Best Regards,\nJasper\n'
 
     recipient = None
 
-    if profile['prefers_email']:
-        if profile['gmail_address']:
-            recipient = profile['gmail_address']
-            if profile['first_name'] and profile['last_name']:
+    if config['prefers_email']:
+        if config['gmail_address']:
+            recipient = config['gmail_address']
+            if config['first_name'] and config['last_name']:
                 recipient = "%s %s <%s>" % (
-                    profile['first_name'],
-                    profile['last_name'],
+                    config['first_name'],
+                    config['last_name'],
                     recipient)
     else:
-        if profile['carrier'] and profile['phone_number']:
+        if config['carrier'] and config['phone_number']:
             recipient = "%s@%s" % (
-                str(profile['phone_number']),
-                profile['carrier'])
+                str(config['phone_number']),
+                config['carrier'])
 
     if not recipient:
         return False
 
     try:
-        if 'mailgun' in profile:
-            user = profile['mailgun']['username']
-            password = profile['mailgun']['password']
+        if 'mailgun' in config:
+            user = config['mailgun']['username']
+            password = config['mailgun']['password']
             server = 'smtp.mailgun.org'
         else:
-            user = profile['gmail_address']
-            password = profile['gmail_password']
+            user = config['gmail_address']
+            password = config['gmail_password']
             server = 'smtp.gmail.com'
         send_email(SUBJECT, body, recipient, user,
                    "Jasper <jasper>", password, server)
@@ -82,16 +82,16 @@ def email_user(profile, SUBJECT="", BODY=""):
         return True
 
 
-def get_timezone(profile):
+def get_timezone(config):
     """
-    Returns the pytz timezone for a given profile.
+    Returns the pytz timezone for a given config.
 
     Arguments:
-        profile -- contains information related to the user (e.g., email
+        config -- contains information related to the user (e.g., email
                    address)
     """
     try:
-        return timezone(profile['timezone'])
+        return timezone(config['timezone'])
     except:
         return None
 

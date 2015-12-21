@@ -12,12 +12,12 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         self._logger = logging.getLogger(__name__)
 
         try:
-            server = self.profile['mpdclient']['server']
+            server = self.config['mpdclient']['server']
         except KeyError:
             server = 'localhost'
 
         try:
-            port = int(self.profile['mpdclient']['port'])
+            port = int(self.config['mpdclient']['port'])
         except (KeyError, ValueError) as e:
             port = 6600
             if isinstance(e, ValueError):

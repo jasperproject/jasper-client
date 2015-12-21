@@ -34,7 +34,7 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
         self._logger = logging.getLogger(__name__)
 
         try:
-            orig_language = self.profile['language']
+            orig_language = self.config['language']
         except KeyError:
             orig_language = 'en-US'
         language = orig_language.split('-')[0]
@@ -51,7 +51,7 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
             v.name for v in matching_voices))
 
         try:
-            voice = self.profile['espeak-tts']['voice']
+            voice = self.config['espeak-tts']['voice']
         except KeyError:
             voice = None
 
@@ -67,13 +67,13 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
         self._logger.info("Using voice '%s'.", self.voice)
 
         try:
-            pitch_adjustment = self.profile['espeak-tts']['pitch_adjustment']
+            pitch_adjustment = self.config['espeak-tts']['pitch_adjustment']
         except KeyError:
             pitch_adjustment = 40
         self.pitch_adjustment = pitch_adjustment
 
         try:
-            words_per_minute = self.profile['espeak-tts']['words_per_minute']
+            words_per_minute = self.config['espeak-tts']['words_per_minute']
         except KeyError:
             words_per_minute = 160
         self.words_per_minute = words_per_minute

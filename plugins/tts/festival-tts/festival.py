@@ -30,7 +30,7 @@ class FestivalTTSPlugin(plugin.TTSPlugin):
         self._logger.info('Available voices: %s', ', '.join(available_voices))
 
         try:
-            voice = self.profile['festival-tts']['voice']
+            voice = self.config['festival-tts']['voice']
         except KeyError:
             voice = None
 

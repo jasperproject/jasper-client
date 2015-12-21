@@ -16,37 +16,37 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
         try:
-            access_key = self.profile['ivona-tts']['access_key']
+            access_key = self.config['ivona-tts']['access_key']
         except KeyError:
             raise ValueError("Ivona access key not configured!")
 
         try:
-            secret_key = self.profile['ivona-tts']['secret_key']
+            secret_key = self.config['ivona-tts']['secret_key']
         except KeyError:
             raise ValueError("Ivona secret key not configured!")
 
         try:
-            region = self.profile['ivona-tts']['region']
+            region = self.config['ivona-tts']['region']
         except KeyError:
             region = None
 
         try:
-            voice = self.profile['ivona-tts']['voice']
+            voice = self.config['ivona-tts']['voice']
         except KeyError:
             voice = None
 
         try:
-            speech_rate = self.profile['ivona-tts']['speech_rate']
+            speech_rate = self.config['ivona-tts']['speech_rate']
         except KeyError:
             speech_rate = None
 
         try:
-            sentence_break = self.profile['ivona-tts']['sentence_break']
+            sentence_break = self.config['ivona-tts']['sentence_break']
         except KeyError:
             sentence_break = None
 
         try:
-            language = self.profile['language']
+            language = self.config['language']
         except KeyError:
             language = 'en-US'
 

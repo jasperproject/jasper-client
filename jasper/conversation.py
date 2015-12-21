@@ -6,22 +6,22 @@ from . import i18n
 
 
 class Conversation(i18n.GettextMixin):
-    def __init__(self, mic, brain, profile):
+    def __init__(self, mic, brain, config):
         translations = i18n.parse_translations(paths.data('locale'))
-        i18n.GettextMixin.__init__(self, translations, profile)
+        i18n.GettextMixin.__init__(self, translations, config)
         self._logger = logging.getLogger(__name__)
         self.mic = mic
-        self.profile = profile
+        self.config = config
         self.brain = brain
         self.translations = {
 
         }
-        #  self.notifier = Notifier(profile)
+        #  self.notifier = Notifier(config)
 
     def greet(self):
-        if 'first_name' in self.profile:
+        if 'first_name' in self.config:
             salutation = (self.gettext("How can I be of service, %s?")
-                          % self.profile["first_name"])
+                          % self.config["first_name"])
         else:
             salutation = self.gettext("How can I be of service?")
         self.mic.say(salutation)

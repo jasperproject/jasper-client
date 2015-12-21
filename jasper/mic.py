@@ -78,7 +78,7 @@ class Mic(object):
     @contextlib.contextmanager
     def special_mode(self, name, phrases):
         plugin_info = self.active_stt_engine.info
-        plugin_config = self.active_stt_engine.profile
+        plugin_config = self.active_stt_engine.config
 
         original_stt_engine = self.active_stt_engine
 

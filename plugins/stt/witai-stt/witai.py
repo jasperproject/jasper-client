@@ -20,10 +20,10 @@ class WitAiSTTPlugin(plugin.STTPlugin):
     def __init__(self, *args, **kwargs):
         plugin.STTPlugin.__init__(self, *args, **kwargs)
         self._logger = logging.getLogger(__name__)
-        self.token = self.profile['witai-stt']['access_token']
+        self.token = self.config['witai-stt']['access_token']
 
         try:
-            language = self.profile['language']
+            language = self.config['language']
         except KeyError:
             language = 'en-US'
         if language.split('-')[0] != 'en':

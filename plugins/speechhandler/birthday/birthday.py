@@ -18,7 +18,7 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
         """
-        oauth_access_token = self.profile['keys']["FB_TOKEN"]
+        oauth_access_token = self.config['keys']["FB_TOKEN"]
 
         graph = facebook.GraphAPI(oauth_access_token)
 
@@ -37,7 +37,7 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
             return
 
         needle = datetime.datetime.now(
-            tz=app_utils.get_timezone(self.profile)).strftime("%m/%d")
+            tz=app_utils.get_timezone(self.config)).strftime("%m/%d")
 
         people = []
         for person in results['data']:

@@ -28,7 +28,7 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
         super(HackerNewsPlugin, self).__init__(*args, **kwargs)
 
         try:
-            self._num_headlines = self.profile['hacker-news']['num-headlines']
+            self._num_headlines = self.config['hacker-news']['num-headlines']
         except KeyError:
             self._num_headlines = 3
 
@@ -69,7 +69,7 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
             for i, a in enumerate(articles, start=1))
         mic.say(text)
 
-        if 'gmail_address' not in self.profile:
+        if 'gmail_address' not in self.config:
             return
 
         mic.say(self.gettext('Would you like me to send you these articles?'))
@@ -80,7 +80,7 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
             mic.say(self.gettext("Sure, just give me a moment."))
             email_text = self.make_email_text(articles)
             email_sent = app_utils.email_user(
-                self.profile,
+                self.config,
                 SUBJECT=self.gettext("Top Stories from Hacker News"),
                 BODY=email_text)
             if email_sent:

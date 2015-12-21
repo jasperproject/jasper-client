@@ -19,13 +19,13 @@ class MaryTTSPlugin(plugin.TTSPlugin):
 
         self._logger = logging.getLogger(__name__)
         try:
-            server = self.profile['mary-tts']['server']
+            server = self.config['mary-tts']['server']
         except KeyError:
             server = 'marytts.phonetik.uni-muenchen.de'
         self.server = server
 
         try:
-            port = self.profile['mary-tts']['port']
+            port = self.config['mary-tts']['port']
         except KeyError:
             port = 59125
         self.port = port
@@ -37,7 +37,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         available_voices = self.get_voices()
 
         try:
-            orig_language = self.profile['language']
+            orig_language = self.config['language']
         except:
             orig_language = 'en_US'
 
@@ -53,7 +53,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
             available_voices[language]))
 
         try:
-            voice = self.profile['mary-tts']['voice']
+            voice = self.config['mary-tts']['voice']
         except KeyError:
             voice = None
 

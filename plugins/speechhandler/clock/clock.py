@@ -17,7 +17,7 @@ class ClockPlugin(plugin.SpeechHandlerPlugin):
         mic -- used to interact with the user (for both input and output)
         """
 
-        tz = app_utils.get_timezone(self.profile)
+        tz = app_utils.get_timezone(self.config)
         now = datetime.datetime.now(tz=tz)
         if now.minute == 0:
             fmt = "It is {t:%l} {t:%P} right now."

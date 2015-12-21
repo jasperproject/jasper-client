@@ -111,12 +111,12 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(WeatherPlugin, self).__init__(*args, **kwargs)
         try:
-            self._location = self.profile['weather']['location']
+            self._location = self.config['weather']['location']
         except KeyError:
             raise ValueError('Weather location not configured!')
 
         try:
-            unit = self.profile['weather']['unit']
+            unit = self.config['weather']['unit']
         except KeyError:
             self._unit = 'f'
         else:

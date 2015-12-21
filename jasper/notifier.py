@@ -17,18 +17,18 @@ class Notifier(object):
         def run(self):
             self.timestamp = self.gather(self.timestamp)
 
-    def __init__(self, profile):
+    def __init__(self, config):
         self._logger = logging.getLogger(__name__)
         self.q = Queue.Queue()
-        self.profile = profile
+        self.config = config
         self.notifiers = []
 
-        if 'gmail_address' in profile and 'gmail_password' in profile:
+        if 'gmail_address' in config and 'gmail_password' in config:
             self.notifiers.append(self.NotificationClient(
                 self.handle_email_notifications, None))
         else:
             self._logger.warning('gmail_address or gmail_password not set ' +
-                                 'in profile, Gmail notifier will not be used')
+                                 'in config, Gmail notifier will not be used')
 
         sched = BackgroundScheduler(timezone="UTC", daemon=True)
         sched.start()
@@ -40,7 +40,7 @@ class Notifier(object):
 
     def handle_email_notifications(self, last_date):
         """Places new Gmail notifications in the Notifier's queue."""
-        emails = Gmail.fetch_unread_emails(self.profile, since=last_date)
+        emails = Gmail.fetch_unread_emails(self.config, since=last_date)
         if emails:
             last_date = Gmail.get_most_recent_date(emails)
 

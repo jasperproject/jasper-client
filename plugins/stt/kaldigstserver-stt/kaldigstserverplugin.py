@@ -12,7 +12,7 @@ class KaldiGstServerSTTPlugin(plugin.STTPlugin):
         self._http = requests.Session()
 
         try:
-            url = self.profile['kaldigstserver-stt']['url']
+            url = self.config['kaldigstserver-stt']['url']
         except KeyError:
             url = 'http://localhost:8888/client/dynamic/recognize'
         self._url = url

@@ -25,7 +25,7 @@ class FliteTTSPlugin(plugin.TTSPlugin):
         self._logger.warning("This TTS plugin doesn't have multilanguage " +
                              "support!")
         try:
-            voice = self.profile['flite-tts']['voice']
+            voice = self.config['flite-tts']['voice']
         except KeyError:
             voice = ''
         else:

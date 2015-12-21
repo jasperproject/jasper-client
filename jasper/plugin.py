@@ -15,7 +15,7 @@ class GenericPlugin(object):
         self._plugin_info = info
 
     @property
-    def profile(self):
+    def config(self):
         # FIXME: Remove this in favor of something better
         return self._plugin_config
 
@@ -34,7 +34,7 @@ class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
     def __init__(self, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
         i18n.GettextMixin.__init__(
-            self, self.info.translations, self.profile)
+            self, self.info.translations, self.config)
 
     @abc.abstractmethod
     def get_phrases(self):
@@ -65,7 +65,7 @@ class STTPlugin(GenericPlugin):
             raise RuntimeError("Vocabulary has already been compiled!")
 
         try:
-            language = self.profile['language']
+            language = self.config['language']
         except KeyError:
             language = None
         if not language:
@@ -77,7 +77,7 @@ class STTPlugin(GenericPlugin):
 
         if not vocabulary.matches_phrases(self._vocabulary_phrases):
             vocabulary.compile(
-                self.profile, compilation_func, self._vocabulary_phrases)
+                self.config, compilation_func, self._vocabulary_phrases)
 
         self._vocabulary_path = vocabulary.path
         return self._vocabulary_path

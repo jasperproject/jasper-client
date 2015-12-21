@@ -31,12 +31,12 @@ class JuliusSTTPlugin(plugin.STTPlugin):
         self._dict_file = juliusvocab.get_dict_path(vocabulary_path)
 
         try:
-            hmmdefs = self.profile['julius']['hmmdefs']
+            hmmdefs = self.config['julius']['hmmdefs']
         except KeyError:
             hmmdefs = "/usr/share/voxforge/julius/acoustic_model_files/hmmdefs"
 
         try:
-            tiedlist = self.profile['julius']['tiedlist']
+            tiedlist = self.config['julius']['tiedlist']
         except KeyError:
             tiedlist = "/usr/share/voxforge/julius/acoustic_model_files/" + \
                        "tiedlist"
