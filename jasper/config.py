@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import shutil
 import yaml
 
 from . import paths
@@ -27,25 +26,7 @@ class Configuration(object):
                                   "won't work correctly.",
                                   paths.CONFIG_PATH)
 
-        # FIXME: For backwards compatibility, move old config file to newly
-        #        created config dir
-        old_configfile = os.path.join(paths.PKG_PATH, 'profile.yml')
         new_configfile = paths.config('profile.yml')
-        if os.path.exists(old_configfile):
-            if os.path.exists(new_configfile):
-                self._logger.warning("Deprecated profile file found: '%s'. " +
-                                     "Please remove it.", old_configfile)
-            else:
-                self._logger.warning("Deprecated profile file found: '%s'. " +
-                                     "Trying to copy it to new location '%s'.",
-                                     old_configfile, new_configfile)
-                try:
-                    shutil.copy2(old_configfile, new_configfile)
-                except shutil.Error:
-                    self._logger.error("Unable to copy config file. " +
-                                       "Please copy it manually.",
-                                       exc_info=True)
-                    raise
 
         # Read config
         self._logger.debug("Trying to read config file: '%s'", new_configfile)
