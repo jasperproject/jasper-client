@@ -1,0 +1,45 @@
+# Jasper Facebook Notifications Plugin 
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-10-30 19:00+0100\n"
+"PO-Revision-Date: 2015-10-30 19:00+0100\n"
+"Last-Translator: Jan Holthuis <jan.holthuis@ruhr-uni-bochum.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: notifications/notifications.py:8
+msgid "FACEBOOK"
+msgstr "FACEBOOK"
+
+#: notifications/notifications.py:8
+msgid "NOTIFICATION"
+msgstr "BENACHRICHTIGUNG"
+
+#: notifications/notifications.py:28
+msgid "I have not been authorized to query your Facebook. If you would like to check your notifications in the future, please visit the Jasper dashboard."
+msgstr "Ich wurde nicht autorisiert, dein Facebook abzufragen. Wenn du möchtest, dass ich dich über die deine Facebook-Benachrichtigungen informiere, besuche bitte das Jasper Dashboard."
+
+#: notifications/notifications.py:34
+msgid "I apologize, I can't access Facebook at the moment."
+msgstr "Tut mir leid, ich kann im Moment nicht auf Facebook zugreifen."
+
+#: notifications/notifications.py:37 notifications/notifications.py:46
+msgid "You have no Facebook notifications."
+msgstr "Du hast keine Facebook-Benachrichtigungen."
+
+#: notifications/notifications.py:48
+msgid "You have one Facebook notification."
+msgstr "Du hast eine Facebook-Benachrichtigung."
+
+#: notifications/notifications.py:51
+#, python-format
+msgid "You have %d Facebook notifications."
+msgstr "Du hast %d Facebook-Benachrichtigungen."

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import re
 import facebook
 from client.app_utils import get_timezone
 from client import plugin
@@ -8,7 +7,7 @@ from client import plugin
 
 class BirthdayPlugin(plugin.SpeechHandlerPlugin):
     def get_phrases(self):
-        return ["BIRTHDAY"]
+        return [self.gettext("BIRTHDAY")]
 
     def handle(self, text, mic):
         """
@@ -27,13 +26,14 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
             results = graph.request("me/friends",
                                     args={'fields': 'id,name,birthday'})
         except facebook.GraphAPIError:
-            mic.say("I have not been authorized to query your Facebook. If " +
-                    "you would like to check birthdays in the future, " +
-                    "please visit the Jasper dashboard.")
+            mic.say(self.gettext(
+                "I have not been authorized to query your Facebook. If you " +
+                "would like to check birthdays in the future, please visit " +
+                "the Jasper dashboard."))
             return
         except:
-            mic.say("I apologize, there's a problem with that service at " +
-                    "the moment.")
+            mic.say(self.gettext("I apologize, there's a problem with that " +
+                                 "service at the moment."))
             return
 
         needle = datetime.datetime.now(
@@ -49,12 +49,13 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
 
         if len(people) > 0:
             if len(people) == 1:
-                output = people[0] + " has a birthday today."
+                output = self.gettext("%s has a birthday today.") % people[0]
             else:
-                output = "Your friends with birthdays today are " + \
-                    ", ".join(people[:-1]) + " and " + people[-1] + "."
+                output = (self.gettext(
+                    "Your friends with birthdays today are %s and %s.") %
+                    (", ".join(people[:-1]), people[-1]))
         else:
-            output = "None of your friends have birthdays today."
+            output = self.gettext("None of your friends have birthdays today.")
 
         mic.say(output)
 
@@ -65,4 +66,4 @@ class BirthdayPlugin(plugin.SpeechHandlerPlugin):
             Arguments:
             text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'birthday', text, re.IGNORECASE))
+        return any(p.lower() in text.lower() for p in self.get_phrases())

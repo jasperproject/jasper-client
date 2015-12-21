@@ -12,20 +12,24 @@ class GoogleTTSPlugin(plugin.TTSPlugin):
 
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
-        self.language = 'en'
+        try:
+            orig_language = self.profile['language']
+        except:
+            orig_language = 'en-US'
 
-    @property
-    def languages(self):
-        langs = ['af', 'sq', 'ar', 'hy', 'ca', 'zh-CN', 'zh-TW', 'hr', 'cs',
-                 'da', 'nl', 'en', 'eo', 'fi', 'fr', 'de', 'el', 'ht', 'hi',
-                 'hu', 'is', 'id', 'it', 'ja', 'ko', 'la', 'lv', 'mk', 'no',
-                 'pl', 'pt', 'ro', 'ru', 'sr', 'sk', 'es', 'sw', 'sv', 'ta',
-                 'th', 'tr', 'vi', 'cy']
-        return langs
+        language = orig_language.lower()
+
+        if language not in gtts.gTTS.LANGUAGES:
+            language = language.split('-')[0]
+
+        if language not in gtts.gTTS.LANGUAGES:
+            raise ValueError("Language '%s' ('%s') not supported" %
+                             (language, orig_language))
+
+        self.language = language
 
     def say(self, phrase):
-        if self.language not in self.languages:
-            raise ValueError("Language '%s' not supported", self.language)
+
         tts = gtts.gTTS(text=phrase, lang=self.language)
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name

@@ -1,98 +1,142 @@
 # -*- coding: utf-8 -*-
-import re
+import collections
 import datetime
-import struct
-import urllib
-import feedparser
+import dateutil
 import requests
-import bs4
-from client.app_utils import get_timezone
 from client import plugin
-from semantic.dates import DateService
+
+YAHOO_YQL_QUERY = \
+    'SELECT * FROM weather.bylocation WHERE location="%s" AND unit="%s"'
+YAHOO_YQL_URL = 'https://query.yahooapis.com/v1/public/yql'
+YAHOO_YQL_WEATHER_CONDITION_CODES = {
+    0:    'tornado',
+    1:    'tropical storm',
+    2:    'hurricane',
+    3:    'severe thunderstorms',
+    4:    'thunderstorms',
+    5:    'mixed rain and snow',
+    6:    'mixed rain and sleet',
+    7:    'mixed snow and sleet',
+    8:    'freezing drizzle',
+    9:    'drizzle',
+    10:   'freezing rain',
+    11:   'showers',
+    12:   'showers',
+    13:   'snow flurries',
+    14:   'light snow showers',
+    15:   'blowing snow',
+    16:   'snow',
+    17:   'hail',
+    18:   'sleet',
+    19:   'dust',
+    20:   'foggy',
+    21:   'haze',
+    22:   'smoky',
+    23:   'blustery',
+    24:   'windy',
+    25:   'cold',
+    26:   'cloudy',
+    27:   'mostly cloudy at night',
+    28:   'mostly cloudy at day',
+    29:   'partly cloudy at night',
+    30:   'partly cloudy at day',
+    31:   'clear at night',
+    32:   'sunny',
+    33:   'fair at night',
+    34:   'fair at day',
+    35:   'mixed rain and hail',
+    36:   'hot',
+    37:   'isolated thunderstorms',
+    38:   'scattered thunderstorms',
+    39:   'scattered thunderstorms',
+    40:   'scattered showers',
+    41:   'heavy snow',
+    42:   'scattered snow showers',
+    43:   'heavy snow',
+    44:   'partly cloudy',
+    45:   'thundershowers',
+    46:   'snow showers',
+    47:   'isolated thundershowers'
+}
+
+WEEKDAY_NAMES = {
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday'
+}
+
+Weather = collections.namedtuple(
+    'Weather', ['city', 'date', 'text', 'temp', 'forecast'])
+
+ForecastItem = collections.namedtuple(
+    'ForecastItem', ['text', 'date', 'temp_high', 'temp_low'])
 
 
-def replace_acronyms(text):
-    """
-    Replaces some commonly-used acronyms for an improved verbal weather report.
-    """
+def get_weather(location, unit="f"):
+    yql_query = YAHOO_YQL_QUERY % (location.replace('"', ''),
+                                   unit.replace('"', ''))
+    r = requests.get(YAHOO_YQL_URL,
+                     params={
+                        'q': yql_query,
+                        'format': 'json',
+                        'env': 'store://datatables.org/alltableswithkeys'},
+                     headers={'User-Agent': 'Mozilla/5.0'})
+    content = r.json()
+    channel = content['query']['results']['weather']['rss']['channel']
+    current_date = dateutil.parser.parse(
+        channel['item']['condition']['date']).date()
+    forecast = []
 
-    def parse_directions(text):
-        words = {
-            'N': 'north',
-            'S': 'south',
-            'E': 'east',
-            'W': 'west',
-        }
-        output = [words[w] for w in list(text)]
-        return ' '.join(output)
-    acronyms = re.findall(r'\b([NESW]+)\b', text)
-
-    for w in acronyms:
-        text = text.replace(w, parse_directions(w))
-
-    text = re.sub(r'(\b\d+)F(\b)', '\g<1> Fahrenheit\g<2>', text)
-    text = re.sub(r'(\b)mph(\b)', '\g<1>miles per hour\g<2>', text)
-    text = re.sub(r'(\b)in\.', '\g<1>inches', text)
-
-    return text
-
-
-def get_locations():
-    r = requests.get('http://www.wunderground.com/about/faq/' +
-                     'international_cities.asp')
-    soup = bs4.BeautifulSoup(r.text, 'html.parser')
-    data = soup.find(id="inner-content").find('pre').string
-    # Data Stucture:
-    #  00 25 location
-    #  01  1
-    #  02  2 region
-    #  03  1
-    #  04  2 country
-    #  05  2
-    #  06  4 ID
-    #  07  5
-    #  08  7 latitude
-    #  09  1
-    #  10  7 logitude
-    #  11  1
-    #  12  5 elevation
-    #  13  5 wmo_id
-    s = struct.Struct("25s1s2s1s2s2s4s5s7s1s7s1s5s5s")
-    for line in data.splitlines()[3:]:
-        row = s.unpack_from(line)
-        info = {'name': row[0].strip(),
-                'region': row[2].strip(),
-                'country': row[4].strip(),
-                'latitude': float(row[8].strip()),
-                'logitude': float(row[10].strip()),
-                'elevation': int(row[12].strip()),
-                'id': row[6].strip(),
-                'wmo_id': row[13].strip()}
-        yield info
-
-
-def get_forecast_by_name(location_name):
-    entries = feedparser.parse("http://rss.wunderground.com/auto/rss_full/%s"
-                               % urllib.quote(location_name))['entries']
-    if entries:
-        # We found weather data the easy way
-        return entries
-    else:
-        # We try to get weather data via the list of stations
-        for location in get_locations():
-            if location['name'] == location_name:
-                return get_forecast_by_wmo_id(location['wmo_id'])
-
-
-def get_forecast_by_wmo_id(wmo_id):
-    return feedparser.parse("http://rss.wunderground.com/auto/" +
-                            "rss_full/global/stations/%s.xml"
-                            % wmo_id)['entries']
+    for item in channel['item']['forecast']:
+        fc_date = datetime.datetime.strptime(item['date'], "%d %b %Y").date()
+        if (fc_date - current_date).days > 0:
+            forecast.append(ForecastItem(
+                text=YAHOO_YQL_WEATHER_CONDITION_CODES[int(item['code'])],
+                date=fc_date,
+                temp_high=int(item['high']),
+                temp_low=int(item['low'])))
+    return Weather(city=channel['location']['city'],
+                   date=current_date,
+                   text=YAHOO_YQL_WEATHER_CONDITION_CODES[
+                      int(channel['item']['condition']['code'])],
+                   temp=int(channel['item']['condition']['temp']),
+                   forecast=forecast)
 
 
 class WeatherPlugin(plugin.SpeechHandlerPlugin):
+    def __init__(self, *args, **kwargs):
+        super(WeatherPlugin, self).__init__(*args, **kwargs)
+        try:
+            self._location = self.profile['weather']['location']
+        except KeyError:
+            raise ValueError('Weather location not configured!')
+
+        try:
+            unit = self.profile['weather']['unit']
+        except KeyError:
+            self._unit = 'f'
+        else:
+            unit = unit.lower()
+            if unit == 'c' or unit == 'celsius':
+                self._unit = 'c'
+            elif unit == 'f' or unit == 'fahrenheit':
+                self._unit = 'f'
+            else:
+                raise ValueError('Invalid unit!')
+
     def get_phrases(self):
-        return ["WEATHER", "TODAY", "TOMORROW"]
+        return [
+            self.gettext("WEATHER"),
+            self.gettext("TODAY"),
+            self.gettext("TOMORROW"),
+            self.gettext("TEMPERATURE"),
+            self.gettext("FORECAST"),
+            self.gettext("YES"),
+            self.gettext("NO")]
 
     def handle(self, text, mic):
         """
@@ -104,63 +148,80 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             text -- user-input, typically transcribed speech
             mic -- used to interact with the user (for both input and output)
         """
-        forecast = None
-        if 'wmo_id' in self.profile:
-            forecast = get_forecast_by_wmo_id(str(self.profile['wmo_id']))
-        elif 'location' in self.profile:
-            forecast = get_forecast_by_name(str(self.profile['location']))
 
-        if not forecast:
-            mic.say("I'm sorry, I can't seem to access that information. " +
-                    "Please make sure that you've set your location on the " +
-                    "dashboard.")
+        weather = get_weather(self._location, unit=self._unit)
+
+        if self.gettext('TOMORROW').upper() in text.upper():
+            # Tomorrow
+            self._say_forecast_tomorrow(mic, weather)
+            return
+        elif self.gettext('FORECAST').upper() in text.upper():
+            # Forecast
+            if len(weather.forecast) == 1:
+                self._say_forecast_tomorrow(mic, weather)
+            else:
+                self._say_forecast(mic, weather)
+        else:
+            # Today
+            msg = self.gettext(
+                'Currently {text} at {temp} degrees in {city}.').format(
+                    text=self.gettext(weather.text),
+                    temp=weather.temp,
+                    city=weather.city)
+            if len(weather.forecast) == 0:
+                mic.say(msg)
+                return
+
+            msg += ' '
+            if len(weather.forecast) == 1:
+                msg += self.gettext(
+                    'Do you want to hear the forecast for tomorrow?')
+            else:
+                msg += (self.gettext('Do you want to hear the forecast ' +
+                                     'for the next %d days?') %
+                        len(weather.forecast))
+            mic.say(msg)
+            if any(self.gettext('YES').upper() in s.upper()
+                   for s in mic.active_listen()):
+                if len(weather.forecast) == 1:
+                    self._say_forecast_tomorrow(mic, weather)
+                else:
+                    self._say_forecast(mic, weather)
             return
 
-        tz = get_timezone(self.profile)
-
-        service = DateService(tz=tz)
-        date = service.extractDay(text)
-        if not date:
-            date = datetime.datetime.now(tz=tz)
-        weekday = service.__daysOfWeek__[date.weekday()]
-
-        if date.weekday() == datetime.datetime.now(tz=tz).weekday():
-            date_keyword = "Today"
-        elif date.weekday() == (
-                datetime.datetime.now(tz=tz).weekday() + 1) % 7:
-            date_keyword = "Tomorrow"
+    def _say_forecast_tomorrow(self, mic, weather):
+        tomorrow = None
+        for fc in weather.forecast:
+            if fc.date - weather.date == datetime.timedelta(days=1):
+                tomorrow = fc
+        if tomorrow is not None:
+            mic.say(self.gettext(
+                'Tomorrow in {city}: {text} and temperatures ' +
+                'between {temp_low} and {temp_high} degrees.').format(
+                        city=weather.city,
+                        text=self.gettext(fc.text),
+                        temp_low=fc.temp_low,
+                        temp_high=fc.temp_high))
         else:
-            date_keyword = "On " + weekday
+            mic.say(self.gettext(
+                "Sorry, I don't know what the weather in %s will " +
+                "be like tomorrow.") % weather.city)
 
-        output = None
-
-        for entry in forecast:
-            try:
-                date_desc = entry['title'].split()[0].strip().lower()
-                if date_desc == 'forecast':
-                    # For global forecasts
-                    date_desc = entry['title'].split()[2].strip().lower()
-                    weather_desc = entry['summary']
-                elif date_desc == 'current':
-                    # For first item of global forecasts
-                    continue
-                else:
-                    # US forecasts
-                    weather_desc = entry['summary'].split('-')[1]
-
-                if weekday == date_desc:
-                    output = date_keyword + \
-                        ", the weather will be " + weather_desc + "."
-                    break
-            except:
-                continue
-
-        if output:
-            output = replace_acronyms(output)
-            mic.say(output)
-        else:
-            mic.say(
-                "I'm sorry. I can't see that far ahead.")
+    def _say_forecast(self, mic, weather):
+        forecast_msgs = []
+        for fc in weather.forecast:
+            if fc.date - weather.date == datetime.timedelta(days=1):
+                date = self.gettext('Tomorrow')
+            else:
+                date = self.gettext(WEEKDAY_NAMES[int(fc.date.strftime('%w'))])
+            forecast_msgs.append("%s: %s" % (date, self.gettext(
+                '{text} and temperatures between {temp_low} and ' +
+                '{temp_high} degrees.').format(
+                    text=self.gettext(fc.text),
+                    temp_low=fc.temp_low,
+                    temp_high=fc.temp_high)))
+        mic.say((self.gettext('Weather Forecast for the next %d days: ')
+                 % len(weather.forecast)) + '... '.join(forecast_msgs))
 
     def is_valid(self, text):
         """
@@ -169,6 +230,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             Arguments:
             text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\b(weathers?|temperature|forecast|outside|' +
-                              r'hot|cold|jacket|coat|rain)\b', text,
-                              re.IGNORECASE))
+        text = text.upper()
+        return (self.gettext('WEATHER').upper() in text or
+                self.gettext('TEMPERATURE').upper() in text or
+                self.gettext('FORECAST').upper() in text)

@@ -22,6 +22,13 @@ class WitAiSTTPlugin(plugin.STTPlugin):
         self._logger = logging.getLogger(__name__)
         self.token = self.profile['witai-stt']['access_token']
 
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
+        if language.split('-')[0] != 'en':
+            raise ValueError("Languages other than English are not supported")
+
     @property
     def token(self):
         return self._token

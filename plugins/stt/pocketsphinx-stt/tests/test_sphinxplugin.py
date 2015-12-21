@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import unittest
-from client import testutils, jasperpath
+from client import paths
+from client import testutils
 from .. import sphinxplugin
 
 
 class TestPocketsphinxSTTPlugin(unittest.TestCase):
 
     def setUp(self):
-        self.jasper_clip = jasperpath.data('audio', 'jasper.wav')
-        self.time_clip = jasperpath.data('audio', 'time.wav')
+        self.jasper_clip = paths.data('audio', 'jasper.wav')
+        self.time_clip = paths.data('audio', 'time.wav')
 
         try:
             self.passive_stt_engine = testutils.get_plugin_instance(

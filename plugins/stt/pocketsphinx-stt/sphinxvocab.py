@@ -7,7 +7,6 @@ try:
 except:
     pass
 
-from client import jasperpath
 from .g2p import PhonetisaurusG2P
 
 
@@ -52,14 +51,26 @@ def compile_vocabulary(config, directory, phrases):
     try:
         fst_model = config['pocketsphinx']['fst_model']
     except KeyError:
-        fst_model = os.path.join(jasperpath.APP_PATH, os.pardir,
-                                 'phonetisaurus', 'g014b2b.fst')
+        fst_model = None
 
-    g2pconverter = PhonetisaurusG2P(executable, fst_model, nbest)
+    try:
+        fst_model_alphabet = config['pocketsphinx']['fst_model_alphabet']
+    except KeyError:
+        fst_model_alphabet = 'arpabet'
+
+    if not fst_model:
+        raise ValueError('FST model not specified!')
+
+    if not os.path.exists(fst_model):
+        raise OSError('FST model does not exist!')
+
+    g2pconverter = PhonetisaurusG2P(executable, fst_model,
+                                    fst_model_alphabet=fst_model_alphabet,
+                                    nbest=nbest)
 
     logger.debug('Languagemodel path: %s' % languagemodel_path)
     logger.debug('Dictionary path:    %s' % dictionary_path)
-    text = " ".join([("<s> %s </s>" % phrase) for phrase in phrases])
+    text = " ".join([("<s> %s </s>" % phrase.upper()) for phrase in phrases])
     # There's some strange issue when text2idngram sometime can't find any
     # input (although it's there). For a reason beyond me, this can be fixed
     # by appending a space char to the string.

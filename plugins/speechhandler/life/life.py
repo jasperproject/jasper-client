@@ -1,12 +1,11 @@
-# -*- coding: utf-8-*-
+# -*- coding: utf-8 -*-
 import random
-import re
 from client import plugin
 
 
 class MeaningOfLifePlugin(plugin.SpeechHandlerPlugin):
     def get_phrases(self):
-        return ["MEANING", "OF", "LIFE"]
+        return [self.gettext("MEANING OF LIFE")]
 
     def handle(self, text, mic):
         """
@@ -17,8 +16,10 @@ class MeaningOfLifePlugin(plugin.SpeechHandlerPlugin):
         text -- user-input, typically transcribed speech
         mic -- used to interact with the user (for both input and output)
         """
-        messages = ["It's 42, you idiot.",
-                    "It's 42. How many times do I have to tell you?"]
+        messages = [
+            self.gettext("It's 42, you idiot."),
+            self.gettext("It's 42. How many times do I have to tell you?")
+        ]
 
         message = random.choice(messages)
 
@@ -31,4 +32,4 @@ class MeaningOfLifePlugin(plugin.SpeechHandlerPlugin):
         Arguments:
         text -- user-input, typically transcribed speech
         """
-        return bool(re.search(r'\bmeaning of life\b', text, re.IGNORECASE))
+        return any(p.lower() in text.lower() for p in self.get_phrases())

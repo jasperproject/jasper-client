@@ -22,10 +22,18 @@ class PicoTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
-        self.language = "en-US"  # FIXME
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = 'en-US'
 
-    @property
-    def languages(self):
+        available_languages = self.get_languages()
+        if language not in available_languages:
+            raise ValueError("Language '%s' not supported" % language)
+
+        self._language = language
+
+    def get_languages(self):
         cmd = [EXECUTABLE, '-l', 'NULL',
                            '-w', os.devnull,
                            'NULL']
@@ -45,12 +53,10 @@ class PicoTTSPlugin(plugin.TTSPlugin):
         logger = logging.getLogger(__name__)
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
             fname = f.name
-        cmd = [EXECUTABLE, '--wave', fname]
-        if self.language not in self.languages:
-                raise ValueError("Language '%s' not supported by '%s'",
-                                 self.language, self.SLUG)
-        cmd.extend(['-l', self.language])
-        cmd.append(phrase)
+
+        cmd = [EXECUTABLE, '-w', fname,
+                           '-l', self._language,
+                           phrase]
         logger.debug('Executing %s', ' '.join([pipes.quote(arg)
                                                for arg in cmd]))
         with tempfile.TemporaryFile() as f:

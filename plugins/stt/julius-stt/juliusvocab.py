@@ -7,7 +7,7 @@ import logging
 import tempfile
 import shutil
 import subprocess
-import jasperpath
+from client import paths
 
 
 class VoxForgeLexicon(object):
@@ -93,7 +93,7 @@ def compile_vocabulary(directory, phrases, profile):
     prefix = 'jasper'
     tmpdir = tempfile.mkdtemp()
 
-    lexicon_file = jasperpath.data('julius-stt', 'VoxForge.tgz')
+    lexicon_file = paths.data('julius-stt', 'VoxForge.tgz')
     lexicon_archive_member = 'VoxForge/VoxForgeDict'
     if 'julius' in profile:
         if 'lexicon' in profile['julius']:

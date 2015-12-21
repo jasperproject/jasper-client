@@ -3,9 +3,10 @@ import abc
 import tempfile
 import wave
 import mad
-from . import jasperpath
+from . import paths
 from . import vocabcompiler
 from . import audioengine
+from . import i18n
 
 
 class GenericPlugin(object):
@@ -27,31 +28,13 @@ class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
     pass
 
 
-class SpeechHandlerPlugin(GenericPlugin):
+class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
-
-        # Test if language is supported and raise error if not
-        self._get_translations()
-
-    def _get_translations(self):
-        try:
-            language = self.profile['language']
-        except KeyError:
-            language = 'en-US'
-
-        if language not in self._plugin_info.translations:
-            raise ValueError('Unsupported Language!')
-
-        return self._plugin_info.translations[language]
-
-    def gettext(self, *args, **kwargs):
-        return self._get_translations().gettext(*args, **kwargs)
-
-    def ngettext(self, *args, **kwargs):
-        return self._get_translations().ngettext(*args, **kwargs)
+        i18n.GettextMixin.__init__(
+            self, self.info.translations, self.profile)
 
     @abc.abstractmethod
     def get_phrases(self):
@@ -81,9 +64,16 @@ class STTPlugin(GenericPlugin):
         if self._vocabulary_compiled:
             raise RuntimeError("Vocabulary has already been compiled!")
 
+        try:
+            language = self.profile['language']
+        except KeyError:
+            language = None
+        if not language:
+            language = 'en-US'
+
         vocabulary = vocabcompiler.VocabularyCompiler(
             self.info.name, self._vocabulary_name,
-            path=jasperpath.config('vocabularies'))
+            path=paths.config('vocabularies', language))
 
         if not vocabulary.matches_phrases(self._vocabulary_phrases):
             vocabulary.compile(

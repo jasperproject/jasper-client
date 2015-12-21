@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
-import time
 import socket
 import subprocess
 import pkgutil
 import logging
-import pip.req
 if sys.version_info < (3, 3):
     from distutils.spawn import find_executable
 else:
     from shutil import which as find_executable
-
-from . import jasperpath
 
 logger = logging.getLogger(__name__)
 
@@ -90,30 +85,6 @@ def check_python_import(package_or_module):
     return found
 
 
-def get_pip_requirements(fname=os.path.join(jasperpath.APP_PATH,
-                                            'requirements.txt')):
-    """
-    Gets the PIP requirements from a text file. If the files does not exists
-    or is not readable, it returns None
-
-    Arguments:
-        fname -- (optional) the requirement text file (Default:
-                 "requirements.txt")
-
-    Returns:
-        A list of pip requirement objects or None
-    """
-    logger = logging.getLogger(__name__)
-    if os.access(fname, os.R_OK):
-        reqs = list(pip.req.parse_requirements(fname))
-        logger.debug("Found %d PIP requirements in file '%s'", len(reqs),
-                     fname)
-        return reqs
-    else:
-        logger.debug("PIP requirements file '%s' not found or not readable",
-                     fname)
-
-
 def get_git_revision():
     """
     Gets the current git revision hash as hex string. If the git executable is
@@ -131,64 +102,3 @@ def get_git_revision():
         logger.warning("Couldn't detect git revision (not a git repository?)")
         return None
     return output
-
-
-def run():
-    """
-    Performs a series of checks against the system and writes the results to
-    the logging system.
-
-    Returns:
-        The number of failed checks as integer
-    """
-    logger = logging.getLogger(__name__)
-
-    # Set loglevel of this module least to info
-    loglvl = logger.getEffectiveLevel()
-    if loglvl == logging.NOTSET or loglvl > logging.INFO:
-        logger.setLevel(logging.INFO)
-
-    logger.info("Starting jasper diagnostic at %s" % time.strftime("%c"))
-    logger.info("Git revision: %r", get_git_revision())
-
-    failed_checks = 0
-
-    if not check_network_connection():
-        failed_checks += 1
-
-    for executable in ['phonetisaurus-g2p', 'espeak', 'say']:
-        if not check_executable(executable):
-            logger.warning("Executable '%s' is missing in $PATH", executable)
-            failed_checks += 1
-
-    for req in get_pip_requirements():
-        logger.debug("Checking PIP package '%s'...", req.name)
-        if not req.check_if_exists():
-            logger.warning("PIP package '%s' is missing", req.name)
-            failed_checks += 1
-        else:
-            logger.debug("PIP package '%s' found", req.name)
-
-    for fname in [os.path.join(jasperpath.APP_PATH, os.pardir, "phonetisaurus",
-                               "g014b2b.fst")]:
-        logger.debug("Checking file '%s'...", fname)
-        if not os.access(fname, os.R_OK):
-            logger.warning("File '%s' is missing", fname)
-            failed_checks += 1
-        else:
-            logger.debug("File '%s' found", fname)
-
-    if not failed_checks:
-        logger.info("All checks passed")
-    else:
-        logger.info("%d checks failed" % failed_checks)
-
-    return failed_checks
-
-
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout)
-    logger = logging.getLogger()
-    if '--debug' in sys.argv:
-        logger.setLevel(logging.DEBUG)
-    run()

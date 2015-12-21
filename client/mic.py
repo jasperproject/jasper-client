@@ -6,11 +6,28 @@ import audioop
 import collections
 import contextlib
 import threading
-import Queue as queue
 import math
+import sys
+if sys.version_info < (3, 0):
+    import Queue as queue
+else:
+    import queue
 
 from . import alteration
-from . import jasperpath
+from . import paths
+
+
+def get_config_value(config, name, default):
+    logger = logging.getLogger(__name__)
+    try:
+        value = int(config['audio'][name])
+    except KeyError:
+        logger.debug('%s not configured, using default.', name)
+        value = None
+    except ValueError:
+        logger.debug('%s is not an integer, using default.', name)
+        value = None
+    return value if value else default
 
 
 class Mic(object):
@@ -20,7 +37,7 @@ class Mic(object):
 
     def __init__(self, input_device, output_device,
                  passive_stt_engine, active_stt_engine,
-                 tts_engine, keyword='JASPER'):
+                 tts_engine, config, keyword='JASPER'):
         self._logger = logging.getLogger(__name__)
         self._keyword = keyword
         self.tts_engine = tts_engine
@@ -28,16 +45,53 @@ class Mic(object):
         self.active_stt_engine = active_stt_engine
         self._input_device = input_device
         self._output_device = output_device
-        self._input_rate = 16000
-        self._input_channels = 1
-        self._input_bits = 16
-        self._input_chunksize = 1024
-        self._output_chunksize = 1024
-        self._output_padding = False
+
+        self._input_rate = get_config_value(config, 'input_samplerate', 16000)
+        self._input_bits = get_config_value(config, 'input_samplewidth', 16)
+        self._input_channels = get_config_value(config, 'input_channels', 1)
+        self._input_chunksize = get_config_value(config, 'input_chunksize',
+                                                 1024)
+        self._output_chunksize = get_config_value(config, 'output_chunksize',
+                                                  1024)
+        try:
+            output_padding = config['audio']['output_padding']
+        except KeyError:
+            self._logger.debug('output_padding not configured,' +
+                               'using default.')
+            output_padding = None
+        if output_padding and output_padding.lower() in ('true', 'yes', 'on'):
+            self._output_padding = True
+        else:
+            self._output_padding = False
+
+        self._logger.debug('Input sample rate: %d Hz', self._input_rate)
+        self._logger.debug('Input sample width: %d bit', self._input_bits)
+        self._logger.debug('Input channels: %d', self._input_channels)
+        self._logger.debug('Input chunksize: %d frames', self._input_chunksize)
+        self._logger.debug('Output chunksize: %d frames',
+                           self._output_chunksize)
+        self._logger.debug('Output padding: %s',
+                           'yes' if self._output_padding else 'no')
+
         self._threshold = 2.0**self._input_bits
 
+    @contextlib.contextmanager
+    def special_mode(self, name, phrases):
+        plugin_info = self.active_stt_engine.info
+        plugin_config = self.active_stt_engine.profile
+
+        original_stt_engine = self.active_stt_engine
+
+        try:
+            mode_stt_engine = plugin_info.plugin_class(
+                name, phrases, plugin_info, plugin_config)
+            self.active_stt_engine = mode_stt_engine
+            yield
+        finally:
+            self.active_stt_engine = original_stt_engine
+
     def _snr(self, frames):
-        rms = audioop.rms(b"".join(frames), 2)
+        rms = audioop.rms(b''.join(frames), int(self._input_bits/8))
         if rms > 0 and self._threshold > 0:
             return 20.0 * math.log(rms/self._threshold, 10)
         else:
@@ -71,7 +125,9 @@ class Mic(object):
                 finally:
                     frame_queue.task_done()
 
-    def wait_for_keyword(self, keyword):
+    def wait_for_keyword(self, keyword=None):
+        if not keyword:
+            keyword = self._keyword
         frame_queue = queue.Queue()
         keyword_uttered = threading.Event()
 
@@ -87,6 +143,7 @@ class Mic(object):
         frames = collections.deque([], 30)
         recording = False
         recording_frames = []
+        self._logger.info("Waiting for keyword '%s'...", keyword)
         for frame in self._input_device.record(self._input_chunksize,
                                                self._input_bits,
                                                self._input_channels,
@@ -136,7 +193,7 @@ class Mic(object):
     def active_listen(self, timeout=3):
         # record until <timeout> second of silence or double <timeout>.
         n = int(round((self._input_rate/self._input_chunksize)*timeout))
-        self.play_file(jasperpath.data('audio', 'beep_hi.wav'))
+        self.play_file(paths.data('audio', 'beep_hi.wav'))
         frames = []
         for frame in self._input_device.record(self._input_chunksize,
                                                self._input_bits,
@@ -146,7 +203,7 @@ class Mic(object):
             if len(frames) >= 2*n or (
                     len(frames) > n and self._snr(frames[-n:]) <= 3):
                 break
-        self.play_file(jasperpath.data('audio', 'beep_lo.wav'))
+        self.play_file(paths.data('audio', 'beep_lo.wav'))
         with self._write_frames_to_file(frames) as f:
             return self.active_stt_engine.transcribe(f)
 

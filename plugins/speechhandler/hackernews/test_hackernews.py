@@ -20,4 +20,4 @@ class TestGmailPlugin(unittest.TestCase):
         mic = testutils.TestMic(inputs=["No."])
         self.plugin.handle("Find me some of the top hacker news stories.", mic)
         self.assertGreater(len(mic.outputs), 1)
-        self.assertIn("front-page articles", mic.outputs[1])
+        self.assertIn("current top stories", mic.outputs[1])

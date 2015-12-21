@@ -4,6 +4,7 @@ import re
 import subprocess
 import tempfile
 import logging
+from . import phonemeconversion
 
 
 RE_WORDS = re.compile(r'(?P<word>[a-zA-Z]+)\s+(?P<precision>\d+\.\d+)\s+' +
@@ -74,7 +75,9 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
 
 
 class PhonetisaurusG2P(object):
-    def __init__(self, executable, fst_model, nbest=None):
+    def __init__(self, executable, fst_model,
+                 fst_model_alphabet='arpabet',
+                 nbest=None):
         self._logger = logging.getLogger(__name__)
 
         self.executable = executable
@@ -82,9 +85,27 @@ class PhonetisaurusG2P(object):
         self.fst_model = os.path.abspath(fst_model)
         self._logger.debug("Using FST model: '%s'", self.fst_model)
 
+        self.fst_model_alphabet = fst_model_alphabet
+        self._logger.debug("Using FST model alphabet: '%s'",
+                           self.fst_model_alphabet)
+
         self.nbest = nbest
         if self.nbest is not None:
             self._logger.debug("Will use the %d best results.", self.nbest)
+
+    def _convert_phonemes(self, data):
+        if self.fst_model_alphabet == 'xsampa':
+            print(data)
+            for word in data:
+                converted_phonemes = []
+                for phoneme in data[word]:
+                    converted_phonemes.append(
+                        phonemeconversion.xsampa_to_arpabet(phoneme))
+                data[word] = converted_phonemes
+            return data
+        elif self.fst_model_alphabet == 'arpabet':
+            return data
+        raise ValueError('Invalid FST model alphabet!')
 
     def _translate_word(self, word):
         return execute(self.executable, self.fst_model, word,
@@ -113,4 +134,5 @@ class PhonetisaurusG2P(object):
             output = self._translate_words(words)
         self._logger.debug('G2P conversion returned phonemes for %d words',
                            len(output))
-        return output
+
+        return self._convert_phonemes(output)
