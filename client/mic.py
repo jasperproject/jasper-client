@@ -91,7 +91,7 @@ class Mic(object):
             self.active_stt_engine = original_stt_engine
 
     def _snr(self, frames):
-        rms = audioop.rms(b"".join(frames), 2)
+        rms = audioop.rms(b''.join(frames), int(self._input_bits/8))
         if rms > 0 and self._threshold > 0:
             return 20.0 * math.log(rms/self._threshold, 10)
         else:
