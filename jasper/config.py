@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import yaml
+import ConfigParser as configparser
 
 from . import paths
 
@@ -26,33 +26,30 @@ class Configuration(object):
                                   "won't work correctly.",
                                   paths.CONFIG_PATH)
 
-        new_configfile = paths.config('profile.yml')
+        new_configfile = paths.config('profile.cfg')
 
         # Read config
         self._logger.debug("Trying to read config file: '%s'", new_configfile)
+        self._cp = configparser.RawConfigParser()
         try:
-            with open(new_configfile, "r") as f:
-                self._data = yaml.safe_load(f)
+            self._cp.read(new_configfile)
         except OSError:
             self._logger.error("Can't open config file: '%s'", new_configfile)
             raise
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as e:
-            self._logger.error("Unable to parse config file: %s %s",
-                               e.problem.strip(), str(e.problem_mark).strip())
+        except configparser.Error:
+            self._logger.error("Unable to parse config file: '%s'",
+                               new_configfile)
             raise
 
     def get(self, *args):
         if len(args) == 2:
             (section, option) = args
         elif len(args) == 1:
-            (section, option) = (None, args[0])
+            (section, option) = ("General", args[0])
         else:
             raise ValueError('Invalid number of arguments')
         try:
-            if not section:
-                value = self._data[option]
-            else:
-                value = self._data[section][option]
-        except KeyError:
+            value = self._cp.get(section, option)
+        except configparser.Error:
             value = None
         return value
