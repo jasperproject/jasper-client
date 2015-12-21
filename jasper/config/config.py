@@ -3,7 +3,7 @@ import logging
 import os
 import ConfigParser as configparser
 
-from . import paths
+from .. import paths
 
 
 class Configuration(object):
