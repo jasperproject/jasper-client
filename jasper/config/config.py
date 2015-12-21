@@ -27,7 +27,12 @@ class Configuration(object):
                                   paths.CONFIG_PATH)
 
         self._cp = parser.ConfigParser()
+        self._defaults = parser.ConfigParser()
+
         self._cp.read(filenames)
+
+    def read_defaults(self, filenames):
+        self._defaults.read(filenames)
 
     def get(self, *args):
         if len(args) == 2:
@@ -39,5 +44,15 @@ class Configuration(object):
         try:
             value = self._cp.get(section, option)
         except parser.configparser.Error:
-            value = None
+            try:
+                value = self._defaults.get(section, option)
+            except parser.configparser.Error:
+                self._logger.warning("Can't find default value for option " +
+                                     "'%s' in section '%s'.", option, section)
+                value = None
+            else:
+                self._logger.debug("Option '%s' in section '%s' is " +
+                                   "missing, using default value (%r).",
+                                   option, section, value)
+
         return value

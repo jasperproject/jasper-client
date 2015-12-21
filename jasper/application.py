@@ -17,6 +17,7 @@ class Jasper(object):
         self._logger = logging.getLogger(__name__)
 
         self.config = config.Configuration([paths.config('profile.cfg')])
+        self.config.read_defaults([paths.data('defaults.cfg')])
 
         language = self.config.get('language')
         if not language:
