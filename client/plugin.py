@@ -39,6 +39,7 @@ class GenericPlugin(object):
             if hasattr(plugin, hook_name):
                 getattr(plugin, hook_name)(*args, **kwargs)
 
+
 class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
     pass
 
