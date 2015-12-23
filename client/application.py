@@ -194,7 +194,7 @@ class Jasper(object):
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
-            'default', self.brain.get_plugin_phrases(), self.brain,
+            self.brain, 'default', self.brain.get_plugin_phrases(),
             active_stt_plugin_info, self.config)
 
         if passive_stt_slug != active_stt_slug:
@@ -204,8 +204,8 @@ class Jasper(object):
             passive_stt_plugin_info = active_stt_plugin_info
 
         passive_stt_plugin = passive_stt_plugin_info.plugin_class(
-            'keyword', self.brain.get_standard_phrases() + [keyword],
-            self.brain, passive_stt_plugin_info, self.config)
+            self.brain, 'keyword', self.brain.get_standard_phrases() +
+            [keyword], passive_stt_plugin_info, self.config)
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
         tts_plugin = tts_plugin_info.plugin_class(self.brain,
