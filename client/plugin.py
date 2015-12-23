@@ -10,7 +10,8 @@ from . import i18n
 
 
 class GenericPlugin(object):
-    def __init__(self, info, config):
+    def __init__(self, brain, info, config):
+        self._brain = brain
         self._plugin_config = config
         self._plugin_info = info
 
@@ -23,6 +24,20 @@ class GenericPlugin(object):
     def info(self):
         return self._plugin_info
 
+    @property
+    def brain(self):
+        return self._brain
+
+    def invoke(self, plugin_name, hook_name, *args, **kwargs):
+        for plugin in self.brain.get_plugins():
+            if plugin.__class__.__name__ == plugin_name:
+                if hasattr(plugin, hook_name):
+                    return getattr(plugin, hook_name)(*args, **kwargs)
+
+    def invoke_all(self, hook_name, *args, **kwargs):
+        for plugin in self.brain.get_plugins():
+            if hasattr(plugin, hook_name):
+                getattr(plugin, hook_name)(*args, **kwargs)
 
 class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
     pass

@@ -117,10 +117,13 @@ class Jasper(object):
         self.plugins = pluginstore.PluginStore(plugin_directories)
         self.plugins.detect_plugins()
 
+        # Initialize Brain
+        self.brain = brain.Brain(self.config)
+
         # Initialize AudioEngine
         ae_info = self.plugins.get_plugin(audio_engine_slug,
                                           category='audioengine')
-        self.audio = ae_info.plugin_class(ae_info, self.config)
+        self.audio = ae_info.plugin_class(self.brain, ae_info, self.config)
 
         # Initialize audio input device
         devices = [device.slug for device in self.audio.get_devices(
@@ -166,11 +169,10 @@ class Jasper(object):
                                  ', '.join(devices))
             raise
 
-        # Initialize Brain
-        self.brain = brain.Brain(self.config)
+        # Initialize speech handler plugins
         for info in self.plugins.get_plugins_by_category('speechhandler'):
             try:
-                plugin = info.plugin_class(info, self.config)
+                plugin = info.plugin_class(self.brain, info, self.config)
             except Exception as e:
                 self._logger.warning(
                     "Plugin '%s' skipped! (Reason: %s)", info.name,
@@ -192,8 +194,8 @@ class Jasper(object):
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
-            'default', self.brain.get_plugin_phrases(), active_stt_plugin_info,
-            self.config)
+            'default', self.brain.get_plugin_phrases(), self.brain,
+            active_stt_plugin_info, self.config)
 
         if passive_stt_slug != active_stt_slug:
             passive_stt_plugin_info = self.plugins.get_plugin(
@@ -203,10 +205,12 @@ class Jasper(object):
 
         passive_stt_plugin = passive_stt_plugin_info.plugin_class(
             'keyword', self.brain.get_standard_phrases() + [keyword],
-            passive_stt_plugin_info, self.config)
+            self.brain, passive_stt_plugin_info, self.config)
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
-        tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
+        tts_plugin = tts_plugin_info.plugin_class(self.brain,
+                                                  tts_plugin_info,
+                                                  self.config)
 
         # Initialize Mic
         if use_local_mic:
