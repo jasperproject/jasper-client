@@ -80,6 +80,7 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
             self._pyvonavoice.sentence_break = sentence_break
 
     def say(self, phrase):
+        """ Method used to utter words using the ivona TTS plugin """
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         self._pyvonavoice.fetch_voice(phrase, tmpfile)
