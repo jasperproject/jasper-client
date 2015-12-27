@@ -2,7 +2,6 @@
 import logging
 from . import paths
 from . import i18n
-#  from notifier import Notifier
 
 
 class Conversation(i18n.GettextMixin):
@@ -16,7 +15,6 @@ class Conversation(i18n.GettextMixin):
         self.translations = {
 
         }
-        #  self.notifier = Notifier(profile)
 
     def greet(self):
         if 'first_name' in self.profile:
@@ -32,11 +30,6 @@ class Conversation(i18n.GettextMixin):
         """
         self._logger.debug('Starting to handle conversation.')
         while True:
-            # Print notifications until empty
-            """notifications = self.notifier.get_all_notifications()
-            for notif in notifications:
-                self._logger.info("Received notification: '%s'", str(notif))"""
-
             input = self.mic.listen()
 
             if input:

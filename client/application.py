@@ -11,6 +11,7 @@ from . import pluginstore
 from . import conversation
 from . import mic
 from . import local_mic
+from . import notifier
 
 
 class Jasper(object):
@@ -219,6 +220,22 @@ class Jasper(object):
 
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
+
+        # Initialize Notification Plugins
+        self.brain.set_notifier(notifier.Notifier(self.config, self.mic))
+        for info in self.plugins.get_plugins_by_category('notification'):
+            try:
+                notification_plugin = info.plugin_class(info, self.config)
+            except Exception as e:
+                self._logger.warning(
+                    "Notification Plugin '%s' skipped! (Reason: %s)",
+                    info.name,
+                    e.message if hasattr(e, 'message') else 'Unknown',
+                    exc_info=(
+                        self._logger.getEffectiveLevel() == logging.DEBUG))
+            else:
+                self.brain.get_notifier().add_notification_client(
+                    notification_plugin.check_notification)
 
     def list_plugins(self):
         plugins = self.plugins.get_plugins()

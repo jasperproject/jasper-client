@@ -140,6 +140,7 @@ class PluginStore(object):
         self._categories_map = {
             'audioengine': plugin.AudioEnginePlugin,
             'speechhandler': plugin.SpeechHandlerPlugin,
+            'notification': plugin.NotificationPlugin,
             'tts': plugin.TTSPlugin,
             'stt': plugin.STTPlugin
         }

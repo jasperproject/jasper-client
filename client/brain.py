@@ -13,6 +13,7 @@ class Brain(object):
         """
 
         self._plugins = []
+        self._notifier = None
         self._logger = logging.getLogger(__name__)
         self._config = config
 
@@ -23,6 +24,12 @@ class Brain(object):
 
     def get_plugins(self):
         return self._plugins
+
+    def set_notifier(self, notifier):
+        self._notifier = notifier
+
+    def get_notifier(self):
+        return self._notifier
 
     def get_standard_phrases(self):
         """

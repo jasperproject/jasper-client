@@ -52,6 +52,17 @@ class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
         return 0
 
 
+class NotificationPlugin(GenericPlugin):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, *args, **kwargs):
+        GenericPlugin.__init__(self, *args, **kwargs)
+
+    @abc.abstractmethod
+    def check_notification(self, queue, count):
+        pass
+
+
 class STTPlugin(GenericPlugin):
     def __init__(self, name, phrases, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
