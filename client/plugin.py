@@ -53,6 +53,10 @@ class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
 
 
 class NotificationPlugin(GenericPlugin):
+    """
+    Abstract class for notification plugins.
+    All classes must implement the check_notification method.
+    """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, *args, **kwargs):
@@ -60,6 +64,10 @@ class NotificationPlugin(GenericPlugin):
 
     @abc.abstractmethod
     def check_notification(self, queue, count):
+        """
+        Returns a timestamp representing when this method should be called
+        again.
+        """
         pass
 
 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+A temporary test plugin to showcase notifications.
+"""
 from client import plugin
 import datetime
 

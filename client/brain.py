@@ -26,9 +26,15 @@ class Brain(object):
         return self._plugins
 
     def set_notifier(self, notifier):
+        """
+        Helper method to set the brain notifier object.
+        """
         self._notifier = notifier
 
     def get_notifier(self):
+        """
+        Helper method to get the brain notifier object.
+        """
         return self._notifier
 
     def get_standard_phrases(self):

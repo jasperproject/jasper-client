@@ -34,6 +34,13 @@ class Notifier(object):
         atexit.register(lambda: sched.shutdown(wait=False))
 
     def get_notification_interval(self):
+        """
+        Returns the number of seconds to wait before Jasper should poll plugins
+        for more notifications.
+
+        Looks in the profile.yml file for the 'notification_interval' key.
+        Defaults to 30 seconds.
+        """
         try:
             notification_interval = int(self.profile['notification_interval'])
         except KeyError:
@@ -56,6 +63,9 @@ class Notifier(object):
             self.mic.say(str(notif))
 
     def add_notification_client(self, check_notification):
+        """
+        Helper method to add a new notification to the list of notifiers.
+        """
         self.notifiers.append(self.NotificationClient(self.q,
                                                       check_notification))
 
