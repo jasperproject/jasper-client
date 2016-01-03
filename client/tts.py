@@ -415,22 +415,24 @@ class PicoTTS(AbstractTTSEngine):
                 self._logger.debug("Output was: '%s'", output)
         self.play(fname)
         os.remove(fname)
+
         
 class BingTTS(AbstractMp3TTSEngine):
     """
     Uses the Bing TTS online translator
-	Appropiated from: https://github.com/wilfilho/BingTranslator
+    Appropiated from: https://github.com/wilfilho/BingTranslator
     """
 
     SLUG = "bing-tts"
 
-    def __init__(self, language='en', client_id=None,client_secret=None,bing_options='MaxQuality|female'):
+    def __init__(self, language='en', client_id=None, client_secret=None,
+                 bing_options='MaxQuality|female'):
         super(self.__class__, self).__init__()
         self.language = language
         self.client_secret = client_secret
         self.client_id = client_id
         self.bing_options = bing_options
-        
+
     @classmethod
     def is_available(cls):
         return (super(cls, cls).is_available() and
@@ -448,25 +450,29 @@ class BingTTS(AbstractMp3TTSEngine):
                 profile = yaml.safe_load(f)
                 if 'bing-tts' in profile:
                     if 'client_id' in profile['bing-tts']:
-                        config['client_id'] = profile['bing-tts']['client_id']
+                        config['client_id'] = \
+                            profile['bing-tts']['client_id']
                     if 'client_secret' in profile['bing-tts']:
-                        config['client_secret'] = profile['bing-tts']['client_secret']
+                        config['client_secret'] = \
+                            profile['bing-tts']['client_secret']
                     if 'bing_options' in profile['bing-tts']:
-                        config['bing_options'] = profile['bing-tts']['bing_options']
+                        config['bing_options'] = \
+                            profile['bing-tts']['bing_options']
                     if 'language' in profile['bing-tts']:
-                        config['language'] = profile['bing-tts']['language']
-
+                        config['language'] = \
+                            profile['bing-tts']['language']
         return config
 
     @property
     def languages(self):
-        langs = ['ca','ca-es','da','da-dk','de','de-de','en','en-au','en-ca','en-gb','en-in','en-us','es',
-                'es-es','es-mx','fi','fi-fi','fr','fr-ca','fr-fr','it','it-it','ja','ja-jp','ko','ko-kr',
-                'nb-no','nl','nl-nl','no','pl','pl-pl','pt','pt-br','pt-pt','ru','ru-ru','sv','sv-se',
-                'zh-chs','zh-cht','zh-cn','zh-hk','zh-tw']
+        langs = ['ca', 'ca-es', 'da', 'da-dk', 'de', 'de-de', 'en', 'en-au',
+                 'en-ca', 'en-gb', 'en-in', 'en-us', 'es', 'es-es', 'es-mx',
+                 'fi', 'fi-fi', 'fr', 'fr-ca', 'fr-fr', 'it', 'it-it', 'ja',
+                 'ja-jp', 'ko', 'ko-kr', 'nb-no', 'nl', 'nl-nl', 'no', 'pl',
+                 'pl-pl', 'pt', 'pt-br', 'pt-pt', 'ru', 'ru-ru', 'sv', 'sv-se',
+                 'zh-chs', 'zh-cht', 'zh-cn', 'zh-hk', 'zh-tw']
         return langs
-		
-       
+
     def get_access_token(self):
         args = {
             'client_id': self.client_id,
@@ -474,7 +480,7 @@ class BingTTS(AbstractMp3TTSEngine):
             'scope': 'http://api.microsofttranslator.com',
             'grant_type': 'client_credentials'
         }
-        
+
         response = requests.post(
             'https://datamarket.accesscontrol.windows.net/v2/OAuth2-13',
             data=args
@@ -488,37 +494,40 @@ class BingTTS(AbstractMp3TTSEngine):
                 response.get('error', 'Unknown Error')
             )
         return response['access_token']
-    
-        
+
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         if self.language not in self.languages:
             raise ValueError("Language '%s' not supported by '%s'",
-                self.language, self.SLUG)
-        
+                             self.language, self.SLUG)
+
         self.access_token = self.get_access_token()
-        
+
         self._logger.debug("Access Token: ", self.access_token)
-		
-        base_url='http://api.microsofttranslator.com/V2/Http.svc/Speak?language=' + self.language + '&format=audio/mp3&options='+self.bing_options+'&text='
-        #phrase_byte = str(phrase.encode('utf-8'))
+
+        base_url = 'http://api.microsofttranslator.com/V2/Http.svc/Speak?' + \
+                   'language='+self.language+'&format=audio/mp3&options=' + \
+                   self.bing_options+'&text='
+
         phrase_str = phrase.replace('\\x', '%').replace(' ', '%20')
         complete_url = base_url+phrase_str
-        
+
         resp = requests.get(
             complete_url,
             headers={'Authorization': 'Bearer %s' % self.access_token},
-            stream = True
+            stream=True
         )
         if not resp.ok:
             raise Exception("Error in audio download.")
-        with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False,mode='w+b') as f:
+        with tempfile.NamedTemporaryFile(suffix='.mp3',
+                                         delete=False, mode='w+b') as f:
             for block in resp.iter_content(chunk_size=1024):
                 f.write(block)
             tmpfile = f.name
-        
+
         self.play_mp3(tmpfile)
         os.remove(tmpfile)
+
 
 class GoogleTTS(AbstractMp3TTSEngine):
     """
