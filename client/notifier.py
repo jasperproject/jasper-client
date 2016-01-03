@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import Queue
 import atexit
-from modules import Gmail
 from apscheduler.schedulers.background import BackgroundScheduler
+import datetime
 import logging
 
 
@@ -10,47 +10,64 @@ class Notifier(object):
 
     class NotificationClient(object):
 
-        def __init__(self, gather, timestamp):
-            self.gather = gather
-            self.timestamp = timestamp
+        def __init__(self, queue, check_notification):
+            self.queue = queue
+            self.check_notification = check_notification
+            self.timestamp = datetime.datetime.now()
+            self.count = 0
 
         def run(self):
-            self.timestamp = self.gather(self.timestamp)
+            self.timestamp = self.check_notification(self.queue, self.count)
+            self.count += 1
 
-    def __init__(self, profile):
+    def __init__(self, profile, mic):
         self._logger = logging.getLogger(__name__)
         self.q = Queue.Queue()
         self.profile = profile
+        self.mic = mic
         self.notifiers = []
-
-        if 'gmail_address' in profile and 'gmail_password' in profile:
-            self.notifiers.append(self.NotificationClient(
-                self.handle_email_notifications, None))
-        else:
-            self._logger.warning('gmail_address or gmail_password not set ' +
-                                 'in profile, Gmail notifier will not be used')
-
         sched = BackgroundScheduler(timezone="UTC", daemon=True)
         sched.start()
-        sched.add_job(self.gather, 'interval', seconds=30)
+        sched.add_job(self.gather,
+                      'interval',
+                      seconds=self.get_notification_interval())
         atexit.register(lambda: sched.shutdown(wait=False))
 
+    def get_notification_interval(self):
+        """
+        Returns the number of seconds to wait before Jasper should poll plugins
+        for more notifications.
+
+        Looks in the profile.yml file for the 'notification_interval' key.
+        Defaults to 30 seconds.
+        """
+        try:
+            notification_interval = int(self.profile['notification_interval'])
+        except KeyError:
+            notification_interval = 30
+            self._logger.warning("notification_interval not specified in " +
+                                 "profile, using default of 30.")
+        except ValueError:
+            notification_interval = 30
+            self._logger.warning("Invalid notification_interval specified. " +
+                                 "Must be integer (seconds). Using 30.")
+        return notification_interval
+
     def gather(self):
-        [client.run() for client in self.notifiers]
+        for client in self.notifiers:
+            if client.timestamp < datetime.datetime.now():
+                client.run()
+        notifications = self.get_all_notifications()
+        for notif in notifications:
+            self._logger.info("Received notification: '%s'", str(notif))
+            self.mic.say(str(notif))
 
-    def handle_email_notifications(self, last_date):
-        """Places new Gmail notifications in the Notifier's queue."""
-        emails = Gmail.fetch_unread_emails(self.profile, since=last_date)
-        if emails:
-            last_date = Gmail.get_most_recent_date(emails)
-
-        def style_email(e):
-            return "New email from %s." % Gmail.get_sender(e)
-
-        for e in emails:
-            self.q.put(style_email(e))
-
-        return last_date
+    def add_notification_client(self, check_notification):
+        """
+        Helper method to add a new notification to the list of notifiers.
+        """
+        self.notifiers.append(self.NotificationClient(self.q,
+                                                      check_notification))
 
     def get_notification(self):
         """Returns a notification. Note that this function is consuming."""
