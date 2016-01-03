@@ -56,7 +56,10 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
             self._pyvonavoice.region = region
 
         # Use an appropriate voice for the chosen language
-        all_voices = json.loads(self._pyvonavoice.list_voices())["Voices"]
+        try:
+            all_voices = json.loads(self._pyvonavoice.list_voices())["Voices"]
+        except TypeError:
+            all_voices = self._pyvonavoice.list_voices()["Voices"]
         suitable_voices = [v for v in all_voices if v["Language"] == language]
 
         if len(suitable_voices) == 0:
@@ -77,6 +80,7 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
             self._pyvonavoice.sentence_break = sentence_break
 
     def say(self, phrase):
+        """ Method used to utter words using the ivona TTS plugin """
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         self._pyvonavoice.fetch_voice(phrase, tmpfile)
