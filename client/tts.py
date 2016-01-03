@@ -416,7 +416,7 @@ class PicoTTS(AbstractTTSEngine):
         self.play(fname)
         os.remove(fname)
 
-        
+
 class BingTTS(AbstractMp3TTSEngine):
     """
     Uses the Bing TTS online translator
