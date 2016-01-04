@@ -38,7 +38,12 @@ setuptools.setup(
         APPNAME: [
             'data/audio/*.wav',
             'data/locale/*.po',
-            'data/standard_phrases/*.txt'
+            'data/standard_phrases/*.txt',
+            '../plugins/*/*/*.py',
+            '../plugins/*/*/plugin.info',
+            '../plugins/*/*/*.txt',
+            '../plugins/*/*/locale/*.po',
+            '../plugins/*/*/tests/*.py'
         ]
     },
 
