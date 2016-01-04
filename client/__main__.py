@@ -1,10 +1,9 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 import sys
 import logging
 import argparse
 
-from client import application
+from . import application
 
 
 def main(args=None):
@@ -39,5 +38,5 @@ def main(args=None):
     app.run()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
