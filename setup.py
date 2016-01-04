@@ -42,6 +42,15 @@ setuptools.setup(
         ]
     },
 
+    data_files=[
+        ('share/doc/%s' % APPNAME, [
+            'AUTHORS.md',
+            'CONTRIBUTING.md',
+            'LICENSE.md',
+            'README.md'
+        ])
+    ],
+
     entry_points={
         'console_scripts': [
             'Jasper = %s.main:main' % APPNAME
