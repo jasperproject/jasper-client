@@ -21,8 +21,9 @@ install:
     - "pip install python-coveralls --download-cache $HOME/.pip-cache"
     - "pip install coverage  --download-cache $HOME/.pip-cache"
     - "pip install flake8  --download-cache $HOME/.pip-cache"
+    - "python ./setup.py install"
 before_script:
-    - "flake8 Jasper.py jasper tests"
+    - "flake8 setup.py jasper tests"
 script:
     - "coverage run -m unittest discover -p tests"
 after_success:
