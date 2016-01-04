@@ -25,7 +25,7 @@ install:
 before_script:
     - "flake8 setup.py jasper tests"
 script:
-    - "coverage run -m unittest discover -p tests"
+    - "coverage run ./setup.py test"
 after_success:
     - "coverage report"
     - "coveralls"

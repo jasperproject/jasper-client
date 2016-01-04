@@ -109,5 +109,7 @@ setuptools.setup(
         'bdist_egg': jasper_bdist_egg,
         'build': jasper_build,
         'build_i18n': jasper_build_i18n,
-    }
+    },
+
+    test_suite='tests'
 )
