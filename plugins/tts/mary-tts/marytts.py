@@ -2,7 +2,7 @@ import logging
 import urllib
 import urlparse
 import requests
-from client import plugin
+from jasper import plugin
 
 
 class MaryTTSPlugin(plugin.TTSPlugin):

@@ -2,8 +2,8 @@ import logging
 import re
 import subprocess
 import tempfile
-from client import diagnose
-from client import plugin
+from jasper import diagnose
+from jasper import plugin
 from . import juliusvocab
 
 if not diagnose.check_executable('julius'):

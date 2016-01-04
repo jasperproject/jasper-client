@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from sys import maxint
 import random
-from client import plugin
+from jasper import plugin
 
 
 class UnclearPlugin(plugin.SpeechHandlerPlugin):

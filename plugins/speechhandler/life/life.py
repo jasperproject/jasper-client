@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
-from client import plugin
+from jasper import plugin
 
 
 class MeaningOfLifePlugin(plugin.SpeechHandlerPlugin):

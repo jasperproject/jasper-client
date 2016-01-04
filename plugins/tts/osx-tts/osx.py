@@ -4,8 +4,8 @@ import pipes
 import platform
 import subprocess
 import tempfile
-from client import diagnose
-from client import plugin
+from jasper import diagnose
+from jasper import plugin
 
 EXECUTABLE = 'say'
 

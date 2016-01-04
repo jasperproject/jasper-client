@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
-from client.app_utils import get_timezone
-from client import plugin
+from jasper import app_utils
+from jasper import plugin
 
 
 class ClockPlugin(plugin.SpeechHandlerPlugin):
@@ -17,7 +17,7 @@ class ClockPlugin(plugin.SpeechHandlerPlugin):
         mic -- used to interact with the user (for both input and output)
         """
 
-        tz = get_timezone(self.profile)
+        tz = app_utils.get_timezone(self.profile)
         now = datetime.datetime.now(tz=tz)
         if now.minute == 0:
             fmt = "It is {t:%l} {t:%P} right now."

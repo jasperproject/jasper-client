@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import collections
 import requests
-from client import app_utils
-from client import plugin
+from jasper import app_utils
+from jasper import plugin
 
 HN_TOPSTORIES_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 HN_ITEM_URL = 'https://hacker-news.firebaseio.com/v0/item/%d.json'

@@ -2,7 +2,7 @@ import os
 import tempfile
 import suds
 import urllib
-from client import plugin
+from jasper import plugin
 
 VOICES = [
     ('Adam', 'en-US'),

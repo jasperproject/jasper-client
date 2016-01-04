@@ -5,7 +5,7 @@ import contextlib
 import logging
 import shutil
 import mock
-from client import vocabcompiler
+from jasper import vocabcompiler
 
 
 class StrangeCompilationError(Exception):

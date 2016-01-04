@@ -2,7 +2,7 @@
 import logging
 import contextlib
 import alsaaudio
-from client import plugin
+from jasper import plugin
 
 ALSAAUDIO_BIT_MAPPING = {8:  alsaaudio.PCM_FORMAT_S8,
                          16: alsaaudio.PCM_FORMAT_S16_LE,

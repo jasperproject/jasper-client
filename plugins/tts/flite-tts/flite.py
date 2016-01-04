@@ -3,8 +3,8 @@ import os
 import pipes
 import subprocess
 import tempfile
-from client import diagnose
-from client import plugin
+from jasper import diagnose
+from jasper import plugin
 
 EXECUTABLE = 'flite'
 
