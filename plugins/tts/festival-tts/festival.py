@@ -29,7 +29,7 @@ class FestivalTTSPlugin(plugin.TTSPlugin):
                              "support!")
         self._logger.info('Available voices: %s', ', '.join(available_voices))
 
-        voice = self.config.get('festival-tts', 'voice')
+        voice = self.config.get('voice')
 
         if voice is None or voice not in available_voices:
             if voice is not None:

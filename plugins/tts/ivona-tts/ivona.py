@@ -15,19 +15,19 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
-        access_key = self.config.get('ivona-tts', 'access_key')
+        access_key = self.config.get('access_key')
         if not access_key:
             raise ValueError("Ivona access key not configured!")
 
-        secret_key = self.config.get('ivona-tts', 'secret_key')
+        secret_key = self.config.get('secret_key')
         if not secret_key:
             raise ValueError("Ivona secret key not configured!")
 
-        region = self.config.get('ivona-tts', 'region')
-        voice = self.config.get('ivona-tts', 'voice')
-        speech_rate = self.config.get('ivona-tts', 'speech_rate')
-        sentence_break = self.config.get('ivona-tts', 'sentence_break')
-        language = self.config.get('language')
+        region = self.config.get('region')
+        voice = self.config.get('voice')
+        speech_rate = self.config.get('speech_rate')
+        sentence_break = self.config.get('sentence_break')
+        language = self.config.get_global('General', 'language')
 
         self._pyvonavoice = pyvona.Voice(access_key, secret_key)
         self._pyvonavoice.codec = "mp3"

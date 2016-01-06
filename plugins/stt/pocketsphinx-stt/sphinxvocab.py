@@ -39,10 +39,10 @@ def compile_vocabulary(config, directory, phrases):
     languagemodel_path = get_languagemodel_path(directory)
     dictionary_path = get_dictionary_path(directory)
 
-    executable = config.get('pocketsphinx-stt', 'phonetisaurus_executable')
-    nbest = int(config.get('pocketsphinx-stt', 'nbest'))
-    fst_model = config.get('pocketsphinx-stt', 'fst_model')
-    fst_model_alphabet = config.get('pocketsphinx-stt', 'fst_model_alphabet')
+    executable = config.get('phonetisaurus_executable')
+    nbest = int(config.get('nbest'))
+    fst_model = config.get('fst_model')
+    fst_model_alphabet = config.get('fst_model_alphabet')
 
     if not fst_model:
         raise ValueError('FST model not specified!')

@@ -11,7 +11,7 @@ class KaldiGstServerSTTPlugin(plugin.STTPlugin):
         self._logger = logging.getLogger(__name__)
         self._http = requests.Session()
 
-        self._url = self.config.get('kaldigstserver-stt', 'url')
+        self._url = self.config.get('url')
 
     def transcribe(self, fp):
         wav = wave.open(fp, 'rb')

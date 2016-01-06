@@ -50,7 +50,7 @@ class Jasper(object):
         for plugin_info in self.plugins.get_plugins():
             self.config.read_defaults(
                 plugin_info.default_config_file, map_sections=[
-                    ('Defaults', plugin_info.name)])
+                    ('Defaults', plugin_info.config_section)])
 
         # Initialize AudioEngine
         ae_info = self.plugins.get_plugin(audio_engine_slug,

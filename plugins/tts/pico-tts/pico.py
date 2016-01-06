@@ -22,7 +22,7 @@ class PicoTTSPlugin(plugin.TTSPlugin):
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
 
-        language = self.config.get('language')
+        language = self.config.get_global('General', 'language')
 
         available_languages = self.get_languages()
         if language not in available_languages:

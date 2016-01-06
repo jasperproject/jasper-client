@@ -12,7 +12,7 @@ class GoogleTTSPlugin(plugin.TTSPlugin):
 
     def __init__(self, *args, **kwargs):
         plugin.TTSPlugin.__init__(self, *args, **kwargs)
-        language = self.config.get('language').lower()
+        language = self.config.get_global('General', 'language').lower()
 
         if language not in gtts.gTTS.LANGUAGES:
             language = language.split('-')[0]

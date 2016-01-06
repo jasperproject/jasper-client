@@ -11,8 +11,8 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        server = self.config.get('mpdcontrol', 'server')
-        port = int(self.config.get('mpdcontrol', 'port'))
+        server = self.config.get('server')
+        port = int(self.config.get('port'))
 
         self._music = mpdclient.MPDClient(server=server, port=port)
 

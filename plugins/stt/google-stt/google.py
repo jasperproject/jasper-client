@@ -46,8 +46,8 @@ class GoogleSTTPlugin(plugin.STTPlugin):
         self._language = None
         self._api_key = None
         self._http = requests.Session()
-        self.language = self.config.get('language').lower()
-        self.api_key = self.config.get('keys', 'GOOGLE_SPEECH')
+        self.language = self.config.get_global('General', 'language').lower()
+        self.api_key = self.config.get_global('keys', 'GOOGLE_SPEECH')
 
     @property
     def request_url(self):

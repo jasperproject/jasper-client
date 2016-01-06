@@ -19,8 +19,8 @@ class MaryTTSPlugin(plugin.TTSPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        self.server = self.config.get('mary-tts', 'server')
-        self.port = int(self.config.get('mary-tts', 'port'))
+        self.server = self.config.get('server')
+        self.port = int(self.config.get('port'))
 
         self.netloc = '{server}:{port}'.format(server=self.server,
                                                port=self.port)
@@ -29,7 +29,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         available_voices = self.get_voices()
 
         try:
-            orig_language = self.config.get('language')
+            orig_language = self.config.get_global('General', 'language')
         except:
             orig_language = 'en_US'
 
@@ -44,7 +44,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         self._logger.info('Available voices: %s', ', '.join(
             available_voices[language]))
 
-        voice = self.config.get('mary-tts', 'voice')
+        voice = self.config.get('voice')
 
         if voice is not None and voice in available_voices[language]:
             self.voice = voice

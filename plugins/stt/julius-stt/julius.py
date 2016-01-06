@@ -30,8 +30,8 @@ class JuliusSTTPlugin(plugin.STTPlugin):
         self._dfa_file = juliusvocab.get_dfa_path(vocabulary_path)
         self._dict_file = juliusvocab.get_dict_path(vocabulary_path)
 
-        hmmdefs = self.config.get('julius', 'hmmdefs')
-        tiedlist = self.config.get('julius', 'tiedlist')
+        hmmdefs = self.config.get('hmmdefs')
+        tiedlist = self.config.get('tiedlist')
 
         self._hmmdefs = hmmdefs
         self._tiedlist = tiedlist

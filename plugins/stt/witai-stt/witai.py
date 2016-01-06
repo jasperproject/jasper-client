@@ -20,9 +20,9 @@ class WitAiSTTPlugin(plugin.STTPlugin):
     def __init__(self, *args, **kwargs):
         plugin.STTPlugin.__init__(self, *args, **kwargs)
         self._logger = logging.getLogger(__name__)
-        self.token = self.config.get('witai-stt', 'access_token')
+        self.token = self.config.get('access_token')
 
-        language = self.config.get('language')
+        language = self.config.get_global('General', 'language')
         if language.split('-')[0] != 'en':
             raise ValueError("Languages other than English are not supported")
 

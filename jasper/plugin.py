@@ -7,11 +7,12 @@ from . import paths
 from . import vocabcompiler
 from . import audioengine
 from . import i18n
+from .config import PluginConfig
 
 
 class GenericPlugin(object):
     def __init__(self, info, config):
-        self._plugin_config = config
+        self._plugin_config = PluginConfig(config, info.config_section)
         self._plugin_info = info
 
     @property
@@ -31,10 +32,10 @@ class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
 class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, *args, **kwargs):
-        GenericPlugin.__init__(self, *args, **kwargs)
+    def __init__(self, info, config):
+        GenericPlugin.__init__(self, info, config)
         i18n.GettextMixin.__init__(
-            self, self.info.translations, self.config)
+            self, self.info.translations, config)
 
     @abc.abstractmethod
     def get_phrases(self):
@@ -64,7 +65,7 @@ class STTPlugin(GenericPlugin):
         if self._vocabulary_compiled:
             raise RuntimeError("Vocabulary has already been compiled!")
 
-        language = self.config.get('language')
+        language = self.config.get_global('General', 'language')
 
         vocabulary = vocabcompiler.VocabularyCompiler(
             self.info.name, self._vocabulary_name,

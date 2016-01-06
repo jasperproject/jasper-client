@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import unittest
+import os.path
 from jasper import testutils, diagnose
 from . import gmail
 
 
 class TestGmailPlugin(unittest.TestCase):
     def setUp(self):
-        self.plugin = testutils.get_plugin_instance(gmail.GmailPlugin)
+        self.plugin = testutils.get_plugin_instance(
+            os.path.dirname(gmail.__file__))
 
     def test_is_valid_method(self):
         self.assertTrue(self.plugin.is_valid("Do I have new email?"))

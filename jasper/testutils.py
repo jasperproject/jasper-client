@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-import gettext
+from . import paths
+from . import pluginstore
+from .config import Configuration
 
-TEST_PROFILE = {
-    'prefers_email': False,
-    'timezone': 'US/Eastern',
-    'phone_number': '012344321',
-    'weather': {
-        'location': 'New York',
-        'unit': 'Fahrenheit'
-    }
-}
+TEST_CONFIG = Configuration([])
+TEST_CONFIG.read_defaults([paths.data('defaults.cfg')])
 
 
 class TestMic(object):
@@ -31,12 +26,12 @@ class TestMic(object):
         self.outputs.append(phrase)
 
 
-def get_plugin_instance(plugin_class, *extra_args):
-    info = type('', (object,), {
-        'name': 'pluginunittest',
-        'translations': {
-            'en-US': gettext.NullTranslations()
-            }
-        })()
-    args = tuple(extra_args) + (info, TEST_PROFILE)
-    return plugin_class(*args)
+def get_plugin_instance(path, *extra_args):
+    plugins = pluginstore.PluginStore([])
+    plugin_info = plugins.parse_plugin(path)
+    TEST_CONFIG.read_defaults(
+        plugin_info.default_config_file, map_sections=[
+            ('Defaults', plugin_info.config_section)])
+
+    args = tuple(extra_args) + (plugin_info, TEST_CONFIG)
+    return plugin_info.plugin_class(*args)

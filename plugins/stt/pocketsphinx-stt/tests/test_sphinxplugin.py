@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import os.path
 from jasper import paths
 from jasper import testutils
 from .. import sphinxplugin
@@ -13,10 +14,10 @@ class TestPocketsphinxSTTPlugin(unittest.TestCase):
 
         try:
             self.passive_stt_engine = testutils.get_plugin_instance(
-                sphinxplugin.PocketsphinxSTTPlugin,
+                os.path.dirname(sphinxplugin.__file__),
                 'unittest-passive', ['JASPER'])
             self.active_stt_engine = testutils.get_plugin_instance(
-                sphinxplugin.PocketSphinxSTTPlugin,
+                os.path.dirname(sphinxplugin.__file__),
                 'unittest-active', ['TIME'])
         except ImportError:
             self.skipTest("Pockersphinx not installed!")

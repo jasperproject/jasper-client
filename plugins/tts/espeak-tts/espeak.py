@@ -33,7 +33,7 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
 
         self._logger = logging.getLogger(__name__)
 
-        language = self.config.get('language').split('-')[0]
+        language = self.config.get_global('General', 'language').split('-')[0]
 
         available_voices = self.get_voices()
         matching_voices = [v for v in available_voices
@@ -45,7 +45,7 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
         self._logger.info('Available voices: %s', ', '.join(
             v.name for v in matching_voices))
 
-        voice = self.config.get('espeak-tts', 'voice')
+        voice = self.config.get('voice')
 
         if voice is not None and len([v for v in matching_voices
                                       if v.name == voice]) > 0:
@@ -58,10 +58,8 @@ class EspeakTTSPlugin(plugin.TTSPlugin):
             self.voice = matching_voices[0].name
         self._logger.info("Using voice '%s'.", self.voice)
 
-        self.pitch_adjustment = self.config.get('espeak-tts',
-                                                'pitch_adjustment')
-        self.words_per_min = self.config.get('espeak-tts',
-                                             'words_per_minute')
+        self.pitch_adjustment = self.config.get('pitch_adjustment')
+        self.words_per_min = self.config.get('words_per_minute')
 
     def get_voices(self):
         output = subprocess.check_output(['espeak', '--voices'])

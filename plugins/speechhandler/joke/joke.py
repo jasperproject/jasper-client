@@ -26,7 +26,7 @@ class JokePlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(JokePlugin, self).__init__(*args, **kwargs)
 
-        language = self.config.get('language')
+        language = self.config.get_global('General', 'language')
 
         try:
             self._jokes = get_jokes(language)
