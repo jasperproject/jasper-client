@@ -97,6 +97,10 @@ class PluginInfo(object):
         return os.path.join(self._path, 'defaults.cfg')
 
     @property
+    def config_section(self):
+        return 'Plugin %s' % self.name
+
+    @property
     def translations(self):
         return self._translations
 
