@@ -123,6 +123,17 @@ def run():
               % stt_engines.keys())
         profile["stt_engine"] = "sphinx"
 
+    if response == "google":
+        response = raw_input("\nChoosing Google means every sound " +
+                             "makes a request online. " +
+                             "\nWould you like to process the wake up word " +
+                             "locally with PocketSphinx? (Y) or (N)?")
+        while not response or (response != 'Y' and response != 'N'):
+            response = raw_input("Please choose PocketSphinx (Y) " +
+                                 "or keep just Google (N): ")
+        if response == 'Y':
+            profile['stt_passive_engine'] = "sphinx"
+
     # write to profile
     print("Writing to profile...")
     if not os.path.exists(jasperpath.CONFIG_PATH):
