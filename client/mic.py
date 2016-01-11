@@ -178,7 +178,9 @@ class Mic:
             # check if PERSONA was said
             transcribed = self.passive_stt_engine.transcribe(f)
 
-            print transcribed
+        pasivePhrases = []
+        for loopedPhrase in transcribed:
+            print loopedPhrase
 
         if any(PERSONA in phrase for phrase in transcribed):
             return (THRESHOLD, PERSONA)
