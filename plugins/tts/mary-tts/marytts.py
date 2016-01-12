@@ -49,7 +49,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
                              (language, orig_language))
         self.language = language
 
-        self._logger.info('Available voices:', ', '.join(
+        self._logger.info('Available voices: %s', ', '.join(
             available_voices[language]))
 
         try:
