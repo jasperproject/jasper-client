@@ -6,7 +6,7 @@ implementation, Jasper is always active listening with local_mic.
 """
 
 
-class Mic:
+class Mic(object):
     prev = None
 
     def __init__(self, *args, **kwargs):
