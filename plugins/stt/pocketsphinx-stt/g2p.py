@@ -45,7 +45,6 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
                 logger.debug(nextline)
                 proc.kill()
                 raise ValueError('Input symbol not found')
-                return
         stdoutdata, stderrdata = proc.communicate()
     except OSError:
         logger.error("Error occured while executing command '%s'",
