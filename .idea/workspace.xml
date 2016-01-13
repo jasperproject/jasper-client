@@ -29,7 +29,7 @@
         <entry file="file://$PROJECT_DIR$/jasper.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="87" column="30" selection-start-line="87" selection-start-column="30" selection-end-line="87" selection-end-column="30" />
+              <caret line="147" column="13" selection-start-line="147" selection-start-column="13" selection-end-line="147" selection-end-column="13" />
               <folding>
                 <element signature="e#47#56#0" expanded="true" />
               </folding>
@@ -37,11 +37,31 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="Birthday.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/modules/Birthday.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="conversation.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/conversation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3596059">
-              <caret line="37" column="16" selection-start-line="37" selection-start-column="16" selection-end-line="37" selection-end-column="16" />
+            <state vertical-scroll-proportion="1.1330049">
+              <caret line="48" column="17" selection-start-line="48" selection-start-column="17" selection-end-line="48" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stt.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/stt.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-10.851851">
+              <caret line="172" column="57" selection-start-line="172" selection-start-column="8" selection-end-line="172" selection-end-column="57" />
               <folding />
             </state>
           </provider>
@@ -50,9 +70,11 @@
       <file leaf-file-name="mic.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/mic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="17.444445">
-              <caret line="209" column="32" selection-start-line="209" selection-start-column="8" selection-end-line="209" selection-end-column="32" />
-              <folding />
+            <state vertical-scroll-proportion="-18.11111">
+              <caret line="208" column="48" selection-start-line="208" selection-start-column="48" selection-end-line="208" selection-end-column="48" />
+              <folding>
+                <element signature="e#107#121#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -75,8 +97,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/client/mic.py" />
         <option value="$PROJECT_DIR$/client/conversation.py" />
+        <option value="$PROJECT_DIR$/client/mic.py" />
       </list>
     </option>
   </component>
@@ -176,6 +198,8 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.appearance" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
@@ -425,6 +449,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/client/modules/Birthday.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/modules/Joke.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -436,25 +468,35 @@
     <entry file="file://$PROJECT_DIR$/jasper.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="87" column="30" selection-start-line="87" selection-start-column="30" selection-end-line="87" selection-end-column="30" />
+          <caret line="147" column="13" selection-start-line="147" selection-start-column="13" selection-end-line="147" selection-end-column="13" />
           <folding>
             <element signature="e#47#56#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/client/stt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.851851">
+          <caret line="172" column="57" selection-start-line="172" selection-start-column="8" selection-end-line="172" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/mic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="17.444445">
-          <caret line="209" column="32" selection-start-line="209" selection-start-column="8" selection-end-line="209" selection-end-column="32" />
-          <folding />
+        <state vertical-scroll-proportion="-18.11111">
+          <caret line="208" column="48" selection-start-line="208" selection-start-column="48" selection-end-line="208" selection-end-column="48" />
+          <folding>
+            <element signature="e#107#121#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/conversation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3596059">
-          <caret line="37" column="16" selection-start-line="37" selection-start-column="16" selection-end-line="37" selection-end-column="16" />
+        <state vertical-scroll-proportion="1.1330049">
+          <caret line="48" column="17" selection-start-line="48" selection-start-column="17" selection-end-line="48" selection-end-column="17" />
           <folding />
         </state>
       </provider>

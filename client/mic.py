@@ -180,20 +180,33 @@ class Mic:
 
         #this is an array of all the passive phrases the user has said to us
         passivePhrases = []
+
+        self._logger.info('Transcribed: %r', transcribed)
+
         for loopedPhrase in transcribed:
+
+            self._logger.info('phrase: %r', loopedPhrase)
 
             if loopedPhrase.startswith(PERSONA):
 
                 #get the command without the personal prefix
                 potentialCommand = loopedPhrase[len(PERSONA):]
 
+                self._logger.info('potential command: %r', potentialCommand)
+
                 #if the user wasn't merely calling out for the machine, add it...
                 if len(potentialCommand) != 0:
-                    passivePhrases.append(loopedPhrase[len(PERSONA):])
+
+                    passivePhrases.append(potentialCommand)
+
+                    self._logger.info('command recognised')
 
         if len(passivePhrases) != 0:
+
+            self._logger.info('returning phrases')
             return (THRESHOLD, PERSONA, passivePhrases)
         else:
+            self._logger.info('returning nothing')
             return (False, transcribed, [])
 
     def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
