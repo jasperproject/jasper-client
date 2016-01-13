@@ -190,11 +190,9 @@ class Mic:
 
                 #if the user wasn't merely calling out for the machine, add it...
                 if len(potentialCommand) != 0:
-
                     passivePhrases.append(potentialCommand)
 
         if len(passivePhrases) != 0:
-
             return (THRESHOLD, PERSONA, passivePhrases)
         else:
             return (False, transcribed, [])

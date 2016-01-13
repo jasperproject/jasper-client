@@ -39,18 +39,19 @@ class Conversation(object):
 
             self._logger.info("Keyword '%s' has been said!", self.persona)
 
-            if self.isPassiveEnabled is False or len(passivePhrases) == 0:
+            if self.isPassiveEnabled is True and len(passivePhrases) != 0:
+
+                input = passivePhrases
+                self._logger.debug("Checking for passive phrase '%s' with threshold: %r",
+                                   input, threshold)
+
+            else:
 
                 self._logger.debug("Started to listen actively with threshold: %r",
                                    threshold)
                 input = self.mic.activeListenToAllOptions(threshold)
                 self._logger.debug("Stopped to listen actively with threshold: %r",
                                    threshold)
-
-            else:
-                input = passivePhrases
-                self._logger.debug("Checking for passive phrase '%s' with threshold: %r",
-                                   input, threshold)
 
             if input:
                 self.brain.query(input)
