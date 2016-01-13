@@ -151,7 +151,7 @@ class Mic:
             print "No disturbance detected"
             stream.stop_stream()
             stream.close()
-            return (None, None)
+            return (None, None, None)
 
         # cutoff any recording before this disturbance was detected
         frames = frames[-20:]
