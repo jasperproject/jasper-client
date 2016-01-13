@@ -178,14 +178,23 @@ class Mic:
             # check if PERSONA was said
             transcribed = self.passive_stt_engine.transcribe(f)
 
-        pasivePhrases = []
+        #this is an array of all the passive phrases the user has said to us
+        passivePhrases = []
         for loopedPhrase in transcribed:
-            print loopedPhrase
 
-        if any(PERSONA in phrase for phrase in transcribed):
-            return (THRESHOLD, PERSONA)
+            if loopedPhrase.startswith(PERSONA):
 
-        return (False, transcribed)
+                #get the command without the personal prefix
+                potentialCommand = loopedPhrase[len(PERSONA):]
+
+                #if the user wasn't merely calling out for the machine, add it...
+                if len(potentialCommand) != 0:
+                    passivePhrases.append(loopedPhrase[len(PERSONA):])
+
+        if len(passivePhrases) != 0:
+            return (THRESHOLD, PERSONA, passivePhrases)
+        else:
+            return (False, transcribed, [])
 
     def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
         """
