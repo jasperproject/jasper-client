@@ -191,7 +191,8 @@ class Mic:
                 if len(potentialCommand) != 0:
                     passivePhrases.append(potentialCommand)
 
-        if len(passivePhrases) != 0:
+        if len(passivePhrases) != 0 or \
+                any(PERSONA in phrase for phrase in transcribed):
             return (THRESHOLD, PERSONA, passivePhrases)
         else:
             return (False, transcribed, [])
