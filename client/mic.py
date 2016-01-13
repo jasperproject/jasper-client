@@ -100,7 +100,7 @@ class Mic:
         THRESHOLD_TIME = 1
 
         # number of seconds to listen before forcing restart
-        LISTEN_TIME = 20    #used to be 10
+        LISTEN_TIME = 10
 
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,

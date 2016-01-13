@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="95418f01-f29e-4a18-8264-9c047fa77fbc" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/conversation.py" afterPath="$PROJECT_DIR$/client/conversation.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/mic.py" afterPath="$PROJECT_DIR$/client/mic.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/populate.py" afterPath="$PROJECT_DIR$/client/populate.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jasper.py" afterPath="$PROJECT_DIR$/jasper.py" />
     </list>
     <ignored path="jasper-client.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,10 +32,20 @@
         <entry file="file://$PROJECT_DIR$/jasper.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="147" column="13" selection-start-line="147" selection-start-column="13" selection-end-line="147" selection-end-column="13" />
+              <caret line="121" column="49" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
               <folding>
                 <element signature="e#47#56#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="populate.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/client/populate.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.6226415">
+              <caret line="143" column="22" selection-start-line="143" selection-start-column="4" selection-end-line="143" selection-end-column="22" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -49,8 +63,8 @@
       <file leaf-file-name="conversation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/conversation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-24.222221">
-              <caret line="48" column="17" selection-start-line="48" selection-start-column="17" selection-end-line="48" selection-end-column="17" />
+            <state vertical-scroll-proportion="-10.333333">
+              <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -66,11 +80,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mic.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mic.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/mic.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.40722495">
-              <caret line="102" column="42" selection-start-line="102" selection-start-column="42" selection-end-line="102" selection-end-column="42" />
+            <state vertical-scroll-proportion="86.111115">
+              <caret line="18" column="69" selection-start-line="18" selection-start-column="69" selection-end-line="18" selection-end-column="69" />
               <folding>
                 <element signature="e#107#121#0" expanded="true" />
               </folding>
@@ -106,8 +120,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/client/conversation.py" />
         <option value="$PROJECT_DIR$/client/mic.py" />
+        <option value="$PROJECT_DIR$/jasper.py" />
+        <option value="$PROJECT_DIR$/client/conversation.py" />
+        <option value="$PROJECT_DIR$/client/populate.py" />
       </list>
     </option>
   </component>
@@ -474,28 +490,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jasper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="147" column="13" selection-start-line="147" selection-start-column="13" selection-end-line="147" selection-end-column="13" />
-          <folding>
-            <element signature="e#47#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/stt.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-10.851851">
           <caret line="172" column="57" selection-start-line="172" selection-start-column="8" selection-end-line="172" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/conversation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-24.222221">
-          <caret line="48" column="17" selection-start-line="48" selection-start-column="17" selection-end-line="48" selection-end-column="17" />
           <folding />
         </state>
       </provider>
@@ -510,11 +508,37 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/mic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40722495">
-          <caret line="102" column="42" selection-start-line="102" selection-start-column="42" selection-end-line="102" selection-end-column="42" />
+        <state vertical-scroll-proportion="86.111115">
+          <caret line="18" column="69" selection-start-line="18" selection-start-column="69" selection-end-line="18" selection-end-column="69" />
           <folding>
             <element signature="e#107#121#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/conversation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.333333">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jasper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="121" column="49" selection-start-line="121" selection-start-column="49" selection-end-line="121" selection-end-column="49" />
+          <folding>
+            <element signature="e#47#56#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/populate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6226415">
+          <caret line="143" column="22" selection-start-line="143" selection-start-column="4" selection-end-line="143" selection-end-column="22" />
+          <folding />
         </state>
       </provider>
     </entry>
