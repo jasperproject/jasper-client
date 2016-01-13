@@ -151,7 +151,7 @@ class Mic:
             print "No disturbance detected"
             stream.stop_stream()
             stream.close()
-            return (None, None)
+            return (None, None, None)
 
         # cutoff any recording before this disturbance was detected
         frames = frames[-20:]
@@ -178,10 +178,26 @@ class Mic:
             # check if PERSONA was said
             transcribed = self.passive_stt_engine.transcribe(f)
 
-        if any(PERSONA in phrase for phrase in transcribed):
-            return (THRESHOLD, PERSONA)
+        #this is an array of all the passive phrases the user has said to us
+        passivePhrases = []
 
-        return (False, transcribed)
+        for loopedPhrase in transcribed:
+
+            if loopedPhrase.startswith(PERSONA):
+
+                #get the command without the personal prefix
+                potentialCommand = loopedPhrase[len(PERSONA):]
+
+                #if the user wasn't merely calling out for the machine, add it...
+                if len(potentialCommand) != 0:
+
+                    passivePhrases.append(potentialCommand)
+
+        if len(passivePhrases) != 0:
+
+            return (THRESHOLD, PERSONA, passivePhrases)
+        else:
+            return (False, transcribed, [])
 
     def activeListen(self, THRESHOLD=None, LISTEN=True, MUSIC=False):
         """

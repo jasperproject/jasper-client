@@ -134,6 +134,21 @@ def run():
         if response == 'Y':
             profile['stt_passive_engine'] = "sphinx"
 
+    #NSA Jasper settings
+    print("\nActivation Settings")
+    print("By default, Jasper listens out for it's name 'Jasper' " +
+          "then it prompts you for a command by playing a sound. Optionally, you can combine the two steps " +
+          "into one with the passive setting enabled. 'Jasper tell me a joke' can be used in 1 sentence " +
+          "without needing the prompt. The default way of communicating can still be used with passive enabled. " +
+          "Type 'yes' if you would like enable this feature, or 'no' otherwise")
+    activationResponse = raw_input('Enable Passive mode? (yes)/(no): ')
+
+    if activationResponse == 'yes' or activationResponse == 'y':
+        profile['passive_enabled'] = 'true'
+    else:
+        profile['passive_enabled'] = 'false'
+
+
     # write to profile
     print("Writing to profile...")
     if not os.path.exists(jasperpath.CONFIG_PATH):
