@@ -65,3 +65,7 @@ target/
 
 # SublimeLinter config file
 .sublimelinterrc
+
+# PyCharm Project 
+
+.idea/
