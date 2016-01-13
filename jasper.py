@@ -118,12 +118,13 @@ class Jasper(object):
             passiveEnabled = self.config['passive_enabled']
         except KeyError:
             passiveEnabled = "false"
-            logger.warning("passive_enabled not specified in profile, defaulting " +
-                           "to '%s'", passiveEnabled)
+            logger.warning("passive_enabled not specified in profile, " +
+                           "defaulting to '%s'", passiveEnabled)
 
         passiveEnabled = passiveEnabled == "true"
 
-        conversation = Conversation("JASPER", self.mic, self.config, passiveEnabled)
+        conversation = Conversation("JASPER", self.mic, self.config,
+                                    passiveEnabled)
         conversation.handleForever()
 
 if __name__ == "__main__":

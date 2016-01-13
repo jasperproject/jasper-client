@@ -178,17 +178,16 @@ class Mic:
             # check if PERSONA was said
             transcribed = self.passive_stt_engine.transcribe(f)
 
-        #this is an array of all the passive phrases the user has said to us
+        # this is an array of all the passive phrases the user has said to us
         passivePhrases = []
 
         for loopedPhrase in transcribed:
 
             if loopedPhrase.startswith(PERSONA):
 
-                #get the command without the personal prefix
+                # get the command without the personal prefix
                 potentialCommand = loopedPhrase[len(PERSONA):]
-
-                #if the user wasn't merely calling out for the machine, add it...
+                # if the user wasn't merely calling out to the machine, add it
                 if len(potentialCommand) != 0:
                     passivePhrases.append(potentialCommand)
 

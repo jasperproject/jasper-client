@@ -29,7 +29,8 @@ class Conversation(object):
 
             self._logger.debug("Started listening for keyword '%s'",
                                self.persona)
-            threshold, transcribed, passivePhrases = self.mic.passiveListen(self.persona)
+            threshold, transcribed, passivePhrases = \
+                self.mic.passiveListen(self.persona)
             self._logger.debug("Stopped listening for keyword '%s'",
                                self.persona)
 
@@ -42,16 +43,16 @@ class Conversation(object):
             if self.isPassiveEnabled is True and len(passivePhrases) != 0:
 
                 input = passivePhrases
-                self._logger.debug("Checking for passive phrase '%s' with threshold: %r",
-                                   input, threshold)
+                self._logger.debug("Checking for passive phrase '%s' with " +
+                                   "threshold: %r", input, threshold)
 
             else:
 
-                self._logger.debug("Started to listen actively with threshold: %r",
-                                   threshold)
+                self._logger.debug("Started to listen actively with " +
+                                   "threshold: %r", threshold)
                 input = self.mic.activeListenToAllOptions(threshold)
-                self._logger.debug("Stopped to listen actively with threshold: %r",
-                                   threshold)
+                self._logger.debug("Stopped to listen actively with " +
+                                   "threshold: %r", threshold)
 
             if input:
                 self.brain.query(input)
