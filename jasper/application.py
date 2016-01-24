@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import yaml
+import pkg_resources
 
 from . import audioengine
 from . import brain
@@ -112,7 +113,7 @@ class Jasper(object):
         # Load plugins
         plugin_directories = [
             paths.config('plugins'),
-            paths.PLUGIN_PATH
+            pkg_resources.resource_filename(__name__, '../plugins')
         ]
         self.plugins = pluginstore.PluginStore(plugin_directories)
         self.plugins.detect_plugins()

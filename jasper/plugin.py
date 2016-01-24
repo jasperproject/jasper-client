@@ -60,11 +60,11 @@ class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
         pass
 
     @abc.abstractmethod
-    def handle(text, mic):
+    def handle(self, text, mic):
         pass
 
     @abc.abstractmethod
-    def is_valid(text):
+    def is_valid(self, text):
         pass
 
     def get_priority(self):

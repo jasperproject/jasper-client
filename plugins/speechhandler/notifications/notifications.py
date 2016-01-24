@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import facebook
-from client import plugin
+from jasper import plugin
 
 
 class NotificationsPlugin(plugin.SpeechHandlerPlugin):

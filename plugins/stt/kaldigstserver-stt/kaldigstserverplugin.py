@@ -1,7 +1,7 @@
 import logging
 import wave
 import requests
-from client import plugin
+from jasper import plugin
 
 
 class KaldiGstServerSTTPlugin(plugin.STTPlugin):

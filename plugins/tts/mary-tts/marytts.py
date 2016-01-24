@@ -2,7 +2,7 @@ import logging
 import urllib
 import urlparse
 import requests
-from client import plugin
+from jasper import plugin
 
 
 class MaryTTSPlugin(plugin.TTSPlugin):
@@ -49,7 +49,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
                              (language, orig_language))
         self.language = language
 
-        self._logger.info('Available voices:', ', '.join(
+        self._logger.info('Available voices: %s', ', '.join(
             available_voices[language]))
 
         try:

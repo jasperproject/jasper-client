@@ -1,6 +1,6 @@
 import logging
 import requests
-from client import plugin
+from jasper import plugin
 
 SUPPORTED_LANGUAGES = ['en-US', 'es-US']
 

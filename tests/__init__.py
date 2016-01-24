@@ -5,10 +5,6 @@ PATTERN = "test_*.py"
 
 
 def load_tests(loader, tests, pattern):
-    if pattern is None:
-        # if loaded as a module just return the normal tests
-        return tests
-
     # Add core tests (from this package)
     core_tests_dir = os.path.dirname(os.path.abspath(__file__))
     tests.addTests(loader.discover(core_tests_dir, PATTERN))

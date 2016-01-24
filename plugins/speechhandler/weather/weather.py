@@ -3,7 +3,7 @@ import collections
 import datetime
 import dateutil
 import requests
-from client import plugin
+from jasper import plugin
 
 YAHOO_YQL_QUERY = \
     'SELECT * FROM weather.bylocation WHERE location="%s" AND unit="%s"'

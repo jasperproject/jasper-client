@@ -4,7 +4,7 @@ import contextlib
 import re
 import slugify
 import pyaudio
-from client import plugin
+from jasper import plugin
 
 PYAUDIO_BIT_MAPPING = {8:  pyaudio.paInt8,
                        16: pyaudio.paInt16,
