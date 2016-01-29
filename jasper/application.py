@@ -12,6 +12,7 @@ from . import pluginstore
 from . import conversation
 from . import mic
 from . import local_mic
+from . import restapi
 
 
 class Jasper(object):
@@ -220,6 +221,9 @@ class Jasper(object):
 
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
+
+        # Initialize RESTful API
+        self.restapi = restapi.RestAPI(self.config, self.mic, self.conversation)
 
     def list_plugins(self):
         plugins = self.plugins.get_plugins()
