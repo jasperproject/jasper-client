@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from . import alteration
+from . import paths
 import logging
 import tempfile
 import wave
@@ -12,9 +14,6 @@ if sys.version_info < (3, 0):
     import Queue as queue
 else:
     import queue
-
-from . import alteration
-from . import paths
 
 
 def get_config_value(config, name, default):
@@ -188,7 +187,7 @@ class Mic(object):
                             audioop.rms(b"".join(frames), 2))
             if self.cancelListen:
                 return False
-                            
+
     def listen(self):
         self.cancelListen = False
         if self.wait_for_keyword(self._keyword):
@@ -198,8 +197,8 @@ class Mic(object):
 
     def cancel_listen(self):
         self.cancelListen = True
-        
-    def active_listen(self, timeout=1.5):
+
+    def active_listen(self, timeout=3):
         # record until <timeout> second of silence or double <timeout>.
         n = int(round((self._input_rate/self._input_chunksize)*timeout))
         self.play_file(paths.data('audio', 'beep_hi.wav'))

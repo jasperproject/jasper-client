@@ -56,6 +56,11 @@ class Conversation(i18n.GettextMixin):
         """
         self._logger.debug('Starting to handle conversation.')
         while True:
+            # Print notifications until empty
+            """notifications = self.notifier.get_all_notifications()
+            for notif in notifications:
+                self._logger.info("Received notification: '%s'", str(notif))"""
+
             if not self.suspended:
                 input = self.mic.listen()
 
@@ -72,7 +77,7 @@ class Conversation(i18n.GettextMixin):
         self._logger.debug('Suspending handling conversation.')
         self.suspended = True
         self.mic.cancel_listen()
-    
+
     def resume(self):
         """
         Resumes converstation handling

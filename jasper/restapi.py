@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-from jasper import plugin
-from flask import  Flask, jsonify, request, Response, abort
-#import json
+from flask import Flask, jsonify, request, Response, abort
 import threading
-import logging
 from functools import wraps
 
 
@@ -30,7 +27,8 @@ class RestAPI(object):
             password = None
 
         # create thread for http listener
-        t = threading.Thread(target=self.startRestAPI, args=(host, port, password))
+        t = threading.Thread(target=self.startRestAPI,
+                             args=(host, port, password))
         t.daemon = True
         t.start()
 
@@ -43,12 +41,11 @@ class RestAPI(object):
                 auth = request.authorization
                 if password and (not auth or auth.password != password):
                     return Response(
-                    'Authorization required.', 401,
-                    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+                        'Authorization required.', 401,
+                        {'WWW-Authenticate': 'Basic realm="Login Required"'})
                 return f(*args, **kwargs)
             return decorated
-            
-        
+
         @app.route('/')
         def index():
             return "Jasper restAPI: running"
@@ -56,7 +53,7 @@ class RestAPI(object):
         @app.route('/jasper/say', methods=['POST'])
         @requires_auth
         def say_task():
-            if not request.json or not 'text' in request.json:
+            if not request.json or 'text' not in request.json:
                 abort(400)
             text = request.json['text']
 
@@ -73,7 +70,7 @@ class RestAPI(object):
             transcribed = self.mic.active_listen()
             self.conversation.resume()
 
-            return jsonify({'transcribed':transcribed}), 201
+            return jsonify({'transcribed': transcribed}), 201
 
         @app.route('/jasper/activate', methods=['GET'])
         @requires_auth
@@ -83,12 +80,12 @@ class RestAPI(object):
             result = self.conversation.handleInput(transcribed)
             self.conversation.resume()
 
-            return jsonify({'transcribed':transcribed, 'result':result}), 201
+            return jsonify({'transcribed': transcribed, 'result': result}), 201
 
         @app.route('/jasper/handleinput', methods=['POST'])
         @requires_auth
         def handleinput_task():
-            if not request.json or not 'text' in request.json:
+            if not request.json or 'text' not in request.json:
                 abort(400)
             text = request.json['text']
 
@@ -96,12 +93,12 @@ class RestAPI(object):
             result = self.conversation.handleInput([text])
             self.conversation.resume()
 
-            return jsonify({'text':text, 'result':result}), 201
+            return jsonify({'text': text, 'result': result}), 201
 
         @app.route('/jasper/waitforkeyword', methods=['POST'])
         @requires_auth
         def waitforkeyword_task():
-            if not request.json or not 'keyword' in request.json:
+            if not request.json or 'keyword' not in request.json:
                 abort(400)
             keyword = request.json['keyword']
 
@@ -114,7 +111,7 @@ class RestAPI(object):
         @app.route('/jasper/playfile', methods=['POST'])
         @requires_auth
         def playfile_task():
-            if not request.json or not 'filename' in request.json:
+            if not request.json or 'filename' not in request.json:
                 abort(400)
             filename = request.json['filename']
 
@@ -123,7 +120,6 @@ class RestAPI(object):
             self.conversation.resume()
 
             return jsonify({'filename': filename}), 201
-
 
         # start http listener
         app.run(host=host, port=port, debug=False)
