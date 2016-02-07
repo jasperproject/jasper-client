@@ -223,7 +223,8 @@ class Jasper(object):
             self.mic, self.brain, self.config)
 
         # Initialize RESTful API
-        self.restapi = restapi.RestAPI(self.config, self.mic, self.conversation)
+        self.restapi = restapi.RestAPI(self.config, self.mic,
+                                       self.conversation)
 
     def list_plugins(self):
         plugins = self.plugins.get_plugins()

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from . import i18n
+from . import plugin
 import os
 import logging
 import imp
@@ -8,9 +10,6 @@ if sys.version_info < (3, 0):
     import ConfigParser as configparser
 else:
     import configparser
-
-from . import i18n
-from . import plugin
 
 
 MANDATORY_OPTIONS = (
