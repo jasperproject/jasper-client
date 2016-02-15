@@ -53,6 +53,12 @@ class MPDClient(object):
             except Exception:
                 pass
 
+    def find_podcasts(self, text):
+	with self.connection() as conn:
+            self._podcasts = conn.search('Album',text)
+        return self._podcasts
+
+
     def get_playlists(self):
         if self._playlists is not None:
             return self._playlists
@@ -95,13 +101,8 @@ class MPDClient(object):
             raise RuntimeError('Unknown playback state!')
 
     def play(self):
-        state = self.get_playback_state()
-        if state == PLAYBACK_STATE_STOPPED:
-            with self.connection() as conn:
-                conn.play()
-        elif state == PLAYBACK_STATE_PAUSED:
-            with self.connection() as conn:
-                conn.pause(0)
+        with self.connection() as conn:
+	    conn.play()
 
     def pause(self):
         state = self.get_playback_state()
@@ -127,6 +128,12 @@ class MPDClient(object):
         with self.connection() as conn:
             conn.clear()
             conn.load(playlist)
+
+    def load_podcast(self, podcast):
+        with self.connection() as conn:
+            conn.clear()
+	    conn.add(podcast['file'])
+	    print conn.playlist()
 
     def volume(self, volume, relative=False):
         with self.connection() as conn:
