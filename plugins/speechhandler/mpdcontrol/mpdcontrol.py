@@ -2,7 +2,7 @@
 import difflib
 import logging
 from jasper import plugin
-from . import mpdclient
+import mpdclient
 
 
 class MPDControlPlugin(plugin.SpeechHandlerPlugin):
@@ -28,7 +28,7 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
         self._music = mpdclient.MPDClient(server=server, port=port)
 
     def get_phrases(self):
-        return [self.gettext('MUSIC'), self.gettext('SPOTIFY')]
+        return [self.gettext('RADIO'), self.gettext('TUNEIN'), self.gettext('PODCAST')]
 
     def handle(self, text, mic):
         """
@@ -48,11 +48,13 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
             _('NEXT'), _('PREVIOUS'),
             _('LOUDER'), _('SOFTER'),
             _('PLAYLIST'),
+            _('PODCAST'),
+            _('RADIO'),
             _('CLOSE'), _('EXIT')
         ]
 
-        self._logger.debug('Loading playlists...')
-        phrases.extend([pl.upper() for pl in self._music.get_playlists()])
+#        self._logger.debug('Loading playlists...')
+#        phrases.extend([pl.upper() for pl in self._music.get_playlists()])
 
         self._logger.debug('Starting music mode...')
         with mic.special_mode('music', phrases):
@@ -108,6 +110,28 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
                     self._music.play()
             else:
                 mic.say(_("Sorry, I can't find a playlist with that name."))
+	elif _('PODCAST').upper() in command:
+	    self._music.stop()
+	    text = command.replace(_('PLAY'), '').replace(_('PODCAST'), '').strip()
+	    podcasts = self._music.find_podcasts(text)
+	    print podcasts
+	    podcasts_upper = [pc['title'].upper() for pc in podcasts]
+            matches = difflib.get_close_matches(text, podcasts_upper)
+            if len(matches) > 0:
+                podcast_index = podcasts_upper.index(matches[0])
+                podcast = podcasts[podcast_index]
+            else:
+                podcast = None
+
+	    #Load podcast
+	    if podcast:
+		playback_state = self._music.get_playback_state()
+                self._music.load_podcast(podcast)
+                mic.say(_('Podcast %s loaded.') % podcast['title'])
+	        self._music.play()
+	    else:
+		mic.say(_("Sorry, I can't find a podcast with that name."))
+
         elif _('STOP').upper() in command:
             self._music.stop()
             mic.say(_('Music stopped.'))
