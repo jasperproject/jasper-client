@@ -1,6 +1,6 @@
 [Plugin]
 Name = mpdcontrol
-Version = 1.1.0
+Version = 1.0.1
 License = MIT
 URL = http://jasperproject.github.io/
 Description = Control your MPD server and listen to music
