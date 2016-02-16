@@ -70,7 +70,9 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
             if word not in result:
                 result[word] = []
             result[word].append(pronounciation)
-    return result
+            
+    results = collections.OrderedDict(sorted(result.items()))
+    return results
 
 
 class PhonetisaurusG2P(object):
