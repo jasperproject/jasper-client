@@ -4,6 +4,7 @@ import re
 import subprocess
 import tempfile
 import logging
+import collections
 from . import phonemeconversion
 
 
