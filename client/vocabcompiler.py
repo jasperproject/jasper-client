@@ -504,6 +504,15 @@ def get_keyword_phrases():
             if phrase:
                 phrases.append(phrase)
 
+    profile_path = jasperpath.config('profile.yml')
+    if os.path.exists(profile_path):
+        with open(profile_path, 'r') as f:
+	    profile = yaml.safe_load(f)
+        persona = profile.get('persona', 'JASPER').upper()
+    else:
+        persona = 'JASPER'
+
+    phrases.append(persona)
     return phrases
 
 
