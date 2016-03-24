@@ -34,13 +34,7 @@ class Configuration(object):
     def read_defaults(self, *args, **kwargs):
         self._defaults.read(*args, **kwargs)
 
-    def get(self, *args):
-        if len(args) == 2:
-            (section, option) = args
-        elif len(args) == 1:
-            (section, option) = ("General", args[0])
-        else:
-            raise ValueError('Invalid number of arguments')
+    def get(self, section, option):
         try:
             value = self._cp.get(section, option)
         except parser.configparser.Error:

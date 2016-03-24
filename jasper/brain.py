@@ -32,7 +32,7 @@ class Brain(object):
         Returns:
             A list of standard phrases.
         """
-        language = self._config.get('language')
+        language = self._config.get('General', 'language')
 
         phrases = []
 

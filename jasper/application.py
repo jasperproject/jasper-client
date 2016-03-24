@@ -19,24 +19,24 @@ class Jasper(object):
         self.config = config.Configuration([paths.config('profile.cfg')])
         self.config.read_defaults([paths.data('defaults.cfg')])
 
-        language = self.config.get('language')
+        language = self.config.get('General', 'language')
         self._logger.info("Using language '%s'", language)
 
-        audio_engine_slug = self.config.get('audio_engine')
+        audio_engine_slug = self.config.get('General', 'audio_engine')
         self._logger.debug("Using Audio engine '%s'", audio_engine_slug)
 
-        active_stt_slug = self.config.get('stt_engine')
+        active_stt_slug = self.config.get('General', 'stt_engine')
         self._logger.debug("Using STT engine '%s'", active_stt_slug)
 
-        passive_stt_slug = self.config.get('stt_passive_engine')
+        passive_stt_slug = self.config.get('General', 'stt_passive_engine')
         if not passive_stt_slug:
             passive_stt_slug = active_stt_slug
         self._logger.debug("Using passive STT engine '%s'", passive_stt_slug)
 
-        tts_slug = self.config.get('tts_engine')
+        tts_slug = self.config.get('General', 'tts_engine')
         self._logger.debug("Using TTS engine '%s'", tts_slug)
 
-        keyword = self.config.get('keyword')
+        keyword = self.config.get('General', 'keyword')
         self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
@@ -60,7 +60,7 @@ class Jasper(object):
         # Initialize audio input device
         devices = [device.slug for device in self.audio.get_devices(
             device_type=audioengine.DEVICE_TYPE_INPUT)]
-        device_slug = self.config.get('input_device')
+        device_slug = self.config.get('Audio', 'input_device')
         if not device_slug:
             device_slug = self.audio.get_default_device(output=False).slug
             self._logger.warning("input_device not specified in profile, " +
@@ -81,7 +81,7 @@ class Jasper(object):
         # Initialize audio output device
         devices = [device.slug for device in self.audio.get_devices(
             device_type=audioengine.DEVICE_TYPE_OUTPUT)]
-        device_slug = self.config.get('output_device')
+        device_slug = self.config.get('Audio', 'output_device')
         if not device_slug:
             device_slug = self.audio.get_default_device(output=True).slug
             self._logger.warning("output_device not specified in profile, " +
