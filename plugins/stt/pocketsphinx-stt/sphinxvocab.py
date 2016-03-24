@@ -40,15 +40,15 @@ def compile_vocabulary(config, directory, phrases):
     dictionary_path = get_dictionary_path(directory)
 
     executable = config.get('phonetisaurus_executable')
-    nbest = int(config.get('nbest'))
-    fst_model = config.get('fst_model')
+    nbest = config.getint('nbest')
+    fst_model = config.getpath('fst_model')
     fst_model_alphabet = config.get('fst_model_alphabet')
 
     if not fst_model:
         raise ValueError('FST model not specified!')
 
     if not os.path.exists(fst_model):
-        raise OSError('FST model does not exist!')
+        raise OSError('FST model not found: %s', fst_model)
 
     g2pconverter = PhonetisaurusG2P(executable, fst_model,
                                     fst_model_alphabet=fst_model_alphabet,

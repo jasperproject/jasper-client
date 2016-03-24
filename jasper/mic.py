@@ -33,16 +33,12 @@ class Mic(object):
         self._input_device = input_device
         self._output_device = output_device
 
-        self._input_rate = int(config.get('Audio', 'input_samplerate'))
-        self._input_bits = int(config.get('Audio', 'input_samplewidth'))
-        self._input_channels = int(config.get('Audio', 'input_channels'))
-        self._input_chunksize = int(config.get('Audio', 'input_chunksize'))
-        self._output_chunksize = int(config.get('Audio', 'output_chunksize'))
-        output_padding = config.get('Audio', 'output_padding')
-        if output_padding and output_padding.lower() in ('true', 'yes', 'on'):
-            self._output_padding = True
-        else:
-            self._output_padding = False
+        self._input_rate = config.getint('Audio', 'input_samplerate')
+        self._input_bits = config.getint('Audio', 'input_samplewidth')
+        self._input_channels = config.getint('Audio', 'input_channels')
+        self._input_chunksize = config.getint('Audio', 'input_chunksize')
+        self._output_chunksize = config.getint('Audio', 'output_chunksize')
+        self._output_padding = config.getbool('Audio', 'output_padding')
 
         self._logger.debug('Input sample rate: %d Hz', self._input_rate)
         self._logger.debug('Input sample width: %d bit', self._input_bits)

@@ -27,7 +27,7 @@ class HackerNewsPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(HackerNewsPlugin, self).__init__(*args, **kwargs)
 
-        self._num_headlines = int(self.config.get('num-headlines'))
+        self._num_headlines = self.config.getint('num-headlines')
 
     def get_priority(self):
         return 4
