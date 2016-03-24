@@ -6,6 +6,16 @@ from . import parser
 from .. import paths
 
 
+def str_to_bool(value):
+    if any([x in value.lower() for x in ('yes', 'y', 'true', 'ok')]):
+        return True
+    return False
+
+
+def str_to_path(value):
+    return os.path.abspath(os.path.expanduser(os.path.expandvars(value)))
+
+
 class Configuration(object):
     def __init__(self, filenames):
         self._logger = logging.getLogger(__name__)
@@ -49,4 +59,39 @@ class Configuration(object):
                                    "missing, using default value (%r).",
                                    option, section, value)
 
+        if value is not None:
+            value_list = [x.strip() for x in value.splitlines() if x.strip()]
+            if len(value_list) > 1:
+                value = value_list
+            elif len(value_list) == 1:
+                value = value_list[0]
+            else:
+                value = None
         return value
+
+    def _get_conv(self, conv_func, section, option):
+        value = self.get(section, option)
+        if value is None:
+            return None
+        try:
+            if isinstance(value, list):
+                converted_value = [conv_func(x) for x in value]
+            else:
+                converted_value = conv_func(value)
+        except Exception:
+            self._logger.warning("Option '%s' in section '%s' has an invalid" +
+                                 " value.", option, section)
+            converted_value = None
+        return converted_value
+
+    def getint(self, *args, **kwargs):
+        return self._get_conv(int, *args, **kwargs)
+
+    def getfloat(self, *args, **kwargs):
+        return self._get_conv(float, *args, **kwargs)
+
+    def getbool(self, *args, **kwargs):
+        return self._get_conv(str_to_bool, *args, **kwargs)
+
+    def getpath(self, *args, **kwargs):
+        return self._get_conv(str_to_path, *args, **kwargs)
