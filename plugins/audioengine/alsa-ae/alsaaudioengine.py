@@ -50,7 +50,7 @@ class AlsaAudioEnginePlugin(plugin.AudioEnginePlugin):
             msg = 'No %s devices available!' % direction
             self._logger.warning(msg)
             raise plugin.audioengine.DeviceNotFound(msg)
-        return AlsaAudioDevice(devices[0])
+        return devices[0]
 
     def get_device_by_slug(self, slug):
         for device in self.get_devices():
