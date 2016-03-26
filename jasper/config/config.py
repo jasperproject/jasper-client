@@ -17,7 +17,7 @@ def str_to_path(value):
 
 
 class Configuration(object):
-    def __init__(self, filenames):
+    def __init__(self):
         self._logger = logging.getLogger(__name__)
         self._data = {}
 
@@ -39,6 +39,7 @@ class Configuration(object):
         self._cp = parser.ConfigParser()
         self._defaults = parser.ConfigParser()
 
+    def read(self, filenames):
         self._cp.read(filenames)
 
     def read_defaults(self, *args, **kwargs):
