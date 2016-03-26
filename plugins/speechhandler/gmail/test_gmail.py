@@ -8,6 +8,7 @@ from . import gmail
 class TestGmailPlugin(unittest.TestCase):
     def setUp(self):
         self.plugin = testutils.get_plugin_instance(
+
             os.path.dirname(gmail.__file__))
 
     def test_is_valid_method(self):
@@ -18,9 +19,9 @@ class TestGmailPlugin(unittest.TestCase):
     @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
     def test_handle_method(self):
-        key = 'gmail_password'
-        if key not in self.plugin.profile or not self.plugin.profile[key]:
-            self.skipTest("Gmail password not available")
+        if (self.plugin.config.get_global('General', 'gmail_adress') is None or
+            self.plugin.config.get_global('General', 'gmail_password') is None):
+                self.skipTest("Gmail password not available")
 
         mic = testutils.TestMic()
         self.plugin.handle("Check my email account!", mic)

@@ -86,7 +86,10 @@ def get_weather(location, unit="f"):
                         'env': 'store://datatables.org/alltableswithkeys'},
                      headers={'User-Agent': 'Mozilla/5.0'})
     content = r.json()
-    channel = content['query']['results']['weather']['rss']['channel']
+    weather = content['query']['results']['weather']
+    if 'error' in weather:
+        raise RuntimeError(weather['error']['detail'])
+    channel = weather['rss']['channel']
     current_date = dateutil.parser.parse(
         channel['item']['condition']['date']).date()
     forecast = []

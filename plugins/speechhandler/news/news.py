@@ -78,7 +78,7 @@ class NewsPlugin(plugin.SpeechHandlerPlugin):
             for i, a in enumerate(articles, start=1))
         mic.say(text)
 
-        if not self.config.get_global('gmail_address'):
+        if not self.config.get_global('General', 'gmail_address'):
             return
 
         mic.say(self.gettext('Would you like me to send you these articles?'))

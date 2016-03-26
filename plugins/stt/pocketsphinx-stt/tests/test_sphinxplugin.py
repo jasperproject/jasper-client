@@ -15,10 +15,10 @@ class TestPocketsphinxSTTPlugin(unittest.TestCase):
         try:
             self.passive_stt_engine = testutils.get_plugin_instance(
                 os.path.dirname(sphinxplugin.__file__),
-                'unittest-passive', ['JASPER'])
+                extra_args=['unittest-passive', ['JASPER']])
             self.active_stt_engine = testutils.get_plugin_instance(
                 os.path.dirname(sphinxplugin.__file__),
-                'unittest-active', ['TIME'])
+                extra_args=['unittest-active', ['TIME']])
         except ImportError:
             self.skipTest("Pockersphinx not installed!")
 

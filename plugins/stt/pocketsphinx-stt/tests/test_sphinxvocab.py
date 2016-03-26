@@ -4,6 +4,8 @@ import shutil
 import mock
 import unittest
 from .. import sphinxvocab
+from jasper import config
+from jasper import testutils
 
 
 @contextlib.contextmanager
@@ -47,12 +49,10 @@ class TestPocketsphinxVocabulary(unittest.TestCase):
             mocked_cmuclmtk.text2vocab = write_test_vocab
             mocked_cmuclmtk.text2lm = write_test_lm
             with mock.patch.object(sphinxvocab, 'PhonetisaurusG2P', DummyG2P):
+                conf = testutils.TestConfiguration()
                 with tempfile.NamedTemporaryFile() as f:
-                    config = {
-                        'pocketsphinx': {
-                            'fst_model': f.name
-                        }
-                    }
+                    conf.set('unittest', 'fst_model', f.name)
+                    plugin_config = config.PluginConfig(conf, 'unittest')
                     with do_in_tempdir() as tempdir:
                         sphinxvocab.compile_vocabulary(
-                            config, tempdir, WORDS.keys())
+                            plugin_config, tempdir, WORDS.keys())

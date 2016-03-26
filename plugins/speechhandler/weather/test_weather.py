@@ -8,7 +8,13 @@ from . import weather
 class TestGmailPlugin(unittest.TestCase):
     def setUp(self):
         self.plugin = testutils.get_plugin_instance(
-            os.path.dirname(weather.__file__))
+            os.path.dirname(weather.__file__),
+            extra_config={
+                'Plugin weather': {
+                    'location': 'New York',
+                    'unit': 'f'
+                }
+            })
 
     def test_is_valid_method(self):
         self.assertTrue(self.plugin.is_valid(
