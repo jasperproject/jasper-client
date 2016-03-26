@@ -21,6 +21,8 @@ class TestPocketsphinxSTTPlugin(unittest.TestCase):
                 extra_args=['unittest-active', ['TIME']])
         except ImportError:
             self.skipTest("Pockersphinx not installed!")
+        except ValueError as e:
+            self.skipTest(e.message)
 
     def testTranscribeJasper(self):
         """
