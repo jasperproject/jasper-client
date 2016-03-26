@@ -5,7 +5,7 @@ from jasper import testutils, diagnose
 from . import hackernews
 
 
-class TestGmailPlugin(unittest.TestCase):
+class TestHackerNewsPlugin(unittest.TestCase):
     def setUp(self):
         self.plugin = testutils.get_plugin_instance(
             os.path.dirname(hackernews.__file__))
