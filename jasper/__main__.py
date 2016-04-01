@@ -3,13 +3,14 @@ import sys
 import logging
 import argparse
 import os.path
+import io
 
 from . import application
 from application import USE_STANDARD_MIC, USE_TEXT_MIC, USE_BATCH_MIC
 
 def is_valid_file(parser, arg):
     try:
-        fileid = open(arg, "r")
+        fileid = io.open(arg, "r",encoding="utf-8")
     except IOError:
         parser.error("The file %s does not exist!" % arg)   
     return fileid
