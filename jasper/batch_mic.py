@@ -24,16 +24,16 @@ class Mic(object):
 
     def transcribe_batchcommand(self, stt_engine):
 
-        #still unprocessed commands?
+        # still unprocessed commands?
         if self._nbrcommands <= self._batched_cmds:
             return False
 
         command = self._batchcommands[self._batched_cmds]
         self._batched_cmds += 1
 
-        #check if command is a filename
+        # check if command is a filename
         if os.path.isfile(command):
-            #let's try open it
+            # let's try open it
             fileid = None
             transcribed = False
             try:
@@ -41,7 +41,7 @@ class Mic(object):
             except IOError:
                 self._logger.error("The file %s does not exist!" % command)
             else:
-                #handle it as mic input
+                # handle it as mic input
                 try:
                     transcribed = stt_engine.transcribe(fileid)
                 except:
@@ -49,7 +49,7 @@ class Mic(object):
                     self._logger.error("Transcription failed!", exc_info=dbg)
 
         else:
-            #handle it as text input
+            # handle it as text input
             transcribed = [command]
 
         return transcribed
@@ -58,7 +58,7 @@ class Mic(object):
         return
 
     def active_listen(self, timeout=3):
-        #get transcribtion - either using audio or text
+        # get transcribtion - either using audio or text
         transcribed = self.transcribe_batchcommand(self.active_stt_engine)
         if transcribed:
             print "YOU: " + " ".join(transcribed)
@@ -71,12 +71,12 @@ class Mic(object):
                               self._batched_cmds)
             sys.exit(0)
 
-        #get transcribtion - either using audio or text
+        # get transcribtion - either using audio or text
         transcribed = self.transcribe_batchcommand(self.passive_stt_engine)
         if transcribed:
             print "YOU: " + " ".join(transcribed)
 
-        #check for keyword
+        # check for keyword
         if transcribed and any([self._keyword.lower() in t.lower()
                                 for t in transcribed if t]):
             self._logger.info("Keyword %s has been uttered", self._keyword)
