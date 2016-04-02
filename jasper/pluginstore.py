@@ -4,9 +4,9 @@ import logging
 import imp
 import inspect
 import sys
-if sys.version_info < (3, 0): # NOQA
+if sys.version_info < (3, 0):  # NOQA
     import ConfigParser as configparser
-else:			# NOQA
+else:  # NOQA
     import configparser
 from . import i18n
 from . import plugin
