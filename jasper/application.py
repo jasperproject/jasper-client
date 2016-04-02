@@ -15,10 +15,12 @@ from . import local_mic
 from . import batch_mic
 
 USE_STANDARD_MIC = 0
-USE_TEXT_MIC =  1
-USE_BATCH_MIC =  2
+USE_TEXT_MIC = 1
+USE_BATCH_MIC = 2
+
 
 class Jasper(object):
+
     def __init__(self, use_mic=USE_STANDARD_MIC, batchfilecontent=None):
         self._logger = logging.getLogger(__name__)
 
@@ -214,10 +216,12 @@ class Jasper(object):
         tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
 
         # Initialize Mic
-        if use_mic==USE_TEXT_MIC:
+        if use_mic == USE_TEXT_MIC:
             self.mic = local_mic.Mic()
-	elif use_mic==USE_BATCH_MIC:
-	    self.mic = batch_mic.Mic(passive_stt_plugin, active_stt_plugin, batchfilecontent, keyword=keyword)
+        elif use_mic == USE_BATCH_MIC:
+            self.mic = batch_mic.Mic(passive_stt_plugin,
+                                     active_stt_plugin, batchfilecontent,
+                                     keyword=keyword)
         else:
             self.mic = mic.Mic(
                 input_device, output_device,
