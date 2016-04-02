@@ -65,7 +65,7 @@ class Mic(object):
         return transcribed
 
     def listen(self):
-        #still unprocessed commands?
+        # still unprocessed commands?
         if self._nbrcommands <= self._batched_cmds:
             self._logger.info("processed %i commands. Done.",
                               self._batched_cmds)

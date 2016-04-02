@@ -8,7 +8,6 @@ if sys.version_info < (3, 0):
     import ConfigParser as configparser
 else:
     import configparser
-
 from . import i18n
 from . import plugin
 
