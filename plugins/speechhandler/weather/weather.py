@@ -80,15 +80,23 @@ def get_weather(location, unit="f"):
     yql_query = YAHOO_YQL_QUERY % (location.replace('"', ''),
                                    unit.replace('"', ''))
     r = requests.get(YAHOO_YQL_URL,
-                     params={
-                        'q': yql_query,
-                        'format': 'json',
-                        'env': 'store://datatables.org/alltableswithkeys'},
-                     headers={'User-Agent': 'Mozilla/5.0'})
+                   params={'q': yql_query,
+                           'format': 'json',
+                           'env': 'store://datatables.org/alltableswithkeys'},
+                   headers={'User-Agent': 'Mozilla/5.0'})
     content = r.json()
-    channel = content['query']['results']['weather']['rss']['channel']
+    # make sure we got data
+    try:
+        channel = content['query']['results']['weather']['rss']['channel']
+    except:
+        # return empty Weather
+        return Weather(city=None,
+                       date=None,
+                       text=None,
+                       temp=None,
+                       forecast=None)
     current_date = dateutil.parser.parse(
-        channel['item']['condition']['date']).date()
+            channel['item']['condition']['date']).date()
     forecast = []
 
     for item in channel['item']['forecast']:
@@ -191,6 +199,12 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
 
     def _say_forecast_tomorrow(self, mic, weather):
         tomorrow = None
+
+        if weather.forecast is None:
+            mic.say(self.gettext(
+                "Sorry, I had a problem retrieving the weather data."))
+            return
+
         for fc in weather.forecast:
             if fc.date - weather.date == datetime.timedelta(days=1):
                 tomorrow = fc
@@ -198,10 +212,10 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             mic.say(self.gettext(
                 'Tomorrow in {city}: {text} and temperatures ' +
                 'between {temp_low} and {temp_high} degrees.').format(
-                        city=weather.city,
-                        text=self.gettext(fc.text),
-                        temp_low=fc.temp_low,
-                        temp_high=fc.temp_high))
+                 city=weather.city,
+                 text=self.gettext(fc.text),
+                 temp_low=fc.temp_low,
+                 temp_high=fc.temp_high))
         else:
             mic.say(self.gettext(
                 "Sorry, I don't know what the weather in %s will " +
@@ -209,6 +223,13 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
 
     def _say_forecast(self, mic, weather):
         forecast_msgs = []
+
+        # no forecast available
+        if weather.forecast is None:
+            mic.say(self.gettext(
+                "Sorry, I had a problem retrieving the weather data."))
+            return
+
         for fc in weather.forecast:
             if fc.date - weather.date == datetime.timedelta(days=1):
                 date = self.gettext('Tomorrow')
