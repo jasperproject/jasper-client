@@ -18,10 +18,10 @@ class Mic(object):
     def active_listen(self, timeout=3):
         input = raw_input("YOU: ")
         self.prev = input
-        return input
+        return [input]
 
     def listen(self):
-        return [self.active_listen(timeout=3)]
+        return self.active_listen(timeout=3)
 
     def say(self, phrase, OPTIONS=None):
         print("JASPER: %s" % phrase)
