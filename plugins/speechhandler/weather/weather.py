@@ -80,23 +80,20 @@ def get_weather(location, unit="f"):
     yql_query = YAHOO_YQL_QUERY % (location.replace('"', ''),
                                    unit.replace('"', ''))
     r = requests.get(YAHOO_YQL_URL,
-                   params={'q': yql_query,
-                           'format': 'json',
-                           'env': 'store://datatables.org/alltableswithkeys'},
-                   headers={'User-Agent': 'Mozilla/5.0'})
+                     params={
+                        'q': yql_query,
+                        'format': 'json',
+                        'env': 'store://datatables.org/alltableswithkeys'},
+                     headers={'User-Agent': 'Mozilla/5.0'})
     content = r.json()
     # make sure we got data
     try:
         channel = content['query']['results']['weather']['rss']['channel']
-    except:
+    except KeyError:
         # return empty Weather
-        return Weather(city=None,
-                       date=None,
-                       text=None,
-                       temp=None,
-                       forecast=None)
+        return None
     current_date = dateutil.parser.parse(
-            channel['item']['condition']['date']).date()
+        channel['item']['condition']['date']).date()
     forecast = []
 
     for item in channel['item']['forecast']:
@@ -200,7 +197,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
     def _say_forecast_tomorrow(self, mic, weather):
         tomorrow = None
 
-        if weather.forecast is None:
+        if weather is None:
             mic.say(self.gettext(
                 "Sorry, I had a problem retrieving the weather data."))
             return
@@ -225,7 +222,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
         forecast_msgs = []
 
         # no forecast available
-        if weather.forecast is None:
+        if weather is None:
             mic.say(self.gettext(
                 "Sorry, I had a problem retrieving the weather data."))
             return
