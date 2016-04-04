@@ -12,7 +12,7 @@ class WitAiSTTPlugin(plugin.STTPlugin):
     token, which can be found under Settings in the Wit console to your
     profile.yml:
         ...
-        stt_engine: witai
+        stt_engine: witai-stt
         witai-stt:
           access_token:    ERJKGE86SOMERANDOMTOKEN23471AB
     """
