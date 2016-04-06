@@ -218,15 +218,17 @@ class Jasper(object):
         # Initialize Mic
         if use_mic == USE_TEXT_MIC:
             self.mic = local_mic.Mic()
+	    self._logger.info("Using local text input and output")
         elif use_mic == USE_BATCH_MIC:
             self.mic = batch_mic.Mic(passive_stt_plugin,
                                      active_stt_plugin, batchfilecontent,
                                      keyword=keyword)
+	    self._logger.info("Using batched mode with %i commands", len(batchfilecontent))
         else:
             self.mic = mic.Mic(
                 input_device, output_device,
                 passive_stt_plugin, active_stt_plugin,
-                tts_plugin, self.config, keyword=keyword)
+                tts_plugin, self.config, keyword=keyword)	
 
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)

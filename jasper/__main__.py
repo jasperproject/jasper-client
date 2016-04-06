@@ -43,6 +43,7 @@ def main(args=None):
     logging.basicConfig(level=logging.DEBUG if p_args.debug else logging.INFO)
 
     # Select Mic
+    batchfilecommands = []
     if p_args.local:
         # Use Local text mic
         used_mic = USE_TEXT_MIC
@@ -50,17 +51,16 @@ def main(args=None):
         # Use batched mode mic, pass a file too
         used_mic = USE_BATCH_MIC
 
-    # parse given batch file and get the filenames or commands
-    batchfilecommands = []
-    for line in p_args.batch_filename:
-        line = line.partition('#')[0]
-        if len(line.rstrip()) > 0:
-            batchfilecommands.append(line.rstrip())
-
-    # there should be something in the file
-    if len(batchfilecommands) == 0:
-        parser.error("The file %s has no content" % p_args.batch_filename.name)
-        p_args.batch_filename.close()
+        # parse given batch file and get the filenames or commands        
+        for line in p_args.batch_filename:
+            line = line.partition('#')[0]
+            if len(line.rstrip()) > 0:
+                batchfilecommands.append(line.rstrip())
+    
+        # there should be something in the file
+        if len(batchfilecommands) == 0:
+            parser.error("The file %s has no content" % p_args.batch_filename.name)
+            p_args.batch_filename.close()
     else:
         used_mic = USE_STANDARD_MIC
 
