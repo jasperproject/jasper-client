@@ -2,6 +2,8 @@ import logging
 import requests
 from jasper import plugin
 
+#there seems to be no way to get language setting of the defined app
+SUPPORTED_LANG=["de", "en", "es", "et", "fr", "it", "nl", "pl", "pt", "ru", "sv"] # last updated 06.04.16
 
 class WitAiSTTPlugin(plugin.STTPlugin):
     """
@@ -14,7 +16,7 @@ class WitAiSTTPlugin(plugin.STTPlugin):
         ...
         stt_engine: witai-stt
         witai-stt:
-          access_token:    ERJKGE86SOMERANDOMTOKEN23471AB
+        access_token:    ERJKGE86SOMERANDOMTOKEN23471AB
     """
 
     def __init__(self, *args, **kwargs):
@@ -26,12 +28,16 @@ class WitAiSTTPlugin(plugin.STTPlugin):
             language = self.profile['language']
         except KeyError:
             language = 'en-US'
-        if language.split('-')[0] != 'en':
-            raise ValueError("Languages other than English are not supported")
+        if language.split('-')[0] not in SUPPORTED_LANG:
+            raise ValueError("Language %s is not supported.",language.split('-')[0])
 
     @property
     def token(self):
         return self._token
+
+    @property
+    def language(self):
+        return self._language
 
     @token.setter
     def token(self, value):
