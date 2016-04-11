@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from . import alteration
+from . import paths
 import logging
 import tempfile
 import wave
@@ -12,9 +14,6 @@ if sys.version_info < (3, 0):
     import Queue as queue
 else:
     import queue
-
-from . import alteration
-from . import paths
 
 
 def get_config_value(config, name, default):
@@ -74,6 +73,7 @@ class Mic(object):
                            'yes' if self._output_padding else 'no')
 
         self._threshold = 2.0**self._input_bits
+        self.cancelListen = False
 
     @contextlib.contextmanager
     def special_mode(self, name, phrases):
@@ -150,7 +150,7 @@ class Mic(object):
                                                self._input_rate):
             if keyword_uttered.is_set():
                 self._logger.info("Keyword %s has been uttered", keyword)
-                return
+                return True
             frames.append(frame)
             if not recording:
                 snr = self._snr([frame])
@@ -185,10 +185,18 @@ class Mic(object):
                         frame_queue.put(tuple(recording_frames))
                         self._threshold = float(
                             audioop.rms(b"".join(frames), 2))
+            if self.cancelListen:
+                return False
 
     def listen(self):
-        self.wait_for_keyword(self._keyword)
-        return self.active_listen()
+        self.cancelListen = False
+        if self.wait_for_keyword(self._keyword):
+            return self.active_listen()
+        else:
+            return False
+
+    def cancel_listen(self):
+        self.cancelListen = True
 
     def active_listen(self, timeout=3):
         # record until <timeout> second of silence or double <timeout>.

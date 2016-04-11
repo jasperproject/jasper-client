@@ -6,6 +6,7 @@ python-slugify==0.1.0
 pytz==2014.10
 PyYAML==3.11
 requests==2.5.0
+Flask==0.10.1
 
 # Pocketsphinx STT engine
 cmuclmtk==0.1.5
