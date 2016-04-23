@@ -107,9 +107,10 @@ class Jasper(object):
         try:
             keyword = self.config['keyword']
         except KeyError:
-            keyword = 'HelloJasper' # 3-4 syllables works best for new users 
-                                    # who forget 'keyword' in ~/.jasper/profile.yml
-                                    # And all one word works best.
+            # 3-4 syllables works best for new users
+            # who forget 'keyword' in ~/.jasper/profile.yml
+            # And all one word works best.
+            keyword = 'HelloJasper'
         self._logger.info("Using keyword '%s'", keyword)
 
         # Load plugins
