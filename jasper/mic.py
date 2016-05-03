@@ -12,7 +12,6 @@ if sys.version_info < (3, 0):  # NOQA
     import Queue as queue
 else:  # NOQA
     import queue
-
 from . import alteration
 from . import paths
 

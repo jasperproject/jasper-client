@@ -8,7 +8,6 @@ if sys.version_info < (3, 0):  # NOQA
     import ConfigParser as configparser
 else:  # NOQA
     import configparser
-
 from . import i18n
 from . import plugin
 

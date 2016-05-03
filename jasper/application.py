@@ -12,10 +12,16 @@ from . import pluginstore
 from . import conversation
 from . import mic
 from . import local_mic
+from . import batch_mic
+
+USE_STANDARD_MIC = 0
+USE_TEXT_MIC = 1
+USE_BATCH_MIC = 2
 
 
 class Jasper(object):
-    def __init__(self, use_local_mic=False):
+
+    def __init__(self, use_mic=USE_STANDARD_MIC, batchfilecontent=None):
         self._logger = logging.getLogger(__name__)
 
         # Create config dir if it does not exist yet
@@ -210,13 +216,19 @@ class Jasper(object):
         tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
 
         # Initialize Mic
-        if use_local_mic:
+        if use_mic == USE_TEXT_MIC:
             self.mic = local_mic.Mic()
+	    self._logger.info("Using local text input and output")
+        elif use_mic == USE_BATCH_MIC:
+            self.mic = batch_mic.Mic(passive_stt_plugin,
+                                     active_stt_plugin, batchfilecontent,
+                                     keyword=keyword)
+	    self._logger.info("Using batched mode with %i commands", len(batchfilecontent))
         else:
             self.mic = mic.Mic(
                 input_device, output_device,
                 passive_stt_plugin, active_stt_plugin,
-                tts_plugin, self.config, keyword=keyword)
+                tts_plugin, self.config, keyword=keyword)	
 
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
