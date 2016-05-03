@@ -8,9 +8,9 @@ import contextlib
 import threading
 import math
 import sys
-if sys.version_info < (3, 0):
+if sys.version_info < (3, 0):  # NOQA
     import Queue as queue
-else:
+else:  # NOQA
     import queue
 
 from . import alteration
