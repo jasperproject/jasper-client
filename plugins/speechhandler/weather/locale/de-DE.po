@@ -68,6 +68,10 @@ msgstr "Willst du die Vorhersage für die nächsten %d Tage hören?"
 msgid "Tomorrow in {city}: {text} and temperatures between {temp_low} and {temp_high} degrees."
 msgstr "Morgen in {city}: {text} und Temperaturen zwischen {temp_low} und {temp_high} Grad."
 
+#: plugins/speechhandler/weather/weather.py:204
+msgid "Sorry, I had a problem retrieving the weather data."
+msgstr "Entschuldigung, ich konnte keine Wetterdaten laden."
+
 #: plugins/speechhandler/weather/weather.py:203
 #, python-format
 msgid "Sorry, I don't know what the weather in %s will be like tomorrow."
