@@ -105,9 +105,17 @@ class Jasper(object):
             tts_slug = self.config['tts_engine']
         except KeyError:
             tts_slug = 'espeak-tts'
-            self._logger.warning("tts_engine not specified in profile, using" +
+            self._logger.warning("tts_engine not specified in profile, using " +
                                  "defaults.")
         self._logger.debug("Using TTS engine '%s'", tts_slug)
+
+        try:
+            tti_slug = self.config['tti_engine']
+        except KeyError:
+            tti_slug = 'phrasematcher-tti'
+            self._logger.warning("tti_engine not specified in profile, using " +
+                                 "defaults.")
+        self._logger.debug("Using TTI engine '%s'", tti_slug)
 
         try:
             keyword = self.config['keyword']
@@ -213,6 +221,9 @@ class Jasper(object):
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
         tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
+
+	tti_plugin_info = self.plugins.get_plugin(tti_slug, category='tti')
+        tti_plugin = tti_plugin_info.plugin_class(tti_plugin_info, self.config)
 
         # Initialize Mic
         if use_mic == USE_TEXT_MIC:

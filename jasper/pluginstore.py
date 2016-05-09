@@ -141,7 +141,8 @@ class PluginStore(object):
             'audioengine': plugin.AudioEnginePlugin,
             'speechhandler': plugin.SpeechHandlerPlugin,
             'tts': plugin.TTSPlugin,
-            'stt': plugin.STTPlugin
+            'stt': plugin.STTPlugin,
+            'tti': plugin.TTIPlugin
         }
 
     def detect_plugins(self):

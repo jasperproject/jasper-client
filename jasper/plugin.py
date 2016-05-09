@@ -51,6 +51,26 @@ class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
     def get_priority(self):
         return 0
 
+class TTIPlugin(GenericPlugin):
+    """
+    Generic parent class for text-to-intent handler
+    """
+    __metaclass__ = abc.ABCMeta
+    ACTIONS = []
+    WORDS = {}
+
+    def __init__(self, name, phrases, *args, **kwargs):
+        GenericPlugin.__init__(self, *args, **kwargs)
+
+    @classmethod
+    @abc.abstractmethod	
+    def get_possible_phrases(cls):
+        pass
+
+    @classmethod
+    @abc.abstractmethod
+    def handle(cls, phrase):
+        pass
 
 class STTPlugin(GenericPlugin):
     def __init__(self, name, phrases, *args, **kwargs):

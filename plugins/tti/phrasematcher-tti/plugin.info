@@ -1,0 +1,10 @@
+[Plugin]
+Name = phrasematcher-tti
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Text-to-intent matching which relies on phrase matching using regex.
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
