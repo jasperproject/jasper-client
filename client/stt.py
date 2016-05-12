@@ -313,6 +313,14 @@ class GoogleSTT(AbstractSTTEngine):
         self._api_key = None
         self._http = requests.Session()
         self.language = language
+
+        if isinstance(api_key, list):
+            self.key_index = 0
+            self.request_count = 0
+            self.api_quota = 50
+        else:
+            self.key_index = False
+
         self.api_key = api_key
 
     @property
@@ -339,15 +347,20 @@ class GoogleSTT(AbstractSTTEngine):
 
     def _regenerate_request_url(self):
         if self.api_key and self.language:
+            if self.key_index is not False:
+                key = self.api_key[self.key_index]
+            else:
+                key = self.api_key
             query = urllib.urlencode({'output': 'json',
                                       'client': 'chromium',
-                                      'key': self.api_key,
+                                      'key': key,
                                       'lang': self.language,
                                       'maxresults': 6,
                                       'pfilter': 2})
             self._request_url = urlparse.urlunparse(
                 ('https', 'www.google.com', '/speech-api/v2/recognize', '',
                  query, ''))
+            print(str(self._request_url))
         else:
             self._request_url = None
 
@@ -382,7 +395,11 @@ class GoogleSTT(AbstractSTTEngine):
             self._logger.critical('Language info missing, transcription ' +
                                   'request aborted.')
             return []
-
+        elif self.key_index is not False and self.request_count >= self.api_quota:
+            print('Switching api keys to stay under quota')
+            self.key_index = ((self.key_index + 1) % len(self.api_key))
+            self.request_count = 0
+            self._regenerate_request_url()
         wav = wave.open(fp, 'rb')
         frame_rate = wav.getframerate()
         wav.close()
@@ -390,6 +407,7 @@ class GoogleSTT(AbstractSTTEngine):
 
         headers = {'content-type': 'audio/l16; rate=%s' % frame_rate}
         r = self._http.post(self.request_url, data=data, headers=headers)
+        self.request_count += 1
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError:
