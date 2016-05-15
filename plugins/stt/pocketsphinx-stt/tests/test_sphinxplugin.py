@@ -12,12 +12,12 @@ class TestPocketsphinxSTTPlugin(unittest.TestCase):
         self.time_clip = paths.data('audio', 'time.wav')
 
         try:
-            self.passive_stt_engine = testutils.get_plugin_instance(
-                sphinxplugin.PocketsphinxSTTPlugin,
-                'unittest-passive', ['JASPER'])
-            self.active_stt_engine = testutils.get_plugin_instance(
-                sphinxplugin.PocketSphinxSTTPlugin,
-                'unittest-active', ['TIME'])
+            self.passive_stt_engine = testutils.get_genericplugin_instance(
+                sphinxplugin.PocketsphinxSTTPlugin)
+            self.passive_stt_engine.init('unittest-passive', ['JASPER'])
+            self.active_stt_engine = testutils.get_genericplugin_instance(
+                sphinxplugin.PocketSphinxSTTPlugin)
+            self.active_stt_engine.init('unittest-active', ['TIME'])
         except ImportError:
             self.skipTest("Pockersphinx not installed!")
 

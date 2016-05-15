@@ -180,11 +180,52 @@ class Jasper(object):
                                  ', '.join(devices))
             raise
 
+        # create instanz of SST and TTS
+        active_stt_plugin_info = self.plugins.get_plugin(
+            active_stt_slug, category='stt')
+        active_stt_plugin = active_stt_plugin_info.plugin_class(
+            active_stt_plugin_info,
+            self.config)
+
+        if passive_stt_slug != active_stt_slug:
+            passive_stt_plugin_info = self.plugins.get_plugin(
+                passive_stt_slug, category='stt')
+        else:
+            passive_stt_plugin_info = active_stt_plugin_info
+
+        passive_stt_plugin = passive_stt_plugin_info.plugin_class(
+            passive_stt_plugin_info, self.config)
+
+        tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
+        tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
+
+        # Initialize Mic
+        if use_mic == USE_TEXT_MIC:
+            self.mic = local_mic.Mic()
+            self._logger.info('Using local text input and output')
+        elif use_mic == USE_BATCH_MIC:
+            self.mic = batch_mic.Mic(passive_stt_plugin,
+                                     active_stt_plugin, batch_file,
+                                     keyword=keyword)
+            self._logger.info('Using batched mode')
+        else:
+            self.mic = mic.Mic(
+                input_device, output_device,
+                passive_stt_plugin, active_stt_plugin,
+                tts_plugin, self.config, keyword=keyword)
+
+        # Text-to-intent handler
+        tti_plugin_info = self.plugins.get_plugin(tti_slug, category='tti')
+        #tti_plugin = tti_plugin_info.plugin_class(tti_plugin_info, self.config)
+
         # Initialize Brain
-        self.brain = brain.Brain(self.config)
+        self.brain = brain.Brain(self.config,
+                tti_plugin_info.plugin_class(tti_plugin_info, self.config))
         for info in self.plugins.get_plugins_by_category('speechhandler'):
+            # create instanz
             try:
-                plugin = info.plugin_class(info, self.config)
+                plugin = info.plugin_class(info, self.config,
+                        tti_plugin_info.plugin_class(tti_plugin_info, self.config),  self.mic)
             except Exception as e:
                 self._logger.warning(
                     "Plugin '%s' skipped! (Reason: %s)", info.name,
@@ -203,43 +244,11 @@ class Jasper(object):
             self._logger.error(msg)
             raise RuntimeError(msg)
 
-        active_stt_plugin_info = self.plugins.get_plugin(
-            active_stt_slug, category='stt')
-        active_stt_plugin = active_stt_plugin_info.plugin_class(
-            'default', self.brain.get_plugin_phrases(), active_stt_plugin_info,
-            self.config)
+        # init SSTs and compile vocabulary if needed
+        active_stt_plugin.init('default', self.brain.get_plugin_phrases())
+        passive_stt_plugin.init('keyword', self.brain.get_standard_phrases() + [keyword])
 
-        if passive_stt_slug != active_stt_slug:
-            passive_stt_plugin_info = self.plugins.get_plugin(
-                passive_stt_slug, category='stt')
-        else:
-            passive_stt_plugin_info = active_stt_plugin_info
-
-        passive_stt_plugin = passive_stt_plugin_info.plugin_class(
-            'keyword', self.brain.get_standard_phrases() + [keyword],
-            passive_stt_plugin_info, self.config)
-
-        tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
-        tts_plugin = tts_plugin_info.plugin_class(tts_plugin_info, self.config)
-
-	tti_plugin_info = self.plugins.get_plugin(tti_slug, category='tti')
-        tti_plugin = tti_plugin_info.plugin_class(tti_plugin_info, self.config)
-
-        # Initialize Mic
-        if use_mic == USE_TEXT_MIC:
-            self.mic = local_mic.Mic()
-            self._logger.info('Using local text input and output')
-        elif use_mic == USE_BATCH_MIC:
-            self.mic = batch_mic.Mic(passive_stt_plugin,
-                                     active_stt_plugin, batch_file,
-                                     keyword=keyword)
-            self._logger.info('Using batched mode')
-        else:
-            self.mic = mic.Mic(
-                input_device, output_device,
-                passive_stt_plugin, active_stt_plugin,
-                tts_plugin, self.config, keyword=keyword)
-
+        # Initialize Conversation
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
 

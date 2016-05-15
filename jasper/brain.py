@@ -4,17 +4,19 @@ from . import paths
 
 
 class Brain(object):
-    def __init__(self, config):
+    def __init__(self, config, tti_plugin):
         """
         Instantiates a new Brain object, which cross-references user
-        input with a list of modules. Note that the order of brain.modules
-        matters, as the Brain will return the first module
+        input with a list of modules. Note that the order of brain.plugins
+        matters, as the Brain will return the first plugin
         that accepts a given input.
         """
 
         self._plugins = []
         self._logger = logging.getLogger(__name__)
         self._config = config
+        self._tti_plugin = tti_plugin
+        #self._tti = tti_plugin_info.plugin_class(tti_plugin_info, self._config)
 
     def add_plugin(self, plugin):
         self._plugins.append(plugin)

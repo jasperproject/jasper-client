@@ -29,27 +29,52 @@ class AudioEnginePlugin(GenericPlugin, audioengine.AudioEngine):
 
 
 class SpeechHandlerPlugin(GenericPlugin, i18n.GettextMixin):
+    """
+        Generic parent class for SpeechHandlingPlugins
+    """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, *args, **kwargs):
-        GenericPlugin.__init__(self, *args, **kwargs)
+    def __init__(self, info, config,  tti_plugin,  mic):
+        """
+        Instantiates a new generic SpeechhandlerPlugin instance. Requires a tti_plugin and a mic
+        instance.
+        """
+        GenericPlugin.__init__(self,  info, config)
         i18n.GettextMixin.__init__(
             self, self.info.translations, self.profile)
+        self._tti_plugin = tti_plugin
+        #self._tti_plugin = tti_plugin_info.plugin_class(tti_plugin_info, self._plugin_config)
+        self._mic = mic
 
-    @abc.abstractmethod
+#   @classmethod
+#  def init(self,  *args, **kwargs):
+#       """
+#       Initiate Plugin, e.g. do some runtime preparation stuff
+#
+#       Arguments:
+#       """
+#       self._tti_plugin.init(self,  *args, **kwargs)
+
+    @classmethod
     def get_phrases(self):
-        pass
+        return self._tti_plugin.get_phrases(self)
 
+    @classmethod
     @abc.abstractmethod
     def handle(self, text, mic):
         pass
 
-    @abc.abstractmethod
+    @classmethod
     def is_valid(self, text):
-        pass
+        return self._tti_plugin.is_valid(self, text)
+
+    @classmethod
+    def check_phrase(self, text):
+        return self._tti_plugin.get_confidence(self, text)
 
     def get_priority(self):
         return 0
+
 
 class TTIPlugin(GenericPlugin):
     """
@@ -59,26 +84,43 @@ class TTIPlugin(GenericPlugin):
     ACTIONS = []
     WORDS = {}
 
-    def __init__(self, name, phrases, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
 
     @classmethod
-    @abc.abstractmethod	
-    def get_possible_phrases(cls):
+    @abc.abstractmethod
+    def get_phrases(cls):
         pass
 
     @classmethod
     @abc.abstractmethod
-    def handle(cls, phrase):
+    def get_intent(cls, phrase):
         pass
 
+    @abc.abstractmethod
+    def is_valid(self, phrase):
+        pass
+
+    @classmethod
+    def get_confidence(self, phrase):
+        return self.is_valid(self, phrase)
+
+    @abc.abstractmethod
+    def get_actionlist(self, phrase):
+        pass
+
+
 class STTPlugin(GenericPlugin):
-    def __init__(self, name, phrases, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         GenericPlugin.__init__(self, *args, **kwargs)
-        self._vocabulary_phrases = phrases
-        self._vocabulary_name = name
+        self._vocabulary_phrases = None
+        self._vocabulary_name = None
         self._vocabulary_compiled = False
         self._vocabulary_path = None
+
+    def init(self, name,  phrases):
+        self._vocabulary_phrases = phrases
+        self._vocabulary_name = name
 
     def compile_vocabulary(self, compilation_func):
         if self._vocabulary_compiled:
