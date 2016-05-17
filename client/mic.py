@@ -11,8 +11,8 @@ import alteration
 import jasperpath
 import time
 
-class Mic:
 
+class Mic:
     speechRec = None
     speechRec_persona = None
 
@@ -69,7 +69,6 @@ class Mic:
 
         # calculate the long run average, and thereby the proper threshold
         for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
@@ -117,7 +116,6 @@ class Mic:
 
         # calculate the long run average, and thereby the proper threshold
         for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
@@ -159,7 +157,6 @@ class Mic:
         # otherwise, let's keep recording for few seconds and save the file
         DELAY_MULTIPLIER = 1
         for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
