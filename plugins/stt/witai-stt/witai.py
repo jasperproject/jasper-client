@@ -18,6 +18,7 @@ SUPPORTED_LANG = (
     'sv'
 )
 
+
 class WitAiSTTPlugin(plugin.STTPlugin):
     """
     Speech-To-Text implementation which relies on the Wit.ai Speech API.
@@ -33,6 +34,9 @@ class WitAiSTTPlugin(plugin.STTPlugin):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Create Plugin Instance
+        """
         plugin.STTPlugin.__init__(self, *args, **kwargs)
         self._logger = logging.getLogger(__name__)
         self.token = self.profile['witai-stt']['access_token']
@@ -47,14 +51,23 @@ class WitAiSTTPlugin(plugin.STTPlugin):
 
     @property
     def token(self):
+        """
+        Return defined acess token.
+        """
         return self._token
 
     @property
     def language(self):
+        """
+        Returns selected language
+        """
         return self._language
 
     @token.setter
     def token(self, value):
+        """
+        Sets property token
+        """
         self._token = value
         self._headers = {'Authorization': 'Bearer %s' % self.token,
                          'accept': 'application/json',
@@ -62,9 +75,16 @@ class WitAiSTTPlugin(plugin.STTPlugin):
 
     @property
     def headers(self):
+        """
+        Return headers
+        """
         return self._headers
 
     def transcribe(self, fp):
+        """
+        transcribes given audio file by uploading to wit.ai and returning
+        received text from json answer.
+        """
         data = fp.read()
         r = requests.post('https://api.wit.ai/speech?v=20150101',
                           data=data,
