@@ -17,10 +17,10 @@ RE_ISYMNOTFOUND = re.compile(r'^Symbol: \'(?P<symbol>.+)\' not found in ' +
 
 def execute(executable, version,  fst_model, input, is_file=False, nbest=None):
     logger = logging.getLogger(__name__)
-    
+   
     cmd = [executable,
                '--model=%s' % fst_model]
-    if version <= 0.8:   
+    if version <= 0.8:
         cmd.append('--input=%s' % input)
         cmd.append('--words')
         if is_file:
@@ -29,7 +29,7 @@ def execute(executable, version,  fst_model, input, is_file=False, nbest=None):
         if is_file:
             cmd.append('--wordlist=%s' % input)
         else:
-            cmd.append('--word=%s' % input)                
+            cmd.append('--word=%s' % input)
 
     if nbest is not None:
         cmd.extend(['--nbest=%d' % nbest])
