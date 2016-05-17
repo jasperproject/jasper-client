@@ -52,7 +52,16 @@ class GoogleSTTPlugin(plugin.STTPlugin):
             language = 'en-US'
 
         self.language = language.lower()
-        self.api_key = self.profile['keys']['GOOGLE_SPEECH']
+        api_key = self.profile['keys']['GOOGLE_SPEECH']
+        if isinstance(api_key, list):
+            self.key_index = 0
+            self.request_count = 0
+            self.api_quota = 50
+        else:
+            self.key_index = -1
+
+        self.api_key = api_key
+
 
     @property
     def request_url(self):
@@ -78,9 +87,13 @@ class GoogleSTTPlugin(plugin.STTPlugin):
 
     def _regenerate_request_url(self):
         if self.api_key and self.language:
+            if self.key_index >= 0:
+                key = self.api_key[self.key_index]
+            else:
+                key = self.api_key
             query = urllib.urlencode({'output': 'json',
                                       'client': 'chromium',
-                                      'key': self.api_key,
+                                      'key': key,
                                       'lang': self.language,
                                       'maxresults': 6,
                                       'pfilter': 2})
@@ -107,6 +120,11 @@ class GoogleSTTPlugin(plugin.STTPlugin):
             self._logger.critical('Language info missing, transcription ' +
                                   'request aborted.')
             return []
+        elif self.key_index >= 0 and self.request_count >= self.api_quota:
+            self._logger.debug("Switching api keys to stay under quota")
+            self.key_index = ((self.key_index + 1) % len(self.api_key))
+            self.request_count = 0
+            self._regenerate_request_url()
 
         wav = wave.open(fp, 'rb')
         frame_rate = wav.getframerate()
@@ -115,6 +133,7 @@ class GoogleSTTPlugin(plugin.STTPlugin):
 
         headers = {'content-type': 'audio/l16; rate=%s' % frame_rate}
         r = self._http.post(self.request_url, data=data, headers=headers)
+        self.request_count += 1
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError:
