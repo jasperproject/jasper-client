@@ -9,7 +9,7 @@ import audioop
 import pyaudio
 import alteration
 import jasperpath
-
+import time
 
 class Mic:
 
@@ -224,6 +224,8 @@ class Mic:
         # generation
         lastN = [THRESHOLD * 1.2 for i in range(30)]
 
+        grace_period = 30
+        time.sleep(1)
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
             data = stream.read(CHUNK)
@@ -236,7 +238,7 @@ class Mic:
             average = sum(lastN) / float(len(lastN))
 
             # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
+            if i > grace_period and average < THRESHOLD * 0.8:
                 break
 
         self.speaker.play(jasperpath.data('audio', 'beep_lo.wav'))
