@@ -360,7 +360,6 @@ class GoogleSTT(AbstractSTTEngine):
             self._request_url = urlparse.urlunparse(
                 ('https', 'www.google.com', '/speech-api/v2/recognize', '',
                  query, ''))
-            print(str(self._request_url))
         else:
             self._request_url = None
 
@@ -395,7 +394,8 @@ class GoogleSTT(AbstractSTTEngine):
             self._logger.critical('Language info missing, transcription ' +
                                   'request aborted.')
             return []
-        elif self.key_index is not False and self.request_count >= self.api_quota:
+        elif self.key_index is not False \
+                and self.request_count >= self.api_quota:
             print('Switching api keys to stay under quota')
             self.key_index = ((self.key_index + 1) % len(self.api_key))
             self.request_count = 0
