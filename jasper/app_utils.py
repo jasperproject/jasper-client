@@ -5,6 +5,18 @@ import urllib2
 import re
 from pytz import timezone
 
+NEGATIVE = ["no", "nope", "not now", "deny", "don\'t", "stop", "end", "n"]
+POSITIVE = ["yes", "yeah", "yup", "ok(ay)?", "al(l\s)?right(y)?",
+                  "(sounds\s)?good", "check", "cool", "confirm",
+                  "affirm", "sure", "go", "y"]
+CANCEL = ["never(\s)?mind", "cancel"]
+REPEAT = ["repeat", "again", "what was that"]
+
+NEGATIVE = re.compile(r"\b(%s)\b" % "|".join(NEGATIVE), re.IGNORECASE)
+POSITIVE = re.compile(r"\b(%s)\b" % "|".join(POSITIVE), re.IGNORECASE)
+CANCEL = re.compile(r"\b(%s)\b" % "|".join(CANCEL), re.IGNORECASE)
+REPEAT = re.compile(r"\b(%s)\b" % "|".join(REPEAT), re.IGNORECASE)
+
 
 def send_email(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     """Sends an HTML email."""
@@ -115,8 +127,7 @@ def is_negative(phrase):
     Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return bool(re.search(r'\b(no(t)?|don\'t|stop|end|n)\b', phrase,
-                          re.IGNORECASE))
+    return check_regex(NEGATIVE, phrase)
 
 
 def is_positive(phrase):
@@ -126,6 +137,19 @@ def is_positive(phrase):
         Arguments:
         phrase -- the input phrase to-be evaluated
     """
-    return bool(re.search(r'\b(sure|yes|yeah|go|yup|y)\b',
-                          phrase,
-                          re.IGNORECASE))
+    return check_regex(POSITIVE, phrase)
+
+
+def is_cancel(phrase):
+    return check_regex(CANCEL, phrase)
+
+def is_repeat(phrase):
+    return check_regex(REPEAT, phrase)
+
+
+def check_regex(pattern, phrase):
+    if not phrase:
+        return False
+    if isinstance(phrase, list):
+        phrase = " ".join(phrase)
+    return bool(pattern.search(phrase))
