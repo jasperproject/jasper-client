@@ -141,14 +141,33 @@ def is_positive(phrase):
 
 
 def is_cancel(phrase):
+    """
+        Returns True if the input phrase has similar meaning to cancel.
+
+        Arguments:
+        phrase -- the input phrase to-be evaluated
+    """
     return check_regex(CANCEL, phrase)
 
 
 def is_repeat(phrase):
+    """
+        Returns True if the input phrase has similar meaning to repeat.
+
+        Arguments:
+        phrase -- the input phrase to-be evaluated
+    """
     return check_regex(REPEAT, phrase)
 
 
 def check_regex(pattern, phrase):
+    """
+        Returns True if the input phrase has matches the supplied regex
+
+        Arguments:
+        phrase -- the input phrase to-be evaluated
+        pattern -- the regex pattern to search with
+    """
     if not phrase:
         return False
     if isinstance(phrase, list):
