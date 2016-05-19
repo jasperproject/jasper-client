@@ -7,8 +7,8 @@ from pytz import timezone
 
 NEGATIVE = ["no", "nope", "not now", "deny", "don\'t", "stop", "end", "n"]
 POSITIVE = ["yes", "yeah", "yup", "ok(ay)?", "al(l\s)?right(y)?",
-                  "(sounds\s)?good", "check", "cool", "confirm",
-                  "affirm", "sure", "go", "y"]
+            "(sounds\s)?good", "check", "cool", "confirm",
+            "affirm", "sure", "go", "y"]
 CANCEL = ["never(\s)?mind", "cancel"]
 REPEAT = ["repeat", "again", "what was that"]
 
@@ -142,6 +142,7 @@ def is_positive(phrase):
 
 def is_cancel(phrase):
     return check_regex(CANCEL, phrase)
+
 
 def is_repeat(phrase):
     return check_regex(REPEAT, phrase)
