@@ -27,5 +27,11 @@ class Mic(object):
         print("JASPER: %s" % phrase)
 
     def ask(self, question):
+        """
+            Asks a questions and then returns the response
+
+            Arguments:
+            question -- the question to ask
+        """
         self.say(question)
         return self.active_listen()

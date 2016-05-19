@@ -225,6 +225,12 @@ class Mic(object):
             self._output_device.play_fp(f)
 
     def ask(self, question):
+        """
+            Asks a questions and then returns the response
+
+            Arguments:
+            question -- the question to ask
+        """
         self.say(question)
         return self.active_listen()
 
