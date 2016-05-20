@@ -214,7 +214,7 @@ class Mic(object):
                                       add_padding=self._output_padding)
 
     def say(self, phrase):
-        if isinstance(phrase, list):
+        if type(phrase) is list or type(phrase) is tuple:
             for words in phrase:
                 self.say(words)
             return
