@@ -170,6 +170,6 @@ def check_regex(pattern, phrase):
     """
     if not phrase:
         return False
-    if isinstance(phrase, list):
+    if type(phrase) is list or type(phrase) is tuple:
         phrase = " ".join(phrase)
     return bool(pattern.search(phrase))
