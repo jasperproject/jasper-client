@@ -214,11 +214,25 @@ class Mic(object):
                                       add_padding=self._output_padding)
 
     def say(self, phrase):
+        if type(phrase) is list or type(phrase) is tuple:
+            for words in phrase:
+                self.say(words)
+            return
         altered_phrase = alteration.clean(phrase)
         with tempfile.SpooledTemporaryFile() as f:
             f.write(self.tts_engine.say(altered_phrase))
             f.seek(0)
             self._output_device.play_fp(f)
+
+    def ask(self, question):
+        """
+            Asks a questions and then returns the response
+
+            Arguments:
+            question -- the question to ask
+        """
+        self.say(question)
+        return self.active_listen()
 
 
 if __name__ == "__main__":
