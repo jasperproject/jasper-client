@@ -7,7 +7,8 @@ TEST_PROFILE = {
     'phone_number': '012344321',
     'weather': {
         'location': 'New York',
-        'unit': 'Fahrenheit'
+        'unit': 'Fahrenheit',
+        'woeid': '2459115'
     }
 }
 
