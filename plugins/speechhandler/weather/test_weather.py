@@ -16,6 +16,11 @@ class TestWeatherPlugin(unittest.TestCase):
 
     @unittest.skipIf(not diagnose.check_network_connection(),
                      "No internet connection")
+    def test_get_woeid_method(self):
+        self.assertEqual(weather.get_woeid('New York'), 2459115)
+
+    @unittest.skipIf(not diagnose.check_network_connection(),
+                     "No internet connection")
     def test_handle_method(self):
         mic = testutils.TestMic()
         self.plugin.handle("What's the weather like tomorrow?", mic)

@@ -5,7 +5,9 @@ import dateutil
 import requests
 from jasper import plugin
 
-YAHOO_YQL_QUERY = \
+YAHOO_YQL_QUERY_WOEID = \
+    'SELECT * FROM geo.places WHERE text="%s"'
+YAHOO_YQL_QUERY_FORECAST = \
     'SELECT * FROM weather.forecast WHERE woeid="%s" AND u="%s"'
 YAHOO_YQL_URL = 'https://query.yahooapis.com/v1/public/yql'
 YAHOO_YQL_WEATHER_CONDITION_CODES = {
@@ -86,9 +88,30 @@ def yql_json_request(yql_query):
     return r.json()
 
 
+def get_woeid(location_name):
+    yql_query = YAHOO_YQL_QUERY_WOEID % location_name.replace('"', '')
+    r = requests.get(YAHOO_YQL_URL,
+                     params={
+                        'q': yql_query,
+                        'format': 'json',
+                        'env': 'store://datatables.org/alltableswithkeys'},
+                     headers={'User-Agent': 'Mozilla/5.0'})
+    content = r.json()
+    try:
+        place = content['query']['results']['place']
+    except KeyError:
+        return None
+
+    # We just return the first match
+    try:
+        return int(place[0]['woeid'])
+    except Exception:
+        return None
+
+
 def get_weather(woeid, unit="f"):
-    yql_query = YAHOO_YQL_QUERY % (int(woeid),
-                                   unit.replace('"', ''))
+    yql_query = YAHOO_YQL_QUERY_FORECAST % (int(woeid),
+                                            unit.replace('"', ''))
     content = yql_json_request(yql_query)
     # make sure we got data
     try:
