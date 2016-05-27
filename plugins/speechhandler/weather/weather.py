@@ -5,8 +5,10 @@ import dateutil
 import requests
 from jasper import plugin
 
-YAHOO_YQL_QUERY = \
-    'SELECT * FROM weather.bylocation WHERE location="%s" AND unit="%s"'
+YAHOO_YQL_QUERY_WOEID = \
+    'SELECT * FROM geo.places WHERE text="%s"'
+YAHOO_YQL_QUERY_FORECAST = \
+    'SELECT * FROM weather.forecast WHERE woeid="%s" AND u="%s"'
 YAHOO_YQL_URL = 'https://query.yahooapis.com/v1/public/yql'
 YAHOO_YQL_WEATHER_CONDITION_CODES = {
     0:    'tornado',
@@ -76,9 +78,18 @@ ForecastItem = collections.namedtuple(
     'ForecastItem', ['text', 'date', 'temp_high', 'temp_low'])
 
 
-def get_weather(location, unit="f"):
-    yql_query = YAHOO_YQL_QUERY % (location.replace('"', ''),
-                                   unit.replace('"', ''))
+def yql_json_request(yql_query):
+    r = requests.get(YAHOO_YQL_URL,
+                     params={
+                        'q': yql_query,
+                        'format': 'json',
+                        'env': 'store://datatables.org/alltableswithkeys'},
+                     headers={'User-Agent': 'Mozilla/5.0'})
+    return r.json()
+
+
+def get_woeid(location_name):
+    yql_query = YAHOO_YQL_QUERY_WOEID % location_name.replace('"', '')
     r = requests.get(YAHOO_YQL_URL,
                      params={
                         'q': yql_query,
@@ -86,9 +97,25 @@ def get_weather(location, unit="f"):
                         'env': 'store://datatables.org/alltableswithkeys'},
                      headers={'User-Agent': 'Mozilla/5.0'})
     content = r.json()
+    try:
+        place = content['query']['results']['place']
+    except KeyError:
+        return None
+
+    # We just return the first match
+    try:
+        return int(place[0]['woeid'])
+    except Exception:
+        return None
+
+
+def get_weather(woeid, unit="f"):
+    yql_query = YAHOO_YQL_QUERY_FORECAST % (int(woeid),
+                                            unit.replace('"', ''))
+    content = yql_json_request(yql_query)
     # make sure we got data
     try:
-        channel = content['query']['results']['weather']['rss']['channel']
+        channel = content['query']['results']['channel']
     except KeyError:
         # return empty Weather
         return None
@@ -116,9 +143,16 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(WeatherPlugin, self).__init__(*args, **kwargs)
         try:
-            self._location = self.profile['weather']['location']
+            self._woeid = self.profile['weather']['woeid']
         except KeyError:
-            raise ValueError('Weather location not configured!')
+            try:
+                location = self.profile['weather']['location']
+            except KeyError:
+                raise ValueError('Weather location not configured!')
+            self._woeid = get_woeid(location)
+
+        if not self._woeid:
+            raise ValueError('Weather location (woeid) invalid!')
 
         try:
             unit = self.profile['weather']['unit']
@@ -154,7 +188,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             mic -- used to interact with the user (for both input and output)
         """
 
-        weather = get_weather(self._location, unit=self._unit)
+        weather = get_weather(self._woeid, unit=self._unit)
 
         if self.gettext('TOMORROW').upper() in text.upper():
             # Tomorrow
