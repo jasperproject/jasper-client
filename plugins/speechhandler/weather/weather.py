@@ -6,7 +6,7 @@ import requests
 from jasper import plugin
 
 YAHOO_YQL_QUERY = \
-    'SELECT * FROM weather.bylocation WHERE location="%s" AND unit="%s"'
+    'SELECT * FROM weather.forecast WHERE woeid="%s" AND u="%s"'
 YAHOO_YQL_URL = 'https://query.yahooapis.com/v1/public/yql'
 YAHOO_YQL_WEATHER_CONDITION_CODES = {
     0:    'tornado',
@@ -88,7 +88,7 @@ def get_weather(location, unit="f"):
     content = r.json()
     # make sure we got data
     try:
-        channel = content['query']['results']['weather']['rss']['channel']
+        channel = content['query']['results']['channel']
     except KeyError:
         # return empty Weather
         return None
@@ -116,7 +116,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(WeatherPlugin, self).__init__(*args, **kwargs)
         try:
-            self._location = self.profile['weather']['location']
+            self._location = self.profile['weather']['woeid']
         except KeyError:
             raise ValueError('Weather location not configured!')
 
