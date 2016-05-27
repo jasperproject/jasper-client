@@ -76,16 +76,20 @@ ForecastItem = collections.namedtuple(
     'ForecastItem', ['text', 'date', 'temp_high', 'temp_low'])
 
 
-def get_weather(woeid, unit="f"):
-    yql_query = YAHOO_YQL_QUERY % (int(woeid),
-                                   unit.replace('"', ''))
+def yql_json_request(yql_query):
     r = requests.get(YAHOO_YQL_URL,
                      params={
                         'q': yql_query,
                         'format': 'json',
                         'env': 'store://datatables.org/alltableswithkeys'},
                      headers={'User-Agent': 'Mozilla/5.0'})
-    content = r.json()
+    return r.json()
+
+
+def get_weather(woeid, unit="f"):
+    yql_query = YAHOO_YQL_QUERY % (int(woeid),
+                                   unit.replace('"', ''))
+    content = yql_json_request(yql_query)
     # make sure we got data
     try:
         channel = content['query']['results']['channel']
