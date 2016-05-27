@@ -145,7 +145,14 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
         try:
             self._woeid = self.profile['weather']['woeid']
         except KeyError:
-            raise ValueError('Weather location not configured!')
+            try:
+                location = self.profile['weather']['location']
+            except KeyError:
+                raise ValueError('Weather location not configured!')
+            self._woeid = get_woeid(location)
+
+        if not self._woeid:
+            raise ValueError('Weather location (woeid) invalid!')
 
         try:
             unit = self.profile['weather']['unit']
