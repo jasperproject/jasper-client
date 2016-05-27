@@ -76,8 +76,8 @@ ForecastItem = collections.namedtuple(
     'ForecastItem', ['text', 'date', 'temp_high', 'temp_low'])
 
 
-def get_weather(location, unit="f"):
-    yql_query = YAHOO_YQL_QUERY % (location.replace('"', ''),
+def get_weather(woeid, unit="f"):
+    yql_query = YAHOO_YQL_QUERY % (int(woeid),
                                    unit.replace('"', ''))
     r = requests.get(YAHOO_YQL_URL,
                      params={
@@ -116,7 +116,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
     def __init__(self, *args, **kwargs):
         super(WeatherPlugin, self).__init__(*args, **kwargs)
         try:
-            self._location = self.profile['weather']['woeid']
+            self._woeid = self.profile['weather']['woeid']
         except KeyError:
             raise ValueError('Weather location not configured!')
 
@@ -154,7 +154,7 @@ class WeatherPlugin(plugin.SpeechHandlerPlugin):
             mic -- used to interact with the user (for both input and output)
         """
 
-        weather = get_weather(self._location, unit=self._unit)
+        weather = get_weather(self._woeid, unit=self._unit)
 
         if self.gettext('TOMORROW').upper() in text.upper():
             # Tomorrow
