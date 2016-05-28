@@ -83,8 +83,7 @@ class MPDClient(object):
     def get_playback_state(self):
         with self.connection() as conn:
             status = conn.status()
-        state = status['state']
-        return state
+            state = status['state']
         if state == 'play':
             return PLAYBACK_STATE_PLAYING
         elif state == 'pause':
