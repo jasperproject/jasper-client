@@ -17,7 +17,7 @@ msgstr ""
 
 #: clock.py:9 clock.py:35
 msgid "TIME"
-msgstr "Temps"
+msgstr "Temp"
 
 #: clock.py:23
 #, python-format
