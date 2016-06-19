@@ -28,6 +28,3 @@ msgstr "Il est t:%l} {t:%P} "
 #, python-format
 msgid "It is {t:%l}:{t.minute} {t:%P} right now."
 msgstr "Il est {t:%l}:{t.minute} {t:%P}"
-
-    Status API Training Shop Blog About 
-
