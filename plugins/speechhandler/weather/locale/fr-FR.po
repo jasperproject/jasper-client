@@ -1,0 +1,247 @@
+# Jasper Weather Plugin
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-12-01 15:10+0100\n"
+"PO-Revision-Date: 2016-06-01 01:30+0100\n"
+"Last-Translator: Rocca Seb <se.rocca84@gmail.com>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plugins/speechhandler/weather/weather.py:113
+#: plugins/speechhandler/weather/weather.py:230
+msgid "WEATHER"
+msgstr "METEO"
+
+#: plugins/speechhandler/weather/weather.py:114
+msgid "TODAY"
+msgstr "AUJOURD'HUI"
+
+#: plugins/speechhandler/weather/weather.py:115
+#: plugins/speechhandler/weather/weather.py:151
+msgid "TOMORROW"
+msgstr "DEMAIN"
+
+#: plugins/speechhandler/weather/weather.py:116
+#: plugins/speechhandler/weather/weather.py:231
+msgid "TEMPERATURE"
+msgstr "TEMPERATURE"
+
+#: plugins/speechhandler/weather/weather.py:117
+#: plugins/speechhandler/weather/weather.py:155
+#: plugins/speechhandler/weather/weather.py:232
+msgid "FORECAST"
+msgstr "PREVISION"
+
+#: plugins/speechhandler/weather/weather.py:118
+#: plugins/speechhandler/weather/weather.py:181
+msgid "YES"
+msgstr "OUI"
+
+#: plugins/speechhandler/weather/weather.py:119
+msgid "NO"
+msgstr "NON"
+
+#: plugins/speechhandler/weather/weather.py:164
+#, python-brace-format
+msgid "Currently {text} at {temp} degrees in {city}."
+msgstr "Il fait {temp} degrés à {city}"
+
+#: plugins/speechhandler/weather/weather.py:175
+msgid "Do you want to hear the forecast for tomorrow?"
+msgstr "Voulez vous entendre la météo de demain ?"
+
+#: plugins/speechhandler/weather/weather.py:177
+#, python-format
+msgid "Do you want to hear the forecast for the next %d days?"
+msgstr "Voulez-vous entendre la météo des %d prochains jours?"
+
+#: plugins/speechhandler/weather/weather.py:195
+#, python-brace-format
+msgid "Tomorrow in {city}: {text} and temperatures between {temp_low} and {temp_high} degrees."
+msgstr "Demain à {city}: il fera {text} et la température sera comprise entre {temp_low} et {temp_high} degrés"
+
+#: plugins/speechhandler/weather/weather.py:204
+msgid "Sorry, I had a problem retrieving the weather data."
+msgstr "Désolé, J'ai encontré un problème lors de la récupération des données. "
+
+#: plugins/speechhandler/weather/weather.py:203
+#, python-format
+msgid "Sorry, I don't know what the weather in %s will be like tomorrow."
+msgstr "Désolé, Je ne connais pas le temps qu'il fera demain à %s."
+
+#: plugins/speechhandler/weather/weather.py:210
+msgid "Tomorrow"
+msgstr "Demain"
+
+#: plugins/speechhandler/weather/weather.py:214
+#, python-brace-format
+msgid "{text} and temperatures between {temp_low} and {temp_high} degrees."
+msgstr "{text} et températures entre {temp_low} et {temp_high} degrés."
+
+#: plugins/speechhandler/weather/weather.py:219
+#, python-format
+msgid "Weather Forecast for the next %d days: "
+msgstr "Prévision météo pour les %d prochains jours"
+
+# YQL weather conditions
+msgid "tornado"
+msgstr "Tornade"
+
+msgid "tropical storm"
+msgstr "Tempètre tropicale"
+
+msgid "hurricane"
+msgstr "ouragant"
+
+msgid "severe thunderstorms"
+msgstr "fort orages"
+
+msgid "thunderstorms"
+msgstr "orages"
+
+msgid "mixed rain and snow"
+msgstr "Il neige et pleut"
+
+msgid "mixed rain and sleet"
+msgstr "Il pleut de la neige fondue"
+
+msgid "freezing drizzle"
+msgstr "bruine verglaçante"
+
+msgid "drizzle"
+msgstr "bruines"
+
+msgid "freezing rain"
+msgstr "pluie glacée"
+
+msgid "showers"
+msgstr "averses"
+
+msgid "snow flurries"
+msgstr "averses de neige"
+
+msgid "light snow showers"
+msgstr "légère chute de neige"
+
+msgid "blowing snow"
+msgstr "poudrerie"
+
+msgid "snow"
+msgstr "neige"
+
+msgid "hail"
+msgstr "grêle"
+
+msgid "sleet"
+msgstr "neige fondue"
+
+msgid "dust"
+msgstr "poussièr"
+
+msgid "foggy"
+msgstr "brumeux"
+
+msgid "haze"
+msgstr "brume"
+
+msgid "smoky"
+msgstr "fumeux"
+
+msgid "blustery"
+msgstr "tempête"
+
+msgid "windy"
+msgstr "ventenx"
+
+msgid "cold"
+msgstr "froid"
+
+msgid "cloudy"
+msgstr "nuageux"
+
+msgid "mostly cloudy at night"
+msgstr "principalement nuageux la nuit"
+
+msgid "mostly cloudy at day"
+msgstr "principalement nuageux le jour"
+
+msgid "partly cloudy at night"
+msgstr "partiellement nuageux "
+
+msgid "partly cloudy at day"
+msgstr "partiellement nuageux le jour"
+
+msgid "clear at night"
+msgstr "clair la nuit"
+
+msgid "sunny"
+msgstr "ensoleillé"
+
+msgid "fair at night"
+msgstr "juste la nuit"
+
+msgid "fair at day"
+msgstr "juste le jour"
+
+msgid "mixed rain and hail"
+msgstr "mixe pluie et grêle"
+
+msgid "hot"
+msgstr "chaud"
+
+msgid "isolated thunderstorms"
+msgstr "orages isolés"
+
+msgid "scattered thunderstorms"
+msgstr "orages dispersés"
+
+msgid "scattered showers"
+msgstr "pluie dispersé"
+
+msgid "heavy snow"
+msgstr "forte chute de neige"
+
+msgid "scattered snow showers"
+msgstr "Averses de neige dispersées"
+
+msgid "partly cloudy"
+msgstr "Partiellement nuageux"
+
+msgid "thundershowers"
+msgstr "pluies orageuses"
+
+msgid "snow showers"
+msgstr "averses de neiges"
+
+msgid "isolated thundershowers"
+msgstr "averses orageuses dispersées"
+
+# Weekday names
+msgid "Sunday"
+msgstr "Dimanche"
+
+msgid "Monday"
+msgstr "Lundi"
+
+msgid "Tuesday"
+msgstr "Mardi"
+
+msgid "Wednesday"
+msgstr "Mercredi"
+
+msgid "Thursday"
+msgstr "Jeudi"
+
+msgid "Friday"
+msgstr "Vendredi"
+
+msgid "Saturday"
+msgstr "Samedi"

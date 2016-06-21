@@ -1,0 +1,72 @@
+# Jasper News Plugin
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-12-01 03:11+0100\n"
+"PO-Revision-Date: 2016-06-18 00:50+0100\n"
+"Last-Translator: Rocca Seb <se.rocca84@gmail.com>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: news.py:57 news.py:129
+msgid "NEWS"
+msgstr "NEWS"
+
+#: news.py:58 news.py:129
+msgid "HEADLINES"
+msgstr "TITRES"
+
+#: news.py:59 news.py:98
+msgid "YES"
+msgstr "OUI"
+
+#: news.py:60
+msgid "NO"
+msgstr "NON"
+
+#: news.py:72
+msgid "Pulling up the news..."
+msgstr "Récéption des news..."
+
+#: news.py:82
+msgid "Sorry, I'm unable to get the latest headlines right now."
+msgstr "Désole, Je suis incapable d'avoir les derniers titres maitenant."
+
+#: news.py:85
+msgid "These are the current top headlines..."
+msgstr "Voci les principaux titres actuels ..."
+
+#: news.py:95
+msgid "Would you like me to send you these articles?"
+msgstr "Voulez vous que je vous envois ces articles?"
+
+#: news.py:99
+msgid "Sure, just give me a moment."
+msgstr "d'accord, donnez moi un instant."
+
+#: news.py:103
+msgid "Your Top Headlines"
+msgstr "Vos meilleurs titres"
+
+#: news.py:107
+msgid "Okay, I've sent you an email."
+msgstr "D'accord. Je vous ai envoyé un mail."
+
+#: news.py:110
+msgid "Sorry, I'm having trouble sending you these articles."
+msgstr "Désolé. J'ai du mal à vous envoyer ces articles."
+
+#: news.py:112
+msgid "Okay, I will not send any articles."
+msgstr "d'accord, je ne vous envoies aucun article."
+
+#: news.py:115
+msgid "These are the articles you requested:"
+msgstr "Voici les articles que vous avez demandé:"

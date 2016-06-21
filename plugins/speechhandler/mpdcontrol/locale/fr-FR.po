@@ -1,0 +1,134 @@
+# Jasper MPDControl Plugin
+# Copyright (C) 2015 Shubhro Saha, Charlie Marsh & Jan Holthuis
+# This file is distributed under the same license as the Jasper package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Jasper 2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/jasperproject/jasper-client/issues\n"
+"POT-Creation-Date: 2015-12-02 17:58+0100\n"
+"PO-Revision-Date: 2016-06-18 00:40+0100\n"
+"Last-Translator: Rocca Seb <se.rocca84@gmail.com>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:31
+msgid "MUSIC"
+msgstr "MUSIQUE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:31
+msgid "SPOTIFY"
+msgstr "SPOTIFY"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:44
+msgid "Please give me a moment, I'm starting the music mode."
+msgstr "Veillez patienter, je démarre le mode musique"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:114
+msgid "PLAY"
+msgstr "JOUER"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:119
+msgid "PAUSE"
+msgstr "PAUSE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:47
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:111
+msgid "STOP"
+msgstr "STOP"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:48
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:133
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:134
+msgid "NEXT"
+msgstr "SUIVANTE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:48
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:133
+msgid "PREVIOUS"
+msgstr "PRECEDENTE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:49
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:126
+msgid "LOUDER"
+msgstr "PLUS FORT"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:49
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:129
+msgid "SOFTER"
+msgstr "MOIN FORT"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:50
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:90
+msgid "PLAYLIST"
+msgstr "PLAYLIST"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:51
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:145
+msgid "CLOSE"
+msgstr "FERMER"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:51
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:145
+msgid "EXIT"
+msgstr "SORTIE"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:60
+msgid "Music mode started!"
+msgstr "Le mode musique démarre!"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:79
+msgid "Pardon?"
+msgstr "Pardon?"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:84
+msgid "Music Mode stopped!"
+msgstr "Le mode musique s'arrète!."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:106
+#, python-format
+msgid "Playlist %s loaded."
+msgstr "La playlist %s démarre."
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:110
+msgid "Sorry, I can't find a playlist with that name."
+msgstr "Désolé, il n'y a pas de playlist portant ce nom"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:113
+msgid "Music stopped."
+msgstr "Musique arrêtée"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:118
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:144
+#, python-brace-format
+msgid "Playing {song.title} by {song.artist}..."
+msgstr "Je joue  {song.title} de {song.artist}"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:123
+msgid "Music paused."
+msgstr "Musique en pause"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:125
+msgid "Music is not playing."
+msgstr "Aucune musique en cours"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:127
+msgid "Increasing volume."
+msgstr "Augmentation du volume"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:130
+msgid "Decreasing volume."
+msgstr "Diminution du volume"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:135
+msgid "Next song"
+msgstr "Musique suivante"
+
+#: plugins/speechhandler/mpdcontrol/mpdcontrol.py:139
+msgid "Previous song"
+msgstr "Musique precedente"
