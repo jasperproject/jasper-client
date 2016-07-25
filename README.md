@@ -1,4 +1,4 @@
-jasper-client
+jasper-client - Snowboy Hot Word Detection
 =============
 
 [![Build Status](https://travis-ci.org/jasperproject/jasper-client.svg?branch=master)](https://travis-ci.org/jasperproject/jasper-client) [![Coverage Status](https://img.shields.io/coveralls/jasperproject/jasper-client.svg)](https://coveralls.io/r/jasperproject/jasper-client) [![Codacy Badge](https://www.codacy.com/project/badge/3a50e1bc2261419894d76b7e2c1ac694)](https://www.codacy.com/app/jasperproject/jasper-client)
@@ -6,6 +6,30 @@ jasper-client
 Client code for the Jasper voice computing platform. Jasper is an open source platform for developing always-on, voice-controlled applications.
 
 Learn more at [jasperproject.github.io](http://jasperproject.github.io/), where we have assembly and installation instructions, as well as extensive documentation. For the relevant disk image, please visit [SourceForge](http://sourceforge.net/projects/jasperproject/).
+
+## The differences with the main project
+
+The problem with stt online, it's the big lack of PriVAcy !!!
+
+In jasper by adding stt_passive_engine in profile.yml you can choose the stt who gonna listen to you til you said "Jasper !".
+Of course you have to choose a not online stt, if you mind about your PriVAcy...
+
+That's good But !
+- You can't easily choose a wake up word.
+- Due to my accent (I think),  when i said "Jasper"... doesn't work all the time...
+
+To address these points, i decide to use "Snowboy Hot Word Detection" [https://snowboy.kitt.ai/](https://snowboy.kitt.ai/) as "stt passive engine".
+- Define and train your own hotword
+- High accuracy, 
+- Low latency and no internet needed
+- Small memory footprint and cross-platform support
+
+## Installation
+- Follow the python installation -> [https://github.com/Kitt-AI/snowboy](https://github.com/Kitt-AI/snowboy)
+- copy _snowboydetect.so (generated in project snowboy/swig/Python) in jasper/client/snowboy
+- create your model -> [https://snowboy.kitt.ai/](https://snowboy.kitt.ai/)
+- copy your model under the name "model.pmdl" in /jasper/client/snowboy)
+- And here we go !!!
 
 ## Contributing
 
