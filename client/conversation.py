@@ -8,7 +8,7 @@ from snowboy import snowboydecoder
 
 class Conversation(object):
 
-    def __init__(self, persona, mic, profile):
+    def __init__(self, mic, profile):
         self._logger = logging.getLogger(__name__)
         self.mic = mic
         self.profile = profile
