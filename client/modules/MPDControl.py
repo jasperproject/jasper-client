@@ -78,7 +78,6 @@ class MusicMode(object):
         music_stt_engine = mic.active_stt_engine.get_instance('music', phrases)
 
         self.mic = Mic(mic.speaker,
-                       mic.passive_stt_engine,
                        music_stt_engine)
 
     def delegateInput(self, input):

@@ -16,19 +16,16 @@ class Mic:
     speechRec = None
     speechRec_persona = None
 
-    def __init__(self, speaker, passive_stt_engine, active_stt_engine):
+    def __init__(self, speaker, active_stt_engine):
         """
         Initiates the pocketsphinx instance.
 
         Arguments:
         speaker -- handles platform-independent audio output
-        passive_stt_engine -- performs STT while Jasper is in passive listen
-                              mode
         acive_stt_engine -- performs STT while Jasper is in active listen mode
         """
         self._logger = logging.getLogger(__name__)
         self.speaker = speaker
-        self.passive_stt_engine = passive_stt_engine
         self.active_stt_engine = active_stt_engine
         self._logger.info("Initializing PyAudio. ALSA/Jack error messages " +
                           "that pop up during this process are normal and " +
