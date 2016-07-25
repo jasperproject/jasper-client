@@ -25,11 +25,19 @@ To address these points, i decide to use "Snowboy Hot Word Detection" [https://s
 - Small memory footprint and cross-platform support
 
 ## Installation
+
 - Follow the python installation -> [https://github.com/Kitt-AI/snowboy](https://github.com/Kitt-AI/snowboy)
 - copy _snowboydetect.so (generated in project snowboy/swig/Python) in jasper/client/snowboy
 - create your model -> [https://snowboy.kitt.ai/](https://snowboy.kitt.ai/)
 - copy your model under the name "model.pmdl" in /jasper/client/snowboy)
 - And here we go !!!
+
+## TODO
+
+- Remove "Persona" in the code
+- Remove all the dependance in the code stt_passive_engine
+- Too much latence in active listenning.
+- Re add gmail notification 
 
 ## Contributing
 
