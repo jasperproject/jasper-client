@@ -25,7 +25,13 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
                     "Configured port is invalid, using %d instead",
                     port)
 
-        self._music = mpdclient.MPDClient(server=server, port=port)
+        try:
+            password = self.profile['mpdclient']['password']
+        except KeyError:
+            password = ''
+
+        self._music = mpdclient.MPDClient(server=server, port=port,
+                                          password=password)
 
     def get_phrases(self):
         return [self.gettext('MUSIC'), self.gettext('SPOTIFY')]
@@ -73,7 +79,7 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
 
                 text = ''
                 if texts:
-                    text = texts[0].upper()
+                    text = ', '.join(texts).upper()
 
                 if not text:
                     mic.say(_('Pardon?'))
@@ -89,10 +95,13 @@ class MPDControlPlugin(plugin.SpeechHandlerPlugin):
 
         if _('PLAYLIST').upper() in command:
             # Find playlist name
-            text = command.replace(_('PLAYLIST'), '').strip()
+            texts = command.replace(_('PLAYLIST'), '').strip()
             playlists = self._music.get_playlists()
             playlists_upper = [pl.upper() for pl in playlists]
-            matches = difflib.get_close_matches(text, playlists_upper)
+            matches = []
+            for text in texts.split(', '):
+                matches.extend(difflib.get_close_matches(text,
+                                                         playlists_upper))
             if len(matches) > 0:
                 playlist_index = playlists_upper.index(matches[0])
                 playlist = playlists[playlist_index]

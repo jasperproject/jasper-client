@@ -13,12 +13,13 @@ PLAYBACK_STATE_STOPPED = 3
 
 
 class MPDClient(object):
-    def __init__(self, server="localhost", port=6600):
+    def __init__(self, server="localhost", port=6600, password=""):
         """
             Prepare the client and music variables
         """
         self._server = server
         self._port = port
+        self._password = password
 
         self._logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class MPDClient(object):
         client.idletimeout = None
         try:
             client.connect(self._server, self._port)
+            client.password(self._password)
             yield client
         except (mpd.ConnectionError, socket.error) as e:
             if isinstance(e, socket.error):
