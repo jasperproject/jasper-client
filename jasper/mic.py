@@ -8,6 +8,7 @@ import contextlib
 import threading
 import math
 import sys
+
 if sys.version_info < (3, 0):  # NOQA
     import Queue as queue
 else:  # NOQA
@@ -103,8 +104,17 @@ class Mic(object):
             wav_fp = wave.open(f, 'wb')
             wav_fp.setnchannels(self._input_channels)
             wav_fp.setsampwidth(int(self._input_bits/8))
-            wav_fp.setframerate(self._input_rate)
-            wav_fp.writeframes(''.join(frames))
+            wav_fp.setframerate(16000)
+            if self._input_rate == 16000:
+                wav_fp.writeframes(''.join(frames))
+            else:
+                wav_fp.writeframes(audioop.ratecv(''.join(frames),
+                                                  int(self._input_bits/8),
+                                                  self._input_channels,
+                                                  self._input_rate,
+                                                  16000,
+                                                  None)
+                                   [0])
             wav_fp.close()
             f.seek(0)
             yield f
