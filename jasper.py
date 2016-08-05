@@ -9,7 +9,10 @@ import logging
 import yaml
 import argparse
 
-from client import tts, stt, jasperpath, diagnose
+from client import tts
+from client import stt
+from client import jasperpath
+from client import diagnose
 from client.conversation import Conversation
 
 # Add jasperpath.LIB_PATH to sys.path
