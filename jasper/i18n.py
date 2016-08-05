@@ -39,7 +39,8 @@ class GettextMixin(object):
         return self.__translations[language]
 
     def gettext(self, *args, **kwargs):
-        return self.__get_translations().gettext(*args, **kwargs)
+        return self.__get_translations().gettext(*args, **kwargs).decode(
+            'utf-8')
 
     def ngettext(self, *args, **kwargs):
         return self.__get_translations().ngettext(*args, **kwargs)
