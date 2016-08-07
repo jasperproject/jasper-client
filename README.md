@@ -19,7 +19,7 @@ Thanks in advance for any and all work you contribute to Jasper!
 
 If you run into an issue or require technical support, please first look through the closed and open **[GitHub Issues](https://github.com/jasperproject/jasper-client/issues)**, as you may find a solution there (or some useful advice, at least).
 
-If you're still having trouble, the next place to look would be the new **[Google Group support forum](https://groups.google.com/forum/#!forum/jasper-support-forum)**. If your problem remains unsolved, feel free to create a post there describing the issue, the steps you've taken to debug it, etc.
+If you're still having trouble, the next place to look would be the new **[Google Group support forum](https://groups.google.com/forum/#!forum/jasper-support-forum)** or join the `#jasper` IRC channel on **chat.freenode.net**. If your problem remains unsolved, feel free to create a post there describing the issue, the steps you've taken to debug it, etc.
 
 ## Contact
 
