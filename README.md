@@ -67,7 +67,12 @@ finished:
 $ arecord -D plughw:1,0 abc.wav
 ```
 
-`-D plughw:1,0` tells `arecord` where the mic is. It is at index 1.
+`-D plughw:1,0` tells `arecord` where the device is. In this case, device is
+the mic. It is at index 1.
+
+`plughw:1,0` actually refers to "Sound Card index 1, Subdevice 0", because a
+sound card may house many subdevices. Here, we don't care about subdevices and
+always give it a `0`. The only important index is the sound card's.
 
 ## Play a WAV file
 
