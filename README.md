@@ -171,10 +171,10 @@ together. A Judy program, on hearing her name being called, can verbally answer
 your voice command. Imagine the following sequence:
 
 You: Judy!  
-Judy: [high beep]  
+*Judy: [high beep]*  
 You: Weather next Monday?  
-Judy: [low beep]  
-Judy: 23 degrees, partly cloudy  
+*Judy: [low beep]*  
+*Judy: 23 degrees, partly cloudy*  
 
 She can be as smart as you program her to be.
 
@@ -193,7 +193,7 @@ and the `.lm` and `.dic` file.
 2. Create a `VoiceOut` object. Supply it with the speaker device, and the folder
 in which the [beep] audio files reside.
 3. Define a function to handle voice commands.
-4. Finally, call the function `listen()`.
+4. Call the function `listen()`.
 
 Here is an example that **echoes whatever you say**. Remember, you have to call
 "Judy" to get her attention. After a high beep, you can say something (stay
@@ -216,3 +216,6 @@ def handle(phrase):
 
 judy.listen(vin, vout, handle)
 ```
+
+It's that simple! Put more stuff in the `handle()` function to make it as smart
+as you want her to be.
