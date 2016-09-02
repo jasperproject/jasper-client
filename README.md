@@ -217,5 +217,5 @@ def handle(phrase):
 judy.listen(vin, vout, handle)
 ```
 
-It's that simple! Put more stuff in the `handle()` function to make it as smart
-as you want her to be.
+It's that simple! Put more stuff in `handle()`. She can be as smart as you want
+her to be.
