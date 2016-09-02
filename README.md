@@ -130,7 +130,7 @@ For it to be useful, we have to make it more accurate.
 
 We can make it more accurate by restricting its vocabulary. Think of a bunch of
 phrases or words you want it to recognize, and save them in a text file.
-For example, the text file may contain:
+For example:
 ```
 How are you today
 Good morning
@@ -156,7 +156,7 @@ Supply them to `pocketsphinx_continuous`:
 $ pocketsphinx_continuous -adcdev plughw:1,0 -lm </path/to/1234.lm> -dic </path/to/1234.dic> -inmic yes
 ```
 
-Speak into the mic again, but *only those words you have defined*. A much better
+Speak into the mic again, but *only those words you have given*. A much better
 accuracy should be achieved. Pocketsphinx finally knows what you are talking
 about.
 
@@ -166,4 +166,53 @@ about.
 $ sudo pip install jasper-judy
 ```
 
-More to come ...
+Judy brings Pocketsphinx's listening ability and Pico's speaking ability
+together. A Judy program, on hearing her name being called, can verbally answer
+your voice command. Imagine the following sequence:
+
+You: Judy!  
+Judy: [high beep]  
+You: Weather next Monday?  
+Judy: [low beep]  
+Judy: 23 degrees, partly cloudy  
+
+She can be as smart as you program her to be.
+
+To get a Judy program running, you need to prepare a few *resources*:
+
+- a `.lm` and `.dic` file to increase listening accuracy
+- a folder in which the [beep] audio files reside
+
+[Here are some sample resources.](https://github.com/nickoala/judy/tree/master/resources)
+Download them if you want.
+
+A Judy program follows these steps:
+
+1. Create a `VoiceIn` object. Supply it with the microphone device,
+and the `.lm` and `.dic` file.
+2. Create a `VoiceOut` object. Supply it with the speaker device, and the folder
+in which the [beep] audio files reside.
+3. Define a function to handle voice commands.
+4. Finally, call the function `listen()`.
+
+Here is an example that **echoes whatever you say**. Remember, you have to call
+"Judy" to get her attention. After a high beep, you can say something (stay
+within the vocabulary, please). A low beep indicates she heard you.
+Then, she echoes what you have said.
+
+```python
+import judy
+
+vin = judy.VoiceIn(adcdev='plughw:1,0',
+                   lm='/home/pi/judy/resources/lm/0931.lm',
+                   dict='/home/pi/judy/resources/lm/0931.dic')
+
+vout = judy.VoiceOut(device='plughw:0,0',
+                     resources='/home/pi/judy/resources/audio')
+
+def handle(phrase):
+    print 'Heard:', phrase
+    vout.say(phrase)
+
+judy.listen(vin, vout, handle)
+```
