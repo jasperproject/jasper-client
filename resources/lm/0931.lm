@@ -1,0 +1,98 @@
+Language model created by QuickLM on Thu Sep  1 04:41:38 EDT 2016
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 16 sentences and 21 words
+
+\data\
+ngram 1=21
+ngram 2=35
+ngram 3=19
+
+\1-grams:
+-0.8045 </s> -0.3010
+-0.8045 <s> -0.2269
+-2.0086 ARE -0.2968
+-2.0086 DATE -0.2269
+-2.0086 FRIDAY -0.2269
+-2.0086 HOW -0.2968
+-2.0086 JASPER -0.2269
+-2.0086 JOHNNY -0.2269
+-2.0086 JUDY -0.2269
+-2.0086 MONDAY -0.2269
+-2.0086 NEXT -0.2269
+-2.0086 SATURDAY -0.2269
+-2.0086 SUNDAY -0.2269
+-2.0086 THURSDAY -0.2269
+-2.0086 TIME -0.2269
+-2.0086 TODAY -0.2269
+-2.0086 TOMORROW -0.2269
+-2.0086 TUESDAY -0.2269
+-2.0086 WEATHER -0.2269
+-2.0086 WEDNESDAY -0.2269
+-2.0086 YOU -0.2968
+
+\2-grams:
+-1.5051 <s> DATE 0.0000
+-1.5051 <s> FRIDAY 0.0000
+-1.5051 <s> HOW 0.0000
+-1.5051 <s> JASPER 0.0000
+-1.5051 <s> JOHNNY 0.0000
+-1.5051 <s> JUDY 0.0000
+-1.5051 <s> MONDAY 0.0000
+-1.5051 <s> NEXT 0.0000
+-1.5051 <s> SATURDAY 0.0000
+-1.5051 <s> SUNDAY 0.0000
+-1.5051 <s> THURSDAY 0.0000
+-1.5051 <s> TIME 0.0000
+-1.5051 <s> TOMORROW 0.0000
+-1.5051 <s> TUESDAY 0.0000
+-1.5051 <s> WEATHER 0.0000
+-1.5051 <s> WEDNESDAY 0.0000
+-0.3010 ARE YOU 0.0000
+-0.3010 DATE </s> -0.3010
+-0.3010 FRIDAY </s> -0.3010
+-0.3010 HOW ARE 0.0000
+-0.3010 JASPER </s> -0.3010
+-0.3010 JOHNNY </s> -0.3010
+-0.3010 JUDY </s> -0.3010
+-0.3010 MONDAY </s> -0.3010
+-0.3010 NEXT </s> -0.3010
+-0.3010 SATURDAY </s> -0.3010
+-0.3010 SUNDAY </s> -0.3010
+-0.3010 THURSDAY </s> -0.3010
+-0.3010 TIME </s> -0.3010
+-0.3010 TODAY </s> -0.3010
+-0.3010 TOMORROW </s> -0.3010
+-0.3010 TUESDAY </s> -0.3010
+-0.3010 WEATHER </s> -0.3010
+-0.3010 WEDNESDAY </s> -0.3010
+-0.3010 YOU TODAY 0.0000
+
+\3-grams:
+-0.3010 <s> DATE </s>
+-0.3010 <s> FRIDAY </s>
+-0.3010 <s> HOW ARE
+-0.3010 <s> JASPER </s>
+-0.3010 <s> JOHNNY </s>
+-0.3010 <s> JUDY </s>
+-0.3010 <s> MONDAY </s>
+-0.3010 <s> NEXT </s>
+-0.3010 <s> SATURDAY </s>
+-0.3010 <s> SUNDAY </s>
+-0.3010 <s> THURSDAY </s>
+-0.3010 <s> TIME </s>
+-0.3010 <s> TOMORROW </s>
+-0.3010 <s> TUESDAY </s>
+-0.3010 <s> WEATHER </s>
+-0.3010 <s> WEDNESDAY </s>
+-0.3010 ARE YOU TODAY
+-0.3010 HOW ARE YOU
+-0.3010 YOU TODAY </s>
+
+\end\

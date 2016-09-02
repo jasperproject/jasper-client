@@ -1,7 +1,0 @@
-[report]
-omit =  
-    */python?.?/*
-    */site-packages/nose/*
-    *__init__*
-exclude_lines =
-    if __name__ == .__main__.:

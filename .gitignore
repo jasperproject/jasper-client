@@ -8,6 +8,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.pyc
 
 # C extensions
 *.so
@@ -65,3 +66,6 @@ target/
 
 # SublimeLinter config file
 .sublimelinterrc
+
+# Atom editor remote sync config
+.remote-sync.json
