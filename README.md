@@ -96,8 +96,9 @@ you need to change PuTTY settings:
 1. Go to **Terminal** / **Keyboard**
 2. Look for section **The Function keys and keypad**
 3. Select **Xterm R6**
+4. Press button **Apply**
 
-## Install Pico
+## Install Pico, the Text-to-Speech engine
 
 ```
 $ sudo apt-get install libttspico-utils
@@ -105,12 +106,25 @@ $ pico2wave -w abc.wav "Good morning. How are you today?"
 $ aplay -D plughw:0,0 abc.wav
 ```
 
-## Install Pocketsphinx
+## Install Pocketsphinx, the Speech-to-Text engine
 
 ```
 $ sudo apt-get install pocketsphinx
 $ pocketsphinx_continuous -adcdev plughw:1,0 -inmic yes
 ```
+
+`pocketsphinx_continuous` can interpret speech in *real-time*. It will spill out
+a lot of stuff, ending with something like this:
+
+```
+Warning: Could not find Capture element
+READY....
+```
+
+Now, **speak into the mic**, and see what it hears. At first, you may find it
+funny. After a while, you know it is inaccurate.
+
+For it to be useful, we have to make it more accurate.
 
 ## Configure Pocketsphinx
 
