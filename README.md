@@ -26,3 +26,44 @@ Additionally, you are expected to have:
 
 - a **Speaker** to plug into Raspberry Pi's headphone jack
 - a **USB Microphone**
+
+**Plug them in.** Let's go.
+
+## Know the Sound Cards
+
+Coming soon ...
+
+## Record a WAV file
+
+```
+$ arecord -D plughw:1,0 abc.wav
+```
+
+## Play a WAV file
+
+```
+$ aplay -D plughw:0,0 abc.wav
+```
+
+## Install Pico
+
+```
+$ sudo apt-get install libttspico-utils
+$ pico2wave -w abc.wav "Good morning. How are you today?"
+$ aplay -D plughw:0,0 abc.wav
+```
+
+## Install Pocketsphinx
+
+```
+$ sudo apt-get install pocketsphinx
+$ pocketsphinx_continuous -adcdev plughw:1,0 -inmic yes
+```
+
+## Configure Pocketsphinx
+
+Comming soon ...
+
+## Install Judy
+
+Comming soon ...
