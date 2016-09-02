@@ -80,6 +80,23 @@ always give it a `0`. The only important index is the sound card's.
 $ aplay -D plughw:0,0 abc.wav
 ```
 
+Here, we tell `aplay` to play to `plughw:0,0`, which refers to "Sound Card index 0,
+Subdevice 0", which leads to the speaker.
+
+If you hear nothing, check the speaker's power. After that, try adjusting the
+speaker volume with:
+
+```
+$ alsamixer
+```
+
+On PuTTY, the function keys (`F1`, `F2`, etc) may not behave as expected. If so,
+you need to change PuTTY settings:
+
+1. Go to **Terminal** / **Keyboard**
+2. Look for section **The Function keys and keypad**
+3. Select **Xterm R6**
+
 ## Install Pico
 
 ```
