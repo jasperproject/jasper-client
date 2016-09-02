@@ -22,7 +22,7 @@ Judy uses:
 - **[Pocketsphinx](http://cmusphinx.sourceforge.net/)** as the Speech-to-Text engine
 - **[Pico](https://github.com/DougGore/picopi)** as the Text-to-Speech engine
 
-Additionally, you are expected to have:
+Additionally, you need:
 
 - a **Speaker** to plug into Raspberry Pi's headphone jack
 - a **USB Microphone**
