@@ -49,20 +49,25 @@ Your settings might be different. But if you are using Pi 3 with Jessie and have
 not changed any sound settings, the above situation is likely to match yours.
 For the rest of discussions, I am going to assume:
 
-- Build-in sound card, index **0** → headphone jack → speaker
-- USB sound card, index **1** → microphone
+- Build-in sound card, **index 0** → headphone jack → speaker
+- USB sound card, **index 1** → microphone
 
 The index is important. It is how you tell Raspberry Pi where to get sound data
 from, or where to dump sound data into.
 
-If your sound card indexes are different from mine, adjust command arguments
-accordingly in what follows.
+*If your sound card indexes are different from mine, adjust command arguments
+accordingly in the rest of this page.*
 
 ## Record a WAV file
+
+Enter this command, then speak to the mic, press `Ctrl-C` when you are
+finished:
 
 ```
 $ arecord -D plughw:1,0 abc.wav
 ```
+
+`-D plughw:1,0` tells `arecord` where the mic is. It is at index 1.
 
 ## Play a WAV file
 
