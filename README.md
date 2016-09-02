@@ -31,7 +31,32 @@ Additionally, you need:
 
 ## Know the Sound Cards
 
-Coming soon ...
+```
+$ more /proc/asound/cards
+ 0 [ALSA           ]: bcm2835 - bcm2835 ALSA
+                      bcm2835 ALSA
+ 1 [Device         ]: USB-Audio - USB PnP Audio Device
+                      USB PnP Audio Device at usb-3f980000.usb-1.4, full speed
+```
+
+The first is Raspberry Pi's built-in sound card. It has an index of 0. (Note
+the word `ALSA`. It means *Advanced Linux Sound Architecture*. Simply put, it
+is the sound driver on many Linux systems.)
+
+The second is the USB device's sound card. It has an index of 1.
+
+Your settings might be different. But if you are using Pi 3 with Jessie and have
+not changed any sound settings, the above situation is likely to match yours.
+For the rest of discussions, I am going to assume:
+
+- Build-in sound card, index **0** → headphone jack → speaker
+- USB sound card, index **1** → microphone
+
+The index is important. It is how you tell Raspberry Pi where to get sound data
+from, or where to dump sound data into.
+
+If your sound card indexes are different from mine, adjust command arguments
+accordingly in what follows.
 
 ## Record a WAV file
 
