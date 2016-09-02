@@ -6,7 +6,7 @@ setup(
 
     version='0.1',
 
-    description='Simple Voice Control on Raspberry Pi',
+    description='Simplified Voice Control on Raspberry Pi',
 
     long_description='',
 
