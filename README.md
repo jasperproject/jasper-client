@@ -66,4 +66,8 @@ Comming soon ...
 
 ## Install Judy
 
-Comming soon ...
+```
+$ sudo pip install jasper-judy
+```
+
+More to come ...
