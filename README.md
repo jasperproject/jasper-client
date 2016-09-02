@@ -113,7 +113,7 @@ $ sudo apt-get install pocketsphinx
 $ pocketsphinx_continuous -adcdev plughw:1,0 -inmic yes
 ```
 
-`pocketsphinx_continuous` can interpret speech in *real-time*. It will spill out
+`pocketsphinx_continuous` interprets speech in *real-time*. It will spill out
 a lot of stuff, ending with something like this:
 
 ```
@@ -121,14 +121,44 @@ Warning: Could not find Capture element
 READY....
 ```
 
-Now, **speak into the mic**, and see what it hears. At first, you may find it
-funny. After a while, you know it is inaccurate.
+Now, **speak into the mic**, and note the results. At first, you may find it
+funny. After a while, you realize it is inaccurate.
 
 For it to be useful, we have to make it more accurate.
 
 ## Configure Pocketsphinx
 
-Comming soon ...
+We can make it more accurate by restricting its vocabulary. Think of a bunch of
+phrases or words you want it to recognize, and save them in a text file.
+For example, the text file may contain:
+```
+How are you today
+Good morning
+night
+afternoon
+```
+
+Go to Carnegie Mellon University's [lmtool page](http://www.speech.cs.cmu.edu/tools/lmtool-new.html),
+upload the text file, and compile the "knowledge base". The "knowledge base" is
+nothing more than a bunch of files combined into a zip file. Download and unzip
+it:
+
+```
+$ wget <URL of the TAR????.tgz FILE>
+$ tar zxf <TAR????.tgz>
+```
+
+Among the unzipped products, there is a `.lm` and `.dic` file. They basically
+define a vocabulary. Pocketsphinx cannot know any words outside of this book.
+Supply them to `pocketsphinx_continuous`:
+
+```
+$ pocketsphinx_continuous -adcdev plughw:1,0 -lm </path/to/1234.lm> -dic </path/to/1234.dic> -inmic yes
+```
+
+Speak into the mic again, but *only those words you have defined*. A much better
+accuracy should be achieved. Pocketsphinx finally knows what you are talking
+about.
 
 ## Install Judy
 
