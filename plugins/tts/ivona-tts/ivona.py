@@ -41,7 +41,7 @@ class IvonaTTSPlugin(plugin.TTSPlugin):
             speech_rate = None
 
         try:
-            sentence_break = self.profile['ivona-tts']['sentence_break']
+            sentence_break = int(self.profile['ivona-tts']['sentence_break'])
         except KeyError:
             sentence_break = None
 
