@@ -34,6 +34,9 @@ class VoiceIn(threading.Thread):
         pattern = re.compile('^[0-9]{9}: (.+)')  # lines starting with 9 digits
 
         for out in execute(cmd.split(' ')):
+            # Print out the line to give the same experience as
+            # running pocketsphinx_continuous.
+            print out,  # newline included by the line itself
             if self._listening:
                 m = pattern.match(out)
                 if m:

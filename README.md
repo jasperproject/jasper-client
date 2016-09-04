@@ -46,16 +46,16 @@ is the sound driver on many Linux systems.)
 The second is the USB device's sound card. It has an index of 1.
 
 Your settings might be different. But if you are using Pi 3 with Jessie and have
-not changed any sound settings, the above situation is likely to match yours.
+not changed any sound settings, the above situation is likely.
 For the rest of discussions, I am going to assume:
 
 - Build-in sound card, **index 0** → headphone jack → speaker
 - USB sound card, **index 1** → microphone
 
-The index is important. It is how you tell Raspberry Pi where to get sound data
-from, or where to dump sound data into.
+The index is important. It is how you tell Raspberry Pi where the speaker and
+microphone is.
 
-*If your sound card indexes are different from mine, adjust command arguments
+*If your sound card indexes are different, adjust command arguments
 accordingly in the rest of this page.*
 
 ## Record a WAV file
@@ -97,6 +97,9 @@ you need to change PuTTY settings:
 2. Look for section **The Function keys and keypad**
 3. Select **Xterm R6**
 4. Press button **Apply**
+
+If you `aplay` and `arecord` successfully, that means the speaker and microphone
+are working properly. We can move on to add more capabilities.
 
 ## Install Pico, the Text-to-Speech engine
 
@@ -140,8 +143,7 @@ afternoon
 
 Go to Carnegie Mellon University's [lmtool page](http://www.speech.cs.cmu.edu/tools/lmtool-new.html),
 upload the text file, and compile the "knowledge base". The "knowledge base" is
-nothing more than a bunch of files combined into a zip file. Download and unzip
-it:
+nothing more than a bunch of files. Download and unzip them:
 
 ```
 $ wget <URL of the TAR????.tgz FILE>
@@ -153,7 +155,7 @@ define a vocabulary. Pocketsphinx cannot know any words outside of this book.
 Supply them to `pocketsphinx_continuous`:
 
 ```
-$ pocketsphinx_continuous -adcdev plughw:1,0 -lm </path/to/1234.lm> -dic </path/to/1234.dic> -inmic yes
+$ pocketsphinx_continuous -adcdev plughw:1,0 -lm </path/to/1234.lm> -dict </path/to/1234.dic> -inmic yes
 ```
 
 Speak into the mic again, but *only those words you have given*. A much better
@@ -168,7 +170,7 @@ $ sudo pip install jasper-judy
 
 Judy brings Pocketsphinx's listening ability and Pico's speaking ability
 together. A Judy program, on hearing her name being called, can verbally answer
-your voice command. Imagine the following sequence:
+your voice command. Imagine this:
 
 You: Judy!  
 *Judy: [high beep]*  
