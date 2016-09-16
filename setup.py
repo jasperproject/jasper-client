@@ -4,7 +4,7 @@ setup(
     name='jasper-judy',
     py_modules = ['judy'],
 
-    version='0.2',
+    version='0.3',
 
     description='Simplified Voice Control on Raspberry Pi',
 

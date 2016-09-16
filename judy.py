@@ -7,9 +7,9 @@ import tempfile
 import Queue as queue
 
 class VoiceIn(threading.Thread):
-    def __init__(self, adcdev, lm, dict):
+    def __init__(self, **params):
         super(VoiceIn, self).__init__()
-        self._params = (adcdev, lm, dict)
+        self._params = params
         self._listening = False
         self.phrase_queue = queue.Queue()
 
@@ -30,10 +30,13 @@ class VoiceIn(threading.Thread):
             if return_code != 0:
                 raise subprocess.CalledProcessError(return_code, cmd)
 
-        cmd = 'pocketsphinx_continuous -adcdev %s -lm %s -dict %s -inmic yes' % self._params
         pattern = re.compile('^[0-9]{9}: (.+)')  # lines starting with 9 digits
 
-        for out in execute(cmd.split(' ')):
+        cmd = ['pocketsphinx_continuous', '-inmic', 'yes']
+        for k,v in self._params.items():
+            cmd.extend(['-'+k, v])
+
+        for out in execute(cmd):
             # Print out the line to give the same experience as
             # running pocketsphinx_continuous.
             print out,  # newline included by the line itself
