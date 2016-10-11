@@ -28,7 +28,8 @@ if __name__ == "__main__":
                         help='Use audio input from files and text output')
     parser.add_argument('--diagnose', action='store_true',
                         help='Run diagnose and exit')
-    parser.add_argument('--debug', action='store_true', help='Show debug messages')
+    parser.add_argument('--debug', action='store_true', 
+                        help='Show debug messages')
     args = parser.parse_args()
 
     if args.local:
