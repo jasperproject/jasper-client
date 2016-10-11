@@ -8,6 +8,8 @@ APP_PATH = os.path.normpath(os.path.join(
 DATA_PATH = os.path.join(APP_PATH, "static")
 LIB_PATH = os.path.join(APP_PATH, "client")
 PLUGIN_PATH = os.path.join(LIB_PATH, "modules")
+TEST_PATH = os.path.join(APP_PATH, "tests")
+TEST_AUDIO_PATH = os.path.join(TEST_PATH, "audio")
 
 CONFIG_PATH = os.path.expanduser(os.getenv('JASPER_CONFIG', '~/.jasper'))
 
@@ -18,3 +20,8 @@ def config(*fname):
 
 def data(*fname):
     return os.path.join(DATA_PATH, *fname)
+
+
+# Convenience method to join a filename to a path
+def join(path, *fname):
+    return os.path.join(path, *fname)

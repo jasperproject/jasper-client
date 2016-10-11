@@ -18,20 +18,28 @@ from client.conversation import Conversation
 # Add jasperpath.LIB_PATH to sys.path
 sys.path.append(jasperpath.LIB_PATH)
 
-parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
-parser.add_argument('--local', action='store_true',
-                    help='Use text input instead of a real microphone')
-parser.add_argument('--no-network-check', action='store_true',
-                    help='Disable the network connection check')
-parser.add_argument('--diagnose', action='store_true',
-                    help='Run diagnose and exit')
-parser.add_argument('--debug', action='store_true', help='Show debug messages')
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Jasper Voice Control Center')
+    parser.add_argument('--local', action='store_true',
+                        help='Use text input instead of a real microphone')
+    parser.add_argument('--no-network-check', action='store_true',
+                        help='Disable the network connection check')
+    parser.add_argument('--automated', action='store_true',
+                        help='Use audio input from files and text output')
+    parser.add_argument('--diagnose', action='store_true',
+                        help='Run diagnose and exit')
+    parser.add_argument('--debug', action='store_true', help='Show debug messages')
+    args = parser.parse_args()
 
-if args.local:
-    from client.local_mic import Mic
+    if args.local:
+        from client.local_mic import Mic
+    elif args.automated:
+        from client.automated_mic import Mic
+    else:
+        from client.mic import Mic
 else:
-    from client.mic import Mic
+    # Running this as a module, so assume an automated test scenario
+    from client.automated_mic import Mic
 
 
 class Jasper(object):
