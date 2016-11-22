@@ -587,7 +587,7 @@ class WitAiSTT(AbstractSTTEngine):
 
     def transcribe(self, fp):
         data = fp.read()
-        r = requests.post('https://api.wit.ai/speech?v=20150101',
+        r = requests.post('https://api.wit.ai/speech?v=20160526',
                           data=data,
                           headers=self.headers)
         try:
