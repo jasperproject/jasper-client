@@ -518,12 +518,10 @@ class WatsonSTT(AbstractSTTEngine):
         """
 
         if not self.username:
-            self._logger.critical('Username missing, transcription request ' +
-                                  'aborted.')
+            self._logger.critical('Username missing, transcription request aborted.')
             return []
         elif not self.password:
-            self._logger.critical('Password missing, transcription ' +
-                                  'request aborted.')
+            self._logger.critical('Password missing, transcription request aborted.')
             return []
 
         wav = wave.open(fp, 'rb')
@@ -531,11 +529,11 @@ class WatsonSTT(AbstractSTTEngine):
         wav.close()
         data = fp.read()
 
-        headers = {'content-type':
-                   'audio/l16; rate=%s; channels=1' % frame_rate}
+        headers = {
+            'content-type': 'audio/l16; rate={0}; channels=1'.format(frame_rate)
+        }
         r = self._http.post(
-            'https://stream.watsonplatform.net/' +
-            'speech-to-text/api/v1/recognize?continuous=true',
+            'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?continuous=true',
             data=data, headers=headers, auth=(self.username, self.password)
         )
         try:
@@ -544,27 +542,21 @@ class WatsonSTT(AbstractSTTEngine):
             self._logger.critical('Request failed with http status %d',
                                   r.status_code)
             if r.status_code == requests.codes['forbidden']:
-                self._logger.warning('Status 403 is probably caused by ' +
-                                     'invalid credentials.')
+                self._logger.warning('Status 403 is probably caused by invalid credentials.')
             return []
         r.encoding = 'utf-8'
+        results = []
         try:
             response = r.json()
-            if len(response['results']) == 0:
-                # Response result is empty
+            if not response['results']:
                 raise ValueError('Nothing has been transcribed.')
-            results = [alt['transcript'] for alt
-                       in response['results'][0]['alternatives']]
-        except ValueError as e:
-            self._logger.warning('Empty response: %s', e.args[0])
-            results = []
-        except (KeyError, IndexError):
-            self._logger.warning('Cannot parse response.', exc_info=True)
-            results = []
-        else:
-            # Convert all results to uppercase
-            results = tuple(result.strip().upper() for result in results)
+            results = tuple([alt['transcript'].strip().upper() for alt in response['results'][0]['alternatives']])
             self._logger.info('Transcribed: %r', results)
+        except ValueError as e:
+            self._logger.critical('Empty response: %s', e.args[0])
+        except (KeyError, IndexError):
+            self._logger.critical('Cannot parse response.', exc_info=True)
+
         return results
 
     @classmethod
