@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import collections
 import datetime
-import dateutil
+import dateutil.parser
 import requests
 from jasper import plugin
 
