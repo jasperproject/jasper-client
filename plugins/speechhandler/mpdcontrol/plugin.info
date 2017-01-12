@@ -1,6 +1,6 @@
 [Plugin]
 Name = mpdcontrol
-Version = 1.0.0
+Version = 1.0.1
 License = MIT
 URL = http://jasperproject.github.io/
 Description = Control your MPD server and listen to music
@@ -8,3 +8,6 @@ Description = Control your MPD server and listen to music
 [Author]
 Name = Jasper Project
 URL = http://jasperproject.github.io/
+
+Name = gglass
+URL = https://github.com/gglass/jasper-client
