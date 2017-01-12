@@ -8,7 +8,7 @@ from jasper import plugin
 YAHOO_YQL_QUERY_WOEID = \
     'SELECT * FROM geo.places WHERE text="%s"'
 YAHOO_YQL_QUERY_FORECAST = \
-    'SELECT * FROM weather.forecast WHERE woeid="%i" AND u="%s"'
+    'SELECT * FROM weather.forecast WHERE woeid="%d" AND u="%s"'
 YAHOO_YQL_URL = 'https://query.yahooapis.com/v1/public/yql'
 YAHOO_YQL_WEATHER_CONDITION_CODES = {
     0:    'tornado',
