@@ -30,6 +30,16 @@ class TestMic(object):
     def say(self, phrase):
         self.outputs.append(phrase)
 
+    def ask(self, question):
+        """
+            Asks a questions and then returns the response
+
+            Arguments:
+            question -- the question to ask
+        """
+        self.say(question)
+        return self.active_listen()
+
 
 def get_plugin_instance(plugin_class, *extra_args):
     info = type('', (object,), {
