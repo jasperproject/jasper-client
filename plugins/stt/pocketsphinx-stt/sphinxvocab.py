@@ -45,6 +45,11 @@ def compile_vocabulary(config, directory, phrases):
         executable = 'phonetisaurus-g2p'
 
     try:
+        version = config['pocketsphinx']['phonetisaurus_version']
+    except KeyError:
+        version = 1.0
+
+    try:
         nbest = config['pocketsphinx']['nbest']
     except KeyError:
         nbest = 3
@@ -65,7 +70,7 @@ def compile_vocabulary(config, directory, phrases):
     if not os.path.exists(fst_model):
         raise OSError('FST model does not exist!')
 
-    g2pconverter = PhonetisaurusG2P(executable, fst_model,
+    g2pconverter = PhonetisaurusG2P(executable, version, fst_model,
                                     fst_model_alphabet=fst_model_alphabet,
                                     nbest=nbest)
 

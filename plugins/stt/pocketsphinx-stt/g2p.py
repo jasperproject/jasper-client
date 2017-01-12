@@ -15,16 +15,21 @@ RE_ISYMNOTFOUND = re.compile(r'^Symbol: \'(?P<symbol>.+)\' not found in ' +
                              r'input symbols table')
 
 
-def execute(executable, fst_model, input, is_file=False, nbest=None):
+def execute(executable, version,  fst_model, input, is_file=False, nbest=None):
     logger = logging.getLogger(__name__)
-
+   
     cmd = [executable,
-           '--model=%s' % fst_model,
-           '--input=%s' % input,
-           '--words']
-
-    if is_file:
-        cmd.append('--isfile')
+               '--model=%s' % fst_model]
+    if version <= 0.8:
+        cmd.append('--input=%s' % input)
+        cmd.append('--words')
+        if is_file:
+            cmd.append('--isfile')   
+    else:        
+        if is_file:
+            cmd.append('--wordlist=%s' % input)
+        else:
+            cmd.append('--word=%s' % input)
 
     if nbest is not None:
         cmd.extend(['--nbest=%d' % nbest])
@@ -74,12 +79,13 @@ def execute(executable, fst_model, input, is_file=False, nbest=None):
 
 
 class PhonetisaurusG2P(object):
-    def __init__(self, executable, fst_model,
+    def __init__(self, executable, version,  fst_model,
                  fst_model_alphabet='arpabet',
                  nbest=None):
         self._logger = logging.getLogger(__name__)
 
         self.executable = executable
+        self.version = version
 
         self.fst_model = os.path.abspath(fst_model)
         self._logger.debug("Using FST model: '%s'", self.fst_model)
@@ -107,7 +113,7 @@ class PhonetisaurusG2P(object):
         raise ValueError('Invalid FST model alphabet!')
 
     def _translate_word(self, word):
-        return execute(self.executable, self.fst_model, word,
+        return execute(self.executable, self.version,  self.fst_model, word,
                        nbest=self.nbest)
 
     def _translate_words(self, words):
@@ -118,7 +124,7 @@ class PhonetisaurusG2P(object):
             for word in words:
                 f.write("%s\n" % word)
             tmp_fname = f.name
-        output = execute(self.executable, self.fst_model, tmp_fname,
+        output = execute(self.executable, self.version,  self.fst_model, tmp_fname,
                          is_file=True, nbest=self.nbest)
         os.remove(tmp_fname)
         return output
