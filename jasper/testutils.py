@@ -12,6 +12,11 @@ TEST_PROFILE = {
 }
 
 
+class TestTTI(object):
+    def __init__(self):
+        pass
+
+
 class TestMic(object):
     def __init__(self, inputs=[]):
         self.inputs = inputs
@@ -31,12 +36,16 @@ class TestMic(object):
         self.outputs.append(phrase)
 
 
-def get_plugin_instance(plugin_class, *extra_args):
+def get_genericplugin_instance(plugin_class, *extra_args):
     info = type('', (object,), {
         'name': 'pluginunittest',
         'translations': {
             'en-US': gettext.NullTranslations()
             }
         })()
-    args = tuple(extra_args) + (info, TEST_PROFILE)
+    args = (info, TEST_PROFILE)+tuple(extra_args)
     return plugin_class(*args)
+
+
+def get_plugin_instance(plugin_class, *extra_args):
+    return get_genericplugin_instance(plugin_class, TestTTI(), TestMic())

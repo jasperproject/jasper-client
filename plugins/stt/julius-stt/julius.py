@@ -24,6 +24,10 @@ class JuliusSTTPlugin(plugin.STTPlugin):
         self._logger.warning("This STT plugin doesn't have multilanguage " +
                              "support!")
 
+
+    def init(self, *args, **kwargs):
+        plugin.STTPlugin.init(self, *args, **kwargs)
+        
         vocabulary_path = self.compile_vocabulary(
           juliusvocab.compile_vocabulary)
 

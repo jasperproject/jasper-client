@@ -105,9 +105,17 @@ class Jasper(object):
             tts_slug = self.config['tts_engine']
         except KeyError:
             tts_slug = 'espeak-tts'
-            self._logger.warning("tts_engine not specified in profile, using" +
+            self._logger.warning("tts_engine not specified in profile, using " +
                                  "defaults.")
         self._logger.debug("Using TTS engine '%s'", tts_slug)
+
+        try:
+            tti_slug = self.config['tti_engine']
+        except KeyError:
+            tti_slug = 'phrasematcher-tti'
+            self._logger.warning("tti_engine not specified in profile, using " +
+                                 "defaults.")
+        self._logger.debug("Using TTI engine '%s'", tti_slug)
 
         try:
             keyword = self.config['keyword']
@@ -172,33 +180,11 @@ class Jasper(object):
                                  ', '.join(devices))
             raise
 
-        # Initialize Brain
-        self.brain = brain.Brain(self.config)
-        for info in self.plugins.get_plugins_by_category('speechhandler'):
-            try:
-                plugin = info.plugin_class(info, self.config)
-            except Exception as e:
-                self._logger.warning(
-                    "Plugin '%s' skipped! (Reason: %s)", info.name,
-                    e.message if hasattr(e, 'message') else 'Unknown',
-                    exc_info=(
-                        self._logger.getEffectiveLevel() == logging.DEBUG))
-            else:
-                self.brain.add_plugin(plugin)
-
-        if len(self.brain.get_plugins()) == 0:
-            msg = 'No plugins for handling speech found!'
-            self._logger.error(msg)
-            raise RuntimeError(msg)
-        elif len(self.brain.get_all_phrases()) == 0:
-            msg = 'No command phrases found!'
-            self._logger.error(msg)
-            raise RuntimeError(msg)
-
+        # create instanz of SST and TTS
         active_stt_plugin_info = self.plugins.get_plugin(
             active_stt_slug, category='stt')
         active_stt_plugin = active_stt_plugin_info.plugin_class(
-            'default', self.brain.get_plugin_phrases(), active_stt_plugin_info,
+            active_stt_plugin_info,
             self.config)
 
         if passive_stt_slug != active_stt_slug:
@@ -208,7 +194,6 @@ class Jasper(object):
             passive_stt_plugin_info = active_stt_plugin_info
 
         passive_stt_plugin = passive_stt_plugin_info.plugin_class(
-            'keyword', self.brain.get_standard_phrases() + [keyword],
             passive_stt_plugin_info, self.config)
 
         tts_plugin_info = self.plugins.get_plugin(tts_slug, category='tts')
@@ -229,6 +214,41 @@ class Jasper(object):
                 passive_stt_plugin, active_stt_plugin,
                 tts_plugin, self.config, keyword=keyword)
 
+        # Text-to-intent handler
+        tti_plugin_info = self.plugins.get_plugin(tti_slug, category='tti')
+        #tti_plugin = tti_plugin_info.plugin_class(tti_plugin_info, self.config)
+
+        # Initialize Brain
+        self.brain = brain.Brain(self.config,
+                tti_plugin_info.plugin_class(tti_plugin_info, self.config))
+        for info in self.plugins.get_plugins_by_category('speechhandler'):
+            # create instanz
+            try:
+                plugin = info.plugin_class(info, self.config,
+                        tti_plugin_info.plugin_class(tti_plugin_info, self.config),  self.mic)
+            except Exception as e:
+                self._logger.warning(
+                    "Plugin '%s' skipped! (Reason: %s)", info.name,
+                    e.message if hasattr(e, 'message') else 'Unknown',
+                    exc_info=(
+                        self._logger.getEffectiveLevel() == logging.DEBUG))
+            else:
+                self.brain.add_plugin(plugin)
+
+        if len(self.brain.get_plugins()) == 0:
+            msg = 'No plugins for handling speech found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+        elif len(self.brain.get_all_phrases()) == 0:
+            msg = 'No command phrases found!'
+            self._logger.error(msg)
+            raise RuntimeError(msg)
+
+        # init SSTs and compile vocabulary if needed
+        active_stt_plugin.init('default', self.brain.get_plugin_phrases())
+        passive_stt_plugin.init('keyword', self.brain.get_standard_phrases() + [keyword])
+
+        # Initialize Conversation
         self.conversation = conversation.Conversation(
             self.mic, self.brain, self.config)
 

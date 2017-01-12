@@ -7,6 +7,10 @@ from jasper import plugin
 class ClockPlugin(plugin.SpeechHandlerPlugin):
     def get_phrases(self):
         return [self.gettext("TIME")]
+        
+    def init(self):
+        SpeechHandlerPlugin.init(self)
+        self._tti.ACTIONS = [('WHAT TIME IS IT',self.say_time)]
 
     def handle(self, text, mic):
         """
@@ -24,6 +28,23 @@ class ClockPlugin(plugin.SpeechHandlerPlugin):
         else:
             fmt = "It is {t:%l}:{t.minute} {t:%P} right now."
         mic.say(self.gettext(fmt).format(t=now))
+
+    def say_time(self):
+        """
+        Reports the current time based on the user's timezone.
+
+        Arguments:
+        text -- user-input, typically transcribed speech
+        mic -- used to interact with the user (for both input and output)
+        """
+
+        tz = app_utils.get_timezone(self.profile)
+        now = datetime.datetime.now(tz=tz)
+        if now.minute == 0:
+            fmt = "It is {t:%l} {t:%P} right now."
+        else:
+            fmt = "It is {t:%l}:{t.minute} {t:%P} right now."
+        mic.say(self.gettext(fmt).format(t=now))        
 
     def is_valid(self, text):
         """

@@ -24,8 +24,8 @@ class ExamplePlugin(object):
 
 class TestBrain(unittest.TestCase):
     def testPriority(self):
-        """Does Brain sort modules by priority?"""
-        my_brain = brain.Brain(testutils.TEST_PROFILE)
+        """Does Brain sort modules by priority?"""        
+        my_brain = brain.Brain(testutils.TEST_PROFILE, ExamplePlugin(['MOCK_TTI']))
 
         plugin1 = ExamplePlugin(['MOCK1'], priority=1)
         plugin2 = ExamplePlugin(['MOCK1'], priority=999)
@@ -52,7 +52,7 @@ class TestBrain(unittest.TestCase):
     def testPluginPhraseExtraction(self):
         expected_phrases = ['MOCK1', 'MOCK2']
 
-        my_brain = brain.Brain(testutils.TEST_PROFILE)
+        my_brain = brain.Brain(testutils.TEST_PROFILE,  ExamplePlugin(['MOCK_TTI']))
 
         my_brain.add_plugin(ExamplePlugin(['MOCK2']))
         my_brain.add_plugin(ExamplePlugin(['MOCK1']))
@@ -64,7 +64,7 @@ class TestBrain(unittest.TestCase):
     def testStandardPhraseExtraction(self):
         expected_phrases = ['MOCK']
 
-        my_brain = brain.Brain(testutils.TEST_PROFILE)
+        my_brain = brain.Brain(testutils.TEST_PROFILE,  ExamplePlugin(['MOCK_TTI']))
 
         with tempfile.TemporaryFile() as f:
             # We can't use mock_open here, because it doesn't seem to work
