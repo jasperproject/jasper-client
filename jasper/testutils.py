@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import gettext
+from . import brain
 
 TEST_PROFILE = {
     'prefers_email': False,
@@ -39,4 +40,5 @@ def get_plugin_instance(plugin_class, *extra_args):
             }
         })()
     args = tuple(extra_args) + (info, TEST_PROFILE)
-    return plugin_class(*args)
+    test_brain = brain.Brain(TEST_PROFILE)
+    return plugin_class(test_brain, *args)
