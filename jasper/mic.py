@@ -228,7 +228,7 @@ class Mic(object):
         with tempfile.SpooledTemporaryFile() as f:
             f.write(self.tts_engine.say(altered_phrase))
             f.seek(0)
-            self._output_device.play_fp(f)
+            self._output_device.play_fp(f, self._output_chunksize)
 
 
 if __name__ == "__main__":
