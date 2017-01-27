@@ -15,6 +15,7 @@ import yaml
 import jasperpath
 import diagnose
 import vocabcompiler
+from taggedtext import TaggedText
 
 
 class AbstractSTTEngine(object):
@@ -592,7 +593,10 @@ class WitAiSTT(AbstractSTTEngine):
                           headers=self.headers)
         try:
             r.raise_for_status()
-            text = r.json()['_text']
+            results = []
+            for d in r.json()['outcomes']:
+                results.append(TaggedText(d['_text'].upper(), d))
+
         except requests.exceptions.HTTPError:
             self._logger.critical('Request failed with response: %r',
                                   r.text,
@@ -610,11 +614,9 @@ class WitAiSTT(AbstractSTTEngine):
                                   exc_info=True)
             return []
         else:
-            transcribed = []
-            if text:
-                transcribed.append(text.upper())
-            self._logger.info('Transcribed: %r', transcribed)
-            return transcribed
+            self._logger.info('Transcribed: %r', results)
+            self._logger.info('Tagged: %r', [t.tags for t in results])
+            return results
 
     @classmethod
     def is_available(cls):
