@@ -6,7 +6,7 @@ Throughout the process of contributing, there's one thing we'd like you to remem
 
 ## Reporting Bugs
 
-The [bug tracker](https://github.com/jasperproject/jasper-client/issues) at Github is for reporting bugs in Jasper. If encounter problems during installation or compliation of one of Jasper's dependencies for example, do not create a new issue here. Please open a new thread in the [support forum](https://groups.google.com/forum/#!forum/jasper-support-forum) instead. Also, make sure that it's not a usage issue.
+The [bug tracker](https://github.com/jasperproject/jasper-client/issues) at Github is for reporting bugs in Jasper. If you encounter problems during installation or compilation of one of Jasper's dependencies for example, do not create a new issue here. Please open a new thread in the [support forum](https://groups.google.com/forum/#!forum/jasper-support-forum) instead. Also, make sure that it's not a usage issue.
 
 If you think that you found a bug and that you're using the most recent version of Jasper, please include a detailed description what you did and how to reproduce the bug. If Jasper crashes, run it with `--debug` as command line argument and also include the full stacktrace (not just the last line). If you post output, put it into a [fenced code block](https://help.github.com/articles/github-flavored-markdown/#fenced-code-blocks). Last but not least: have a look at [Simon Tatham's "How to Report Bugs Effectively"](http://www.chiark.greenend.org.uk/~sgtatham/bugs.html) to learn how to write a good bug report.
 
