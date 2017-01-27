@@ -192,6 +192,73 @@ class EspeakTTS(AbstractTTSEngine):
         os.remove(fname)
 
 
+class CepstralSwiftTTS(AbstractTTSEngine):
+    """
+    Uses the Cepstral Swift speech synthesizer
+    Requires swift to be available, which can be bought via:
+    https://www.cepstral.com/en/raspberrypi
+    """
+
+    SLUG = "swift-tts"
+
+    def __init__(self, voice=None, voice_dir=None):
+        super(self.__class__, self).__init__()
+        self.voice = voice
+        self.voice_dir = voice_dir
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'swift-tts' in profile:
+                    if 'voice' in profile['swift-tts']:
+                        config['voice'] = profile['swift-tts']['voice']
+                    if 'voice_dir' in profile['swift-tts']:
+                        config['voice_dir'] = profile['swift-tts']['voice_dir']
+        return config
+
+    @classmethod
+    def is_available(cls):
+        return (super(cls, cls).is_available() and
+                diagnose.check_executable('swift'))
+
+    def say(self, phrase):
+        self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            fname = f.name
+
+        cmd = ['swift', '-o', fname]
+
+        if not any([self.voice, self.voice_dir]):
+            self._logger.warning("Neither voice nor voice_dir set!")
+
+        if self.voice:
+            cmd.extend(['-n', self.voice])
+
+        if self.voice_dir:
+            cmd.extend(['-d', self.voice_dir])
+
+        cmd.append(phrase)
+
+        cmd = [str(x) for x in cmd]
+        self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
+                                                     for arg in cmd]))
+        with tempfile.TemporaryFile() as f:
+            subprocess.call(cmd, stdout=f, stderr=f)
+            f.seek(0)
+            output = f.read().strip()
+            if output:
+                self._logger.debug("Output was: '%s'", output)
+        self.play(fname)
+        os.remove(fname)
+
+
 class FestivalTTS(AbstractTTSEngine):
     """
     Uses the festival speech synthesizer
