@@ -23,7 +23,7 @@ class TestVocabCompiler(unittest.TestCase):
         self.assertEqual(expected_phrases, extracted_phrases)
 
     def testKeywordPhraseExtraction(self):
-        expected_phrases = ['MOCK']
+        expected_phrases = ['MOCK', 'JASPER']
 
         with tempfile.TemporaryFile() as f:
             # We can't use mock_open here, because it doesn't seem to work
