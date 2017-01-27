@@ -9,10 +9,10 @@ import audioop
 import pyaudio
 import alteration
 import jasperpath
+import time
 
 
 class Mic:
-
     speechRec = None
     speechRec_persona = None
 
@@ -69,7 +69,6 @@ class Mic:
 
         # calculate the long run average, and thereby the proper threshold
         for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
@@ -117,7 +116,6 @@ class Mic:
 
         # calculate the long run average, and thereby the proper threshold
         for i in range(0, RATE / CHUNK * THRESHOLD_TIME):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
@@ -159,7 +157,6 @@ class Mic:
         # otherwise, let's keep recording for few seconds and save the file
         DELAY_MULTIPLIER = 1
         for i in range(0, RATE / CHUNK * DELAY_MULTIPLIER):
-
             data = stream.read(CHUNK)
             frames.append(data)
 
@@ -224,6 +221,8 @@ class Mic:
         # generation
         lastN = [THRESHOLD * 1.2 for i in range(30)]
 
+        grace_period = 30
+        time.sleep(1)
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
             data = stream.read(CHUNK)
@@ -236,7 +235,7 @@ class Mic:
             average = sum(lastN) / float(len(lastN))
 
             # TODO: 0.8 should not be a MAGIC NUMBER!
-            if average < THRESHOLD * 0.8:
+            if i > grace_period and average < THRESHOLD * 0.8:
                 break
 
         self.speaker.play(jasperpath.data('audio', 'beep_lo.wav'))
