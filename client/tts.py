@@ -172,25 +172,19 @@ class EspeakTTS(AbstractTTSEngine):
 
     def say(self, phrase):
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
-        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
-            fname = f.name
         cmd = ['espeak', '-v', self.voice,
                          '-p', self.pitch_adjustment,
                          '-s', self.words_per_minute,
-                         '-w', fname,
                          phrase]
         cmd = [str(x) for x in cmd]
         self._logger.debug('Executing %s', ' '.join([pipes.quote(arg)
                                                      for arg in cmd]))
-        with tempfile.TemporaryFile() as f:
-            subprocess.call(cmd, stdout=f, stderr=f)
-            f.seek(0)
-            output = f.read()
-            if output:
-                self._logger.debug("Output was: '%s'", output)
-        self.play(fname)
-        os.remove(fname)
-
+        p = subprocess.Popen(cmd)
+        output, error = p.communicate()
+        if output:
+            self._logger.debug("Output was: '%s'", output)
+        if error:
+            self._logger.debug("Error was: '%s'", output)
 
 class FestivalTTS(AbstractTTSEngine):
     """
