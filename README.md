@@ -125,7 +125,7 @@ READY....
 ```
 
 Now, **speak into the mic**, and note the results. At first, you may find it
-funny. After a while, you realize it is inaccurate.
+funny. After a while, you realize it is horribly inaccurate.
 
 For it to be useful, we have to make it more accurate.
 
@@ -151,14 +151,14 @@ $ tar zxf <TAR????.tgz>
 ```
 
 Among the unzipped products, there is a `.lm` and `.dic` file. They basically
-define a vocabulary. Pocketsphinx cannot know any words outside of this book.
+define a vocabulary. Pocketsphinx cannot know any words outside of this vocabulary.
 Supply them to `pocketsphinx_continuous`:
 
 ```
 $ pocketsphinx_continuous -adcdev plughw:1,0 -lm </path/to/1234.lm> -dict </path/to/1234.dic> -inmic yes
 ```
 
-Speak into the mic again, but *only those words you have given*. A much better
+Speak into the mic again, *only those words you have given*. A much better
 accuracy should be achieved. Pocketsphinx finally knows what you are talking
 about.
 
@@ -175,8 +175,7 @@ your voice command. Imagine this:
 You: Judy!  
 *Judy: [high beep]*  
 You: Weather next Monday?  
-*Judy: [low beep]*  
-*Judy: 23 degrees, partly cloudy*  
+*Judy: [low beep] 23 degrees, partly cloudy*  
 
 She can be as smart as you program her to be.
 
