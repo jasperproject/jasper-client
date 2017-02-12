@@ -73,7 +73,7 @@ A lot of times when sound applications seem to fail, it is because we forget to
 turn up the volume.
 
 Volume adjustment can be done with `alsamixer`. This program makes use of some
-function keys (`F1`, `F2`, etc). For functions keys to function properly on
+function keys (`F1`, `F2`, etc). For function keys to function properly on
 PuTTY, we need to change some settings (click on the top-left corner of the PuTTY
 window, then select **Change Settings ...**):
 
