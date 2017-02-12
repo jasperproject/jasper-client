@@ -49,7 +49,7 @@ Your settings might be different. But if you are using Pi 3 with Jessie and have
 not changed any sound settings, the above situation is likely.
 For the rest of discussions, I am going to assume:
 
-- Build-in sound card, **index 0** → headphone jack → speaker
+- Built-in sound card, **index 0** → headphone jack → speaker
 - USB sound card, **index 1** → microphone
 
 The index is important. It is how you tell Raspberry Pi where the speaker and
@@ -57,6 +57,48 @@ microphone is.
 
 *If your sound card indexes are different, adjust command arguments
 accordingly in the rest of this page.*
+
+## Make sure sound output to headphone jack
+
+Sound may be output via HDMI or headphone jack. We want to use the headphone
+jack.
+
+Enter `sudo raspi-config`. Select **Advanced Options**, then **Audio**. You are
+presented with three options. **Auto** should work. **Force 3.5mm (headphone) jack**
+will work with absolute certainty.
+
+## Turn up the volume
+
+A lot of times when sound applications seem to fail, it is because we forget to
+turn up the volume.
+
+Volume adjustment can be done with `alsamixer`. This program makes use of some
+function keys (`F1`, `F2`, etc). For functions keys to function properly on
+PuTTY, we need to change some settings (click on the top-left corner of the PuTTY
+window, then select **Change Settings ...**):
+
+1. Go to **Terminal** / **Keyboard**
+2. Look for section **The Function keys and keypad**
+3. Select **Xterm R6**
+4. Press button **Apply**
+
+Now, we are ready to turn up the volume, for both the speaker and the mic:
+
+```
+$ alsamixer
+```
+`F6` to select between sound cards  
+`F3` to select playback volume (for speaker)  
+`F4` to select capture volume (for mic)  
+`⬆` `⬇` arrow keys to adjust  
+`Esc` to exit
+
+*Important: if you unplug the USB microphone at any moment, all volume settings
+(including that of the speaker) may be reset. Make sure to check the volume
+again.*
+
+Hardware all set, let's try to record and play some sounds to make sure they
+really work.
 
 ## Record a WAV file
 
@@ -82,21 +124,6 @@ $ aplay -D plughw:0,0 abc.wav
 
 Here, we tell `aplay` to play to `plughw:0,0`, which refers to "Sound Card index 0,
 Subdevice 0", which leads to the speaker.
-
-If you hear nothing, check the speaker's power. After that, try adjusting the
-speaker volume with:
-
-```
-$ alsamixer
-```
-
-On PuTTY, the function keys (`F1`, `F2`, etc) may not behave as expected. If so,
-you need to change PuTTY settings:
-
-1. Go to **Terminal** / **Keyboard**
-2. Look for section **The Function keys and keypad**
-3. Select **Xterm R6**
-4. Press button **Apply**
 
 If you `aplay` and `arecord` successfully, that means the speaker and microphone
 are working properly. We can move on to add more capabilities.
