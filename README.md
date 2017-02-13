@@ -64,8 +64,11 @@ Sound may be output via HDMI or headphone jack. We want to use the headphone
 jack.
 
 Enter `sudo raspi-config`. Select **Advanced Options**, then **Audio**. You are
-presented with three options. **Auto** should work. **Force 3.5mm (headphone) jack**
-will work with absolute certainty.
+presented with three options:
+
+- `Auto` should work
+- `Force 3.5mm (headphone) jack` should definitely work
+- `Force HDMI` won't work
 
 ## Turn up the volume
 
@@ -93,12 +96,11 @@ $ alsamixer
 `⬆` `⬇` arrow keys to adjust  
 `Esc` to exit
 
-*Important: if you unplug the USB microphone at any moment, all volume settings
+*If you unplug the USB microphone at any moment, all volume settings
 (including that of the speaker) may be reset. Make sure to check the volume
 again.*
 
-Hardware all set, let's try to record and play some sounds to make sure they
-really work.
+Hardware all set, let's test them.
 
 ## Record a WAV file
 
