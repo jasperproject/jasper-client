@@ -38,6 +38,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from suds.client import Client
+except ImportError:
+    pass
+
 import diagnose
 import jasperpath
 
@@ -129,6 +134,63 @@ class DummyTTS(AbstractTTSEngine):
         pass
 
 
+class CereprocTTS(AbstractTTSEngine):
+
+    SLUG = "cereproc-tts"
+
+    def __init__(self, personnality, accountid, password):
+        super(self.__class__, self).__init__()
+        self.personnality = personnality
+        self.accountid = accountid
+        self.password = password
+
+    @classmethod
+    def is_available(cls):
+        return (super(cls, cls).is_available() and
+                diagnose.check_python_import('suds.client') and
+                diagnose.check_network_connection())
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        # HMM dir
+        # Try to get hmm_dir from config
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+
+                if profile['tts_engine'] == 'cereproc-tts' and \
+                        profile['att-tts']['personnality'] and \
+                        profile['att-tts']['accountid'] and \
+                        profile['att-tts']['password']:
+
+                    config['personnality'] = profile['att-tts']['personnality']
+                    config['accountid'] = profile['att-tts']['accountid']
+                    config['password'] = profile['att-tts']['password']
+
+        return config
+
+    def say(self, phrase):
+        personnality = self.personnality
+        accountId = self.accountid
+        password = self.password
+        soapclient = Client("https://cerevoice.com/soap/soap_1_1.php?WSDL")
+
+        reply = soapclient.service.speakExtended(accountId, password,
+                                                 personnality, phrase, "wav",
+                                                 22050, False, False)
+
+        if reply.resultCode != 1:
+            return False
+        else:
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=True) as f:
+                tmpfile = f.name
+                urllib.urlretrieve(reply.fileUrl, tmpfile)
+                self.play(tmpfile)
+
+
 class EspeakTTS(AbstractTTSEngine):
     """
     Uses the eSpeak speech synthesizer included in the Jasper disk image
@@ -139,6 +201,7 @@ class EspeakTTS(AbstractTTSEngine):
 
     def __init__(self, voice='default+m3', pitch_adjustment=40,
                  words_per_minute=160):
+
         super(self.__class__, self).__init__()
         self.voice = voice
         self.pitch_adjustment = pitch_adjustment
@@ -647,12 +710,12 @@ def get_engine_by_slug(slug=None):
     Raises:
         ValueError if no speaker implementation is supported on this platform
     """
-
     if not slug or type(slug) is not str:
         raise TypeError("Invalid slug '%s'", slug)
 
     selected_engines = filter(lambda engine: hasattr(engine, "SLUG") and
                               engine.SLUG == slug, get_engines())
+
     if len(selected_engines) == 0:
         raise ValueError("No TTS engine found for slug '%s'" % slug)
     else:
@@ -673,6 +736,7 @@ def get_engines():
             subclasses.add(subclass)
             subclasses.update(get_subclasses(subclass))
         return subclasses
+
     return [tts_engine for tts_engine in
             list(get_subclasses(AbstractTTSEngine))
             if hasattr(tts_engine, 'SLUG') and tts_engine.SLUG]

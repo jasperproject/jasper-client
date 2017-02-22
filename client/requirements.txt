@@ -5,6 +5,7 @@ mock==1.0.1
 pytz==2014.10
 PyYAML==3.11
 requests==2.5.0
+suds==0.4
 
 # Pocketsphinx STT engine
 cmuclmtk==0.1.5
