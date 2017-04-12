@@ -222,7 +222,9 @@ class Mic:
         frames = []
         # increasing the range # results in longer pause after command
         # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
+        # ash updated the setting to 60 for better accuracy with
+        # google stt engine
+        lastN = [THRESHOLD * 1.2 for i in range(60)]
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
 
