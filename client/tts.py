@@ -460,12 +460,14 @@ class GoogleTTS(AbstractMp3TTSEngine):
                  'th', 'tr', 'vi', 'cy']
         return langs
 
-    def say(self, phrase):
+    def say(self, phrase, language=''):
+        if language == '':
+                language = self.language
         self._logger.debug("Saying '%s' with '%s'", phrase, self.SLUG)
         if self.language not in self.languages:
             raise ValueError("Language '%s' not supported by '%s'",
                              self.language, self.SLUG)
-        tts = gtts.gTTS(text=phrase, lang=self.language)
+        tts = gtts.gTTS(text=phrase, lang=language)
         with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as f:
             tmpfile = f.name
         tts.save(tmpfile)
