@@ -6,7 +6,7 @@ from client import jasperpath
 WORDS = ["JOKE", "KNOCK KNOCK"]
 
 
-def getRandomJoke(filename=jasperpath.data('text', 'JOKES.txt')):
+def get_random_joke(filename=jasperpath.data('text', 'JOKES.txt')):
     jokeFile = open(filename, "r")
     jokes = []
     start = ""
@@ -41,7 +41,7 @@ def handle(text, mic, profile):
         profile -- contains information related to the user (e.g., phone
                    number)
     """
-    joke = getRandomJoke()
+    joke = get_random_joke()
 
     mic.say("Knock knock")
 
@@ -56,7 +56,7 @@ def handle(text, mic, profile):
     firstLine(mic.activeListen())
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to jokes/humor.
 

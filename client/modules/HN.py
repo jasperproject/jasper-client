@@ -20,7 +20,7 @@ class HNStory:
         self.URL = URL
 
 
-def getTopStories(maxResults=None):
+def get_top_stories(maxResults=None):
     """
         Returns the top headlines from Hacker News.
 
@@ -55,13 +55,13 @@ def handle(text, mic, profile):
                    number)
     """
     mic.say("Pulling up some stories.")
-    stories = getTopStories(maxResults=3)
+    stories = get_top_stories(maxResults=3)
     all_titles = '... '.join(str(idx + 1) + ") " +
                              story.title for idx, story in enumerate(stories))
 
-    def handleResponse(text):
+    def handle_response(text):
 
-        def extractOrdinals(text):
+        def extract_ordinals(text):
             output = []
             service = NumberService()
             for w in text.split():
@@ -69,8 +69,8 @@ def handle(text, mic, profile):
                     output.append(service.__ordinals__[w])
             return [service.parse(w) for w in output]
 
-        chosen_articles = extractOrdinals(text)
-        send_all = not chosen_articles and app_utils.isPositive(text)
+        chosen_articles = extract_ordinals(text)
+        send_all = not chosen_articles and app_utils.is_positive(text)
 
         if send_all or chosen_articles:
             mic.say("Sure, just give me a moment")
@@ -79,7 +79,7 @@ def handle(text, mic, profile):
                 body = "<ul>"
 
             def formatArticle(article):
-                tiny_url = app_utils.generateTinyURL(article.URL)
+                tiny_url = app_utils.generate_tiny_URL(article.URL)
 
                 if profile['prefers_email']:
                     return "<li><a href=\'%s\'>%s</a></li>" % (tiny_url,
@@ -94,8 +94,8 @@ def handle(text, mic, profile):
                     if profile['prefers_email']:
                         body += article_link
                     else:
-                        if not app_utils.emailUser(profile, SUBJECT="",
-                                                   BODY=article_link):
+                        if not app_utils.email_user(profile, SUBJECT="",
+                                                    BODY=article_link):
                             mic.say("I'm having trouble sending you these " +
                                     "articles. Please make sure that your " +
                                     "phone number and carrier are correct " +
@@ -105,10 +105,10 @@ def handle(text, mic, profile):
             # if prefers email, we send once, at the end
             if profile['prefers_email']:
                 body += "</ul>"
-                if not app_utils.emailUser(profile,
-                                           SUBJECT="From the Front Page of " +
-                                                   "Hacker News",
-                                           BODY=body):
+                if not app_utils.email_user(profile,
+                                            SUBJECT="From the Front Page of " +
+                                                    "Hacker News",
+                                            BODY=body):
                     mic.say("I'm having trouble sending you these articles. " +
                             "Please make sure that your phone number and " +
                             "carrier are correct on the dashboard.")
@@ -123,13 +123,13 @@ def handle(text, mic, profile):
         mic.say("Here are some front-page articles. " +
                 all_titles + ". Would you like me to send you these? " +
                 "If so, which?")
-        handleResponse(mic.activeListen())
+        handle_response(mic.activeListen())
 
     else:
         mic.say("Here are some front-page articles. " + all_titles)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to Hacker News.
 

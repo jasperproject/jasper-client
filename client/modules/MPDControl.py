@@ -44,13 +44,13 @@ def handle(text, mic, profile):
 
     logger.debug("Starting music mode")
     music_mode = MusicMode(persona, mic, mpdwrapper)
-    music_mode.handleForever()
+    music_mode.handle_forever()
     logger.debug("Exiting music mode")
 
     return
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if the input is related to jokes/humor.
 
@@ -81,7 +81,7 @@ class MusicMode(object):
                        mic.passive_stt_engine,
                        music_stt_engine)
 
-    def delegateInput(self, input):
+    def delegate_input(self, input):
 
         command = input.upper()
 
@@ -154,7 +154,7 @@ class MusicMode(object):
 
         return
 
-    def handleForever(self):
+    def handle_forever(self):
 
         self.music.play()
         self.mic.say("Playing %s" % self.music.current_song())
@@ -175,7 +175,7 @@ class MusicMode(object):
                 if "close" in input.lower():
                     self.mic.say("Closing Spotify")
                     return
-                self.delegateInput(input)
+                self.delegate_input(input)
             else:
                 self.mic.say("Pardon?")
                 self.music.play()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8-*-
 import datetime
 import re
-from client.app_utils import getTimezone
+from client.app_utils import get_timezone
 from semantic.dates import DateService
 
 WORDS = ["TIME"]
@@ -18,14 +18,14 @@ def handle(text, mic, profile):
                    number)
     """
 
-    tz = getTimezone(profile)
+    tz = get_timezone(profile)
     now = datetime.datetime.now(tz=tz)
     service = DateService()
     response = service.convertTime(now)
     mic.say("It is %s right now." % response)
 
 
-def isValid(text):
+def is_valid(text):
     """
         Returns True if input is related to the time.
 
