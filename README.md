@@ -102,6 +102,14 @@ again.*
 
 Hardware all set, let's test them.
 
+## Test the speaker
+
+```
+$ speaker-test -t wav
+```
+
+Press `Ctrl-C` when done.
+
 ## Record a WAV file
 
 Enter this command, then speak to the mic, press `Ctrl-C` when you are
