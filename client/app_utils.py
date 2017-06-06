@@ -1,6 +1,9 @@
 # -*- coding: utf-8-*-
+import os
 import smtplib
 from email.MIMEText import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 import urllib2
 import re
 from pytz import timezone
@@ -27,8 +30,35 @@ def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     session.sendmail(SENDER, TO, msg.as_string())
     session.quit()
 
+def sendImageEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER, IMAGE_FILE):
+    """Sends an HTML email and an image attachment"""
+    for body_charset in 'US-ASCII', 'ISO-8859-1', 'UTF-8':
+        try:
+            BODY.encode(body_charset)
+        except UnicodeError:
+            pass
+        else:
+            break
+    
+    imageData = open(IMAGE_FILE, 'rb').read()
+    msg = MIMEMultipart()
+    msg['From'] = SENDER
+    msg['To'] = TO
+    msg['Subject'] = SUBJECT
 
-def emailUser(profile, SUBJECT="", BODY=""):
+    emailText = MIMEText(BODY.encode(body_charset), 'html', body_charset)
+    msg.attach(emailText)
+    emailImage = MIMEImage(imageData, name=os.path.basename(IMAGE_FILE))
+    msg.attach(emailImage)
+    
+    SMTP_PORT = 587
+    session = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    session.starttls()
+    session.login(FROM, PASSWORD)
+    session.sendmail(SENDER, TO, msg.as_string())
+    session.quit()
+
+def emailUser(profile, SUBJECT="", BODY="", imageFile=None):
     """
     sends an email.
 
@@ -73,8 +103,12 @@ def emailUser(profile, SUBJECT="", BODY=""):
             user = profile['gmail_address']
             password = profile['gmail_password']
             server = 'smtp.gmail.com'
-        sendEmail(SUBJECT, BODY, recipient, user,
+        if imageFile is None:
+            sendEmail(SUBJECT, BODY, recipient, user,
                   "Jasper <jasper>", password, server)
+        else:
+           sendImageEmail(SUBJECT, BODY, recipient, user,
+                  "Jasper <jasper>", password, server, imageFile)
 
         return True
     except:
