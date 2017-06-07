@@ -106,10 +106,10 @@ def emailUser(profile, SUBJECT="", BODY="", imageFile=None):
             server = 'smtp.gmail.com'
         if imageFile is None:
             sendEmail(SUBJECT, BODY, recipient, user,
-                  "Jasper <jasper>", password, server)
+                    "Jasper <jasper>", password, server)
         else:
             sendImageEmail(SUBJECT, BODY, recipient, user,
-                  "Jasper <jasper>", password, server, imageFile)
+                    "Jasper <jasper>", password, server, imageFile)
 
         return True
     except:
