@@ -30,7 +30,9 @@ def sendEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER):
     session.sendmail(SENDER, TO, msg.as_string())
     session.quit()
 
-def sendImageEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER, IMAGE_FILE):
+
+def sendImageEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER,
+                   IMAGE_FILE):
     """Sends an HTML email and an image attachment"""
     for body_charset in 'US-ASCII', 'ISO-8859-1', 'UTF-8':
         try:
@@ -39,24 +41,23 @@ def sendImageEmail(SUBJECT, BODY, TO, FROM, SENDER, PASSWORD, SMTP_SERVER, IMAGE
             pass
         else:
             break
-    
     imageData = open(IMAGE_FILE, 'rb').read()
     msg = MIMEMultipart()
     msg['From'] = SENDER
     msg['To'] = TO
     msg['Subject'] = SUBJECT
-
     emailText = MIMEText(BODY.encode(body_charset), 'html', body_charset)
     msg.attach(emailText)
     emailImage = MIMEImage(imageData, name=os.path.basename(IMAGE_FILE))
     msg.attach(emailImage)
-    
+
     SMTP_PORT = 587
     session = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
     session.starttls()
     session.login(FROM, PASSWORD)
     session.sendmail(SENDER, TO, msg.as_string())
     session.quit()
+
 
 def emailUser(profile, SUBJECT="", BODY="", imageFile=None):
     """
@@ -107,7 +108,7 @@ def emailUser(profile, SUBJECT="", BODY="", imageFile=None):
             sendEmail(SUBJECT, BODY, recipient, user,
                   "Jasper <jasper>", password, server)
         else:
-           sendImageEmail(SUBJECT, BODY, recipient, user,
+            sendImageEmail(SUBJECT, BODY, recipient, user,
                   "Jasper <jasper>", password, server, imageFile)
 
         return True
