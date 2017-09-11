@@ -1,3 +1,5 @@
+#### I am not prepared to maintain this project further. It is left here for historical purposes.
+
 # Judy - Simplified Voice Control on Raspberry Pi
 
 Judy is a simplified sister of [Jasper](http://jasperproject.github.io/),
@@ -149,7 +151,9 @@ $ aplay -D plughw:0,0 abc.wav
 ## Install Pocketsphinx, the Speech-to-Text engine
 
 ```
-$ sudo apt-get install pocketsphinx
+$ sudo apt-get install pocketsphinx                     # Jessie
+$ sudo apt-get install pocketsphinx pocketsphinx-en-us  # Stretch
+
 $ pocketsphinx_continuous -adcdev plughw:1,0 -inmic yes
 ```
 
