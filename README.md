@@ -1,4 +1,4 @@
-#### I am not prepared to maintain this project further. It is left here for historical purposes.
+## I no longer maintain this project. It is left here for historical purposes.
 
 # Judy - Simplified Voice Control on Raspberry Pi
 
