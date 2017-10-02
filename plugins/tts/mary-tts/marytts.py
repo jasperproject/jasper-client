@@ -93,7 +93,7 @@ class MaryTTSPlugin(plugin.TTSPlugin):
         query = {'OUTPUT_TYPE': 'AUDIO',
                  'AUDIO': 'WAVE_FILE',
                  'INPUT_TYPE': 'TEXT',
-                 'INPUT_TEXT': phrase,
+                 'INPUT_TEXT': phrase.encode('utf8'),
                  'LOCALE': self.language,
                  'VOICE': self.voice}
 
