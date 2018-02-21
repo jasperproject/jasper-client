@@ -535,6 +535,118 @@ class AttSTT(AbstractSTTEngine):
         return diagnose.check_network_connection()
 
 
+class WatsonSTT(AbstractSTTEngine):
+    """
+    Speech-To-Text implementation which relies on the Watson Speech to Text API.
+
+    This implementation requires a IBM Cloud user name and password to be present in
+    profile.yml. Please follow this tutuorial: https://console.bluemix.net/docs/services/speech-to-text/getting-started.html#gettingStarted
+    or select Text to Speach from https://console.bluemix.net/developer/watson/services .
+    This will present you with the following:
+        {
+          "speech_to_text": [
+            {
+              "name": "speech-to-text-jasper-ne-speech-to--123456789",
+              "plan": "lite",
+              "credentials": {
+                "url": "https://stream.watsonplatform.net/speech-to-text/api",
+                "username": "••••••••••••••••••••••••••••••••••••",
+                "password": "••••••••••••"
+              }
+            }
+          ]
+        }
+    which you can past into your profile.yml:
+        ...
+        stt_engine: watson
+        watson-stt:
+          user_name: 'b9981d71-99a9-1234-some-bPASSCODEd'
+          password: 'supasswordT6'
+    """
+
+    SLUG = "watson"
+
+    def __init__(self, user_name, password):
+        self._logger = logging.getLogger(__name__)
+        self.user_name = user_name
+        self.password = password
+        self._headers = {'accept': 'application/json',
+                         'Content-Type': 'audio/wav'}
+
+    @classmethod
+    def get_config(cls):
+        # FIXME: Replace this as soon as we have a config module
+        config = {}
+        profile_path = jasperpath.config('profile.yml')
+        if os.path.exists(profile_path):
+            with open(profile_path, 'r') as f:
+                profile = yaml.safe_load(f)
+                if 'watson-stt' in profile:
+                    if 'user_name' in profile['watson-stt']:
+                        config['user_name'] = profile['watson-stt']['user_name']
+                    if 'password' in profile['watson-stt']:
+                        config['password'] = profile['watson-stt']['password']
+        return config
+
+    @property
+    def user_name(self):
+        return self._user_name
+
+    @user_name.setter
+    def user_name(self, value):
+        self._user_name = value
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = value
+
+    @property
+    def headers(self):
+        return self._headers
+
+    def transcribe(self, fp):
+        data = fp.read()
+        r = requests.post('https://stream.watsonplatform.net/speech-to-text/api/v1/recognize',
+                          data=data,
+                          auth=(self.user_name, self.password),
+                          headers=self.headers)
+        text=''
+        try:
+            r.raise_for_status()
+            for result in r.json()['results']:
+                for alt in result['alternatives']:
+                    text += alt['transcript']
+        except requests.exceptions.HTTPError:
+            self._logger.critical('Request failed with response: %r',
+                                  r.text,
+                                  exc_info=True)
+            return []
+        except requests.exceptions.RequestException:
+            self._logger.critical('Request failed.', exc_info=True)
+            return []
+        except ValueError as e:
+            self._logger.critical('Cannot parse response: %s',
+                                  e.args[0])
+            return []
+        except KeyError:
+            self._logger.critical('Cannot parse response.',
+                                  exc_info=True)
+            return []
+        else:
+            transcribed = []
+            if text:
+                transcribed.append(text.upper())
+            self._logger.info('Transcribed: %r', transcribed)
+            return transcribed
+
+    @classmethod
+    def is_available(cls):
+        return diagnose.check_network_connection()
+
 class WitAiSTT(AbstractSTTEngine):
     """
     Speech-To-Text implementation which relies on the Wit.ai Speech API.
