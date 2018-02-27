@@ -1,0 +1,10 @@
+[Plugin]
+Name = watson-tts
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = IBM Watson TTS Online translator
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
