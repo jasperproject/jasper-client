@@ -1,0 +1,10 @@
+[Plugin]
+Name = watson-stt
+Version = 1.0.0
+License = MIT
+URL = http://jasperproject.github.io/
+Description = Speech-To-Text implementation which relies on the IBM Watson Speech-To-Text API.
+
+[Author]
+Name = Jasper Project
+URL = http://jasperproject.github.io/
