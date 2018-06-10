@@ -6,8 +6,10 @@ import socket
 import subprocess
 import pkgutil
 import logging
-import pip.req
-import jasperpath
+try: # for pip >= 10
+    import pip._internal.req
+except ImportError: # for pip <= 9.0.3
+    import pip.reqimport jasperpath
 if sys.version_info < (3, 3):
     from distutils.spawn import find_executable
 else:
