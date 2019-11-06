@@ -3,6 +3,90 @@ import logging
 from notifier import Notifier
 from brain import Brain
 
+from subprocess import Popen, PIPE
+
+def bounce():
+    scpt = '''
+        tell application "Logic Pro X" to activate
+        delay 1
+        tell application "System Events"
+          keystroke "b" using command down
+          delay 1
+          keystroke return
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
+def record():
+    scpt = '''
+        tell application "Logic Pro X" to activate
+        delay 1
+        tell application "System Events"
+          keystroke "r"
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
+def stop_req():
+    scpt = '''
+        tell application "Logic Pro X" to activate
+        delay 1
+        tell application "System Events"
+          key code 49
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
+def copy_track():
+    scpt = '''
+        tell application "Logic Pro X" to activate
+        delay 1
+        tell application "System Events"
+          keystroke "d" using command down
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
+def bring_begin():
+    scpt = '''
+        tell application "System Events"
+          keystroke return
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
+def confirm():
+    scpt = '''
+        tell application "System Events"
+          keystroke return
+        end tell
+        '''
+    args = []
+
+    p = Popen(['osascript', '-'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(scpt)
+    print (p.returncode, stdout, stderr)
+
 
 class Conversation(object):
 
@@ -29,6 +113,26 @@ class Conversation(object):
             self._logger.debug("Started listening for keyword '%s'",
                                self.persona)
             threshold, transcribed = self.mic.passiveListen(self.persona)
+            found = (transcribed + [''])[0]
+            if 'BOUNCE' in found or 'BALANCE' in found:
+                print("BOUNCEING...")
+                bounce()
+            if 'REC' in found or 'RECORD' in found or 'START' in found:
+                print("RECORDING...")
+                record()
+            if 'STOP' in found or 'END' in found:
+                print("STOPPING...")
+                stop_req()
+            if 'DUPLICATE' in found or 'COPY' in found:
+                print("COPYING...")
+                copy_track()
+            if 'FRONT' in found or 'BEGINING' in found or 'FRONT' in found:
+                print("BRINGING BEGIN...")
+                bring_begin()
+            if 'CONFIRM' in found or 'YES' in found or 'ENTER' in found or 'CONTINUE' in found:
+                print("CONFIRMING...")
+                confirm()
+
             self._logger.debug("Stopped listening for keyword '%s'",
                                self.persona)
 

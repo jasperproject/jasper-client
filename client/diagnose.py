@@ -6,7 +6,6 @@ import socket
 import subprocess
 import pkgutil
 import logging
-import pip.req
 import jasperpath
 if sys.version_info < (3, 3):
     from distutils.spawn import find_executable
@@ -89,6 +88,12 @@ def check_python_import(package_or_module):
     return found
 
 
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
+
 def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
                                             'requirements.txt')):
     """
@@ -104,7 +109,7 @@ def get_pip_requirements(fname=os.path.join(jasperpath.LIB_PATH,
     """
     logger = logging.getLogger(__name__)
     if os.access(fname, os.R_OK):
-        reqs = list(pip.req.parse_requirements(fname))
+        reqs = list(parse_requirements(fname))
         logger.debug("Found %d PIP requirements in file '%s'", len(reqs),
                      fname)
         return reqs
