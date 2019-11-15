@@ -114,6 +114,8 @@ class Conversation(object):
                                self.persona)
             threshold, transcribed = self.mic.passiveListen(self.persona)
             found = (transcribed + [''])[0]
+            if 'AMOS' not in found: continue
+
             if 'BOUNCE' in found or 'BALANCE' in found:
                 print("BOUNCEING...")
                 bounce()
