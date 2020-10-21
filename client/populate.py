@@ -108,10 +108,12 @@ def run():
         "google": "GOOGLE_SPEECH"
     }
 
-    response = raw_input("\nIf you would like to choose a specific STT " +
-                         "engine, please specify which.\nAvailable " +
-                         "implementations: %s. (Press Enter to default " +
-                         "to PocketSphinx): " % stt_engines.keys())
+    # Join text in msg to work around + and % issue with Python 2
+    msg = "\nIf you would like to choose a specific STT " + \
+        "engine, please specify which.\nAvailable " + \
+        "implementations: %s. (Press Enter to default " + \
+        "to PocketSphinx): "
+    response = raw_input(msg % stt_engines.keys())
     if (response in stt_engines):
         profile["stt_engine"] = response
         api_key_name = stt_engines[response]
