@@ -11,7 +11,7 @@ import argparse
 
 from client import tts
 from client import stt
-from client import jasperpath
+from client.utils import jasperpath
 from client import diagnose
 from client.conversation import Conversation
 
