@@ -17,7 +17,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import yaml
 
 import brain
-import jasperpath
+from client.utils import jasperpath
 
 from g2p import PhonetisaurusG2P
 try:

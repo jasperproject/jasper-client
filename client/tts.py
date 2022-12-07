@@ -39,7 +39,7 @@ except ImportError:
     pass
 
 import diagnose
-import jasperpath
+from client.utils import jasperpath
 
 
 class AbstractTTSEngine(object):

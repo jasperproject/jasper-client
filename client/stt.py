@@ -12,7 +12,7 @@ import subprocess
 from abc import ABCMeta, abstractmethod
 import requests
 import yaml
-import jasperpath
+from client.utils import jasperpath
 import diagnose
 import vocabcompiler
 

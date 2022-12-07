@@ -5,7 +5,7 @@ from getpass import getpass
 import yaml
 from pytz import timezone
 import feedparser
-import jasperpath
+from client.utils import jasperpath
 
 
 def run():

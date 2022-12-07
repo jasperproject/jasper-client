@@ -8,7 +8,7 @@ import wave
 import audioop
 import pyaudio
 import alteration
-import jasperpath
+from client.utils import jasperpath
 
 
 class Mic:
