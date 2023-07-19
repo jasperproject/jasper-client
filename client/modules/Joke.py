@@ -1,7 +1,7 @@
 # -*- coding: utf-8-*-
 import random
 import re
-from client import jasperpath
+from client.utils import jasperpath
 
 WORDS = ["JOKE", "KNOCK KNOCK"]
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8-*-
 import smtplib
 from email.MIMEText import MIMEText
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 from pytz import timezone
 
@@ -103,7 +103,7 @@ def generateTinyURL(URL):
         URL -- the original URL to-be compressed
     """
     target = "http://tinyurl.com/api-create.php?url=" + URL
-    response = urllib2.urlopen(target)
+    response = urllib.request.urlopen(target)
     return response.read()
 
 
@@ -126,3 +126,4 @@ def isPositive(phrase):
         phrase -- the input phrase to-be evaluated
     """
     return bool(re.search(r'\b(sure|yes|yeah|go)\b', phrase, re.IGNORECASE))
+

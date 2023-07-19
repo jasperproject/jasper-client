@@ -5,7 +5,7 @@ from getpass import getpass
 import yaml
 from pytz import timezone
 import feedparser
-import jasperpath
+from client.utils import jasperpath
 
 
 def run():
@@ -16,7 +16,7 @@ def run():
           "blank field to continue.")
 
     def simple_request(var, cleanVar, cleanInput=None):
-        input = raw_input(cleanVar + ": ")
+        input = input(cleanVar + ": ")
         if input:
             if cleanInput:
                 input = cleanInput(input)
@@ -39,7 +39,7 @@ def run():
     def clean_number(s):
         return re.sub(r'[^0-9]', '', s)
 
-    phone_number = clean_number(raw_input("\nPhone number (no country " +
+    phone_number = clean_number(input("\nPhone number (no country " +
                                           "code). Any dashes or spaces will " +
                                           "be removed for you: "))
     profile['phone_number'] = phone_number

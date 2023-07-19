@@ -1,6 +1,3 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8-*-
-
 import os
 import sys
 import shutil
@@ -11,7 +8,7 @@ import argparse
 
 from client import tts
 from client import stt
-from client import jasperpath
+from client.utils import jasperpath
 from client import diagnose
 from client.conversation import Conversation
 
